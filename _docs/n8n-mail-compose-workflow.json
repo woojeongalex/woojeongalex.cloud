@@ -1,0 +1,98 @@
+{
+  "name": "메일쓰기 (Gemini 변환)",
+  "nodes": [
+    {
+      "id": "node-webhook",
+      "name": "메일 요청 수신",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 300],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "send-mail",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "send-mail"
+    },
+    {
+      "id": "node-prompt",
+      "name": "Gemini 프롬프트 구성",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [420, 300],
+      "parameters": {
+        "jsCode": "const userMessage = $input.first().json.message;\n\nreturn [{\n  json: {\n    contents: [{\n      parts: [{\n        text: `사용자 요청: \"${userMessage}\"\\n\\n이 요청을 바탕으로 taylor@ragtailor.com에게 보낼 이메일을 작성해주세요.\\n반드시 아래 JSON 형식으로만 응답하세요:\\n{\"subject\": \"이메일 제목\", \"body\": \"이메일 본문 (HTML 없이 평문)\"}`\n      }]\n    }],\n    generationConfig: {\n      response_mime_type: \"application/json\"\n    }\n  }\n}];"
+      }
+    },
+    {
+      "id": "node-gemini",
+      "name": "Gemini 이메일 생성",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [640, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "key", "value": "={{ $env['GEMINI_API_KEY'] }}" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-parse",
+      "name": "제목·본문 파싱",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [860, 300],
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.candidates[0].content.parts[0].text;\nconst email = JSON.parse(raw);\nreturn [{ json: { subject: email.subject, body: email.body } }];"
+      }
+    },
+    {
+      "id": "node-gmail",
+      "name": "Gmail 발송",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [1080, 300],
+      "parameters": {
+        "sendTo": "taylor@ragtailor.com",
+        "subject": "={{ $json.subject }}",
+        "message": "={{ $json.body }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "메일 요청 수신": {
+      "main": [[{ "node": "Gemini 프롬프트 구성", "type": "main", "index": 0 }]]
+    },
+    "Gemini 프롬프트 구성": {
+      "main": [[{ "node": "Gemini 이메일 생성", "type": "main", "index": 0 }]]
+    },
+    "Gemini 이메일 생성": {
+      "main": [[{ "node": "제목·본문 파싱", "type": "main", "index": 0 }]]
+    },
+    "제목·본문 파싱": {
+      "main": [[{ "node": "Gmail 발송", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

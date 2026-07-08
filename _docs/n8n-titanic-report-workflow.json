@@ -1,0 +1,100 @@
+{
+  "name": "타이타닉 자동 보고서",
+  "nodes": [
+    {
+      "id": "node-webhook",
+      "name": "보고서 요청 수신",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 300],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "titanic-report",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "titanic-report"
+    },
+    {
+      "id": "node-fastapi",
+      "name": "FastAPI 통계 조회",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [420, 300],
+      "parameters": {
+        "method": "GET",
+        "url": "http://host.docker.internal:8000/api/titanic/smith/report",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-code",
+      "name": "Gemini 프롬프트 구성",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [640, 300],
+      "parameters": {
+        "jsCode": "const s = $input.first().json;\n\nconst pct = (v) => (v * 100).toFixed(1) + '%';\n\nconst prompt = `아래 타이타닉 승객 데이터를 분석하여 한국어 보고서를 작성해주세요.\n\n## 핵심 통계\n- 총 승객: ${s.total_passengers}명\n- 생존자: ${s.total_survivors}명\n- 전체 생존율: ${pct(s.survival_rate)}\n\n## 성별 생존율\n- 남성: ${pct(s.male_survival_rate)}\n- 여성: ${pct(s.female_survival_rate)}\n\n## 객실 등급별 생존율\n- 1등석: ${pct(s.class_1_survival_rate)}\n- 2등석: ${pct(s.class_2_survival_rate)}\n- 3등석: ${pct(s.class_3_survival_rate)}\n\n- 평균 나이: ${s.avg_age}세\n- 생성일시: ${s.generated_at}\n\n보고서 구성: 제목 / 핵심 요약 / 성별·등급 분석 / 인사이트 / 결론`;\n\nreturn [{ json: { contents: [{ parts: [{ text: prompt }] }] } }];"
+      }
+    },
+    {
+      "id": "node-gemini",
+      "name": "Gemini 보고서 생성",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [860, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "key", "value": "={{ $env['GEMINI_API_KEY'] }}" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-gmail",
+      "name": "Gmail 발송",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [1080, 300],
+      "parameters": {
+        "sendTo": "taylor@ragtailor.com",
+        "subject": "={{ `타이타닉 데이터 분석 보고서 - ${new Date().toLocaleDateString('ko-KR')}` }}",
+        "message": "={{ $json.candidates[0].content.parts[0].text }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "보고서 요청 수신": {
+      "main": [[{ "node": "FastAPI 통계 조회", "type": "main", "index": 0 }]]
+    },
+    "FastAPI 통계 조회": {
+      "main": [[{ "node": "Gemini 프롬프트 구성", "type": "main", "index": 0 }]]
+    },
+    "Gemini 프롬프트 구성": {
+      "main": [[{ "node": "Gemini 보고서 생성", "type": "main", "index": 0 }]]
+    },
+    "Gemini 보고서 생성": {
+      "main": [[{ "node": "Gmail 발송", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
