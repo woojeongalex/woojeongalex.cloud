@@ -1,0 +1,13 @@
+{
+  "pythonVersion": "3.13",
+  "venvPath": "C:/Users/hi/anaconda3/envs",
+  "venv": "venv",
+  "extraPaths": [
+    ".",
+    "apps"
+  ],
+  "typeCheckingMode": "basic",
+  "reportMissingModuleSource": "none",
+  "reportMissingImports": "none",
+  "reportUnusedImport": "none"
+}

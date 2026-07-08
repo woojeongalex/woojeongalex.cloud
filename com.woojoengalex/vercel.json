@@ -1,0 +1,6 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "git submodule update --init --recursive && cd frontend && corepack enable && pnpm install --frozen-lockfile",
+  "buildCommand": "cd frontend && pnpm run build",
+  "framework": "nextjs"
+}
