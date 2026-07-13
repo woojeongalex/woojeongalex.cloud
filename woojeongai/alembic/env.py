@@ -55,9 +55,8 @@ def _alembic_database_url() -> str:
 
 def _import_models() -> None:
     import friday13th.adapter.outbound.orm.user_model  # noqa: F401
-    import titanic.adapter.outbound.orm.person_orm  # noqa: F401
+    import titanic.adapter.outbound.orm.passenger_orm  # noqa: F401
     import titanic.adapter.outbound.orm.booking_orm  # noqa: F401
-    import titanic.adapter.outbound.orm.titanic_passenger_orm  # noqa: F401
 
 
 def run_migrations_offline() -> None:
