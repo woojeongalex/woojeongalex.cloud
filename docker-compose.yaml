@@ -6,6 +6,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
+      - ./woojeongai:/app
       - ./woojeongai/output:/app/output:ro
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
@@ -13,8 +14,12 @@ services:
       timeout: 5s
       retries: 5
       start_period: 15s
-    # environment:
-    #   - ANTHROPIC_API_KEY=내_실제_API_키_입력
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgvector:5432/${POSTGRES_DB}
+      # - ANTHROPIC_API_KEY=내_실제_API_키_입력
+    depends_on:
+      pgvector:
+        condition: service_started
     restart: unless-stopped
 
   # 2. n8n 워크플로우 자동화 (5678포트)
