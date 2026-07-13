@@ -97,21 +97,44 @@ Alembic 마이그레이션으로 생성한다.
   `hometeam_id`, `awayteam_id`) 또는 별도 `schedule_id` 서로게이트 키가 필요할
   수 있음 — 이 부분은 진행 전에 먼저 확인 질문으로 물어볼 것.
 
+## 실행 환경 — 모든 Alembic/DB 명령은 반드시 도커 컨테이너 내부에서 실행할 것
+
+호스트(WSL)에 alembic이나 psql이 깔려 있더라도 **호스트에서 직접 실행하지 말 것**.
+`docker-compose.yaml` 기준 서비스 구성은 다음과 같음:
+
+| 서비스명 | 컨테이너명 | 역할 |
+|---|---|---|
+| `backend` | `titanic_backend_container` | Python/FastAPI + Alembic 실행 환경 |
+| `pgvector` | `pgvector_container` | PostgreSQL + pgvector (실제 DB) |
+
+Alembic 관련 명령은 전부 `backend` 컨테이너 안에서, `docker compose exec`로
+실행한다. DB 접속(`psql`)은 `pgvector` 컨테이너 안에서 실행한다.
+
+먼저 두 컨테이너가 떠 있는지 확인:
+```bash
+docker compose ps
+```
+안 떠 있으면 `docker compose up -d backend pgvector`로 먼저 올릴 것.
+
 ## 작업 순서
 1. 0단계 사전 확인 3가지를 실행하고 결과를 요약 보고
 2. FK 의존성에 따라 생성 순서 결정: `stadium` → `team` → `schedule`, `player`
-3. 새 Alembic revision 생성
+3. `backend` 컨테이너 안에서 새 Alembic revision 생성
    ```bash
-   alembic revision -m "add stadium schedule team player tables"
+   docker compose exec backend alembic revision -m "add stadium schedule team player tables"
    ```
 4. `upgrade()`에 4개 테이블 생성(`op.create_table`) 작성, `downgrade()`에
-   역순 drop 작성
-5. 마이그레이션 실행
+   역순 drop 작성 (파일은 볼륨 마운트되어 있으므로 호스트 편집기로 열어서
+   수정해도 되지만, 실행은 항상 컨테이너 안에서 할 것)
+5. `backend` 컨테이너 안에서 마이그레이션 실행
    ```bash
-   alembic upgrade head
+   docker compose exec backend alembic upgrade head
    ```
-6. 검증: `psql`로 접속해 `\dt`로 4개 테이블 생성 확인, `\d 테이블명`으로 FK
-   제약조건 정상 여부 확인
+6. 검증: `pgvector` 컨테이너 안에서 `psql`로 접속해 `\dt`로 4개 테이블 생성
+   확인, `\d 테이블명`으로 FK 제약조건 정상 여부 확인
+   ```bash
+   docker compose exec pgvector psql -U $POSTGRES_USER -d $POSTGRES_DB -c '\dt'
+   ```
 
 ## 완료 기준 (Definition of Done)
 - [ ] 4개 테이블이 pgvector 컨테이너 안에 실제로 생성됨
@@ -124,3 +147,6 @@ Alembic 마이그레이션으로 생성한다.
 - Docker 이미지 태그(`pgvector/pgvector:pg17`)는 임의로 변경하지 말 것
 - `.env`의 `POSTGRES_*` 값을 그대로 사용할 것 (하드코딩 금지)
 - 각 단계 실행 후 결과(성공/실패, 실제 명령 출력)를 요약해서 보고할 것
+- Alembic/psql 명령을 호스트(WSL)에서 직접 실행하지 말 것 — 반드시
+  `docker compose exec backend ...` / `docker compose exec pgvector ...`
+  형태로 컨테이너 내부에서 실행할 것
