@@ -1,0 +1,15 @@
+# 모든 텍스트 파일은 저장소에 LF로 저장, 체크아웃 시에도 LF 유지
+# → Windows/Ubuntu 두 PC 간 줄바꿈(CRLF/LF) 차이로 인한 불필요한 diff 방지
+* text=auto eol=lf
+
+# 바이너리 파일 (diff/줄바꿈 변환 대상 제외)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
