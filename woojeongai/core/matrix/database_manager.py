@@ -55,7 +55,31 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
+def _run_alembic_upgrade_head() -> None:
+    """동기 함수. asyncio.to_thread로 호출해 실행 중인 이벤트 루프와 분리한다.
+
+    alembic/env.py가 내부적으로 asyncio.run()을 호출하므로, 이미 실행 중인
+    이벤트 루프(FastAPI lifespan) 안에서 직접 부르면 충돌한다.
+    """
+    from pathlib import Path
+
+    from alembic import command
+    from alembic.config import Config
+
+    backend_dir = Path(__file__).resolve().parents[2]
+    cfg = Config(str(backend_dir / "alembic.ini"))
+    command.upgrade(cfg, "head")
+
+
 async def create_all_tables() -> None:
+    """스키마는 Alembic 마이그레이션만이 유일한 출처다 (raw create_all 금지).
+
+    과거엔 여기서 Base/TheOneBase/SQLModel 세 metadata에 각각 create_all()을
+    직접 호출했다. create_all은 이미 존재하는 테이블은 건드리지 않기 때문에,
+    ORM이 리팩터링돼도 실제 DB의 컬럼·FK가 조용히 예전 상태로 남는 드리프트가
+    발생했다 (예: titanic_bookings FK가 옛 titanic_persons를 계속 가리킨 사건).
+    """
+    import asyncio
     import logging
     from sqlalchemy import text
 
@@ -65,13 +89,7 @@ async def create_all_tables() -> None:
         init_engine()
 
     if engine is not None:
-        from sqlmodel import SQLModel
-        from core.matrix.theone_base import Base as TheOneBase
-
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-            await conn.run_sync(TheOneBase.metadata.create_all)
-            await conn.run_sync(SQLModel.metadata.create_all)
+        await asyncio.to_thread(_run_alembic_upgrade_head)
 
         async with async_session_factory() as session:
             result = await session.execute(

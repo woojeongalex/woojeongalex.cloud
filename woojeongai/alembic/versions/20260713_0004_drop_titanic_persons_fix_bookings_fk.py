@@ -1,14 +1,18 @@
-"""drop dead titanic_persons; repoint titanic_bookings fk to titanic_passengers
+"""create titanic_passengers under alembic; drop dead titanic_persons; repoint titanic_bookings fk
 
 titanic_persons/titanic_bookings were created by 20260604_0001 for the old
 SQLModel Person/Booking entities. Those entities were later replaced by
 PersonOrm/BookingOrm (core.matrix.theone_base.Base), which target
-titanic_passengers/titanic_bookings instead. Since create_all() only
-creates missing tables and never alters existing ones, titanic_bookings
-kept its original FK to titanic_persons even after the code moved to
-titanic_passengers — leaving a live FK that doesn't match what the app
-actually inserts into. titanic_persons itself is unreferenced by any
-current code and empty.
+titanic_passengers/titanic_bookings instead. titanic_passengers itself was
+never created by a migration — it only existed because app startup used to
+call SQLModel/TheOneBase.metadata.create_all() directly, bypassing Alembic
+entirely. Since create_all() only creates missing tables and never alters
+existing ones, titanic_bookings also kept its original FK to titanic_persons
+even after the code moved to titanic_passengers, leaving a live FK that
+didn't match what the app actually inserts into. Now that startup runs
+`alembic upgrade head` instead of create_all(), titanic_passengers must be
+created here so a fresh database ends up with the schema the code expects.
+titanic_persons itself is unreferenced by any current code and empty.
 
 Revision ID: 20260713_0004
 Revises: 20260713_0003
@@ -28,6 +32,26 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
+    op.create_table(
+        "titanic_passengers",
+        sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
+        sa.Column("source_file", sa.String(length=255), nullable=True),
+        sa.Column("passenger_id", sa.String(length=32), nullable=True),
+        sa.Column("survived", sa.String(length=8), nullable=True),
+        sa.Column("pclass", sa.String(length=8), nullable=True),
+        sa.Column("name", sa.String(length=255), nullable=True),
+        sa.Column("gender", sa.String(length=16), nullable=True),
+        sa.Column("age", sa.String(length=32), nullable=True),
+        sa.Column("sib_sp", sa.String(length=8), nullable=True),
+        sa.Column("parch", sa.String(length=8), nullable=True),
+        sa.Column("ticket", sa.String(length=64), nullable=True),
+        sa.Column("fare", sa.String(length=32), nullable=True),
+        sa.Column("cabin", sa.String(length=64), nullable=True),
+        sa.Column("embarked", sa.String(length=8), nullable=True),
+        sa.Column("created_at", sa.DateTime(timezone=True), nullable=True),
+        sa.PrimaryKeyConstraint("id"),
+    )
+
     op.drop_constraint("titanic_bookings_person_id_fkey", "titanic_bookings", type_="foreignkey")
     op.create_foreign_key(
         "titanic_bookings_person_id_fkey",
@@ -73,3 +97,5 @@ def downgrade() -> None:
         ["person_id"],
         ["id"],
     )
+
+    op.drop_table("titanic_passengers")
