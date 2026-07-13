@@ -17,28 +17,7 @@ services:
     #   - ANTHROPIC_API_KEY=내_실제_API_키_입력
     restart: unless-stopped
 
-  # 2. Next.js 프론트엔드 서비스 (3000포트) — dev 모드 (핫 리로드)
-  frontend:
-    build:
-      context: ./alexview
-      dockerfile: Dockerfile.dev
-    container_name: titanic_frontend_container
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./alexview:/app
-      - /app/node_modules
-    environment:
-      - API_BASE_URL=http://backend:8000
-      - NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
-      - WATCHPACK_POLLING=true
-      - CHOKIDAR_USEPOLLING=true
-    depends_on:
-      backend:
-        condition: service_healthy
-    restart: unless-stopped
-
-  # 3. n8n 워크플로우 자동화 (5678포트)
+  # 2. n8n 워크플로우 자동화 (5678포트)
   n8n:
     image: n8nio/n8n:latest
     container_name: n8n_container
@@ -55,7 +34,7 @@ services:
       - N8N_API_KEY=${N8N_API_KEY}
     restart: unless-stopped
 
-  # 4. pgvector (PostgreSQL + vector extension) (5432포트)
+  # 3. pgvector (PostgreSQL + vector extension) (5432포트)
   pgvector:
     image: pgvector/pgvector:pg17
     container_name: pgvector_container
@@ -71,7 +50,7 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
     restart: unless-stopped
 
-  # 5. Redis (6379포트)
+  # 4. Redis (6379포트)
   redis:
     image: redis:7-alpine
     container_name: redis_container
@@ -84,7 +63,7 @@ services:
       - ./woojeongai/.env
     restart: unless-stopped
 
-  # 6. pgAdmin — PostgreSQL 웹 UI (5050포트)
+  # 5. pgAdmin — PostgreSQL 웹 UI (5050포트)
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: pgadmin_container
@@ -99,7 +78,7 @@ services:
       - pgvector
     restart: unless-stopped
 
-  # 7. Neo4j 그래프 DB (7474 Browser UI, 7687 Bolt)
+  # 6. Neo4j 그래프 DB (7474 Browser UI, 7687 Bolt)
   neo4j:
     image: neo4j:5
     container_name: neo4j_container
