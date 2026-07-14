@@ -17,7 +17,7 @@ for _path in (_BACKEND_DIR, _APPS_DIR):
         sys.path.insert(0, str(_path))
 from dotenv import load_dotenv
 
-load_dotenv(_BACKEND_DIR.parent / ".env")
+load_dotenv(_BACKEND_DIR / ".env")
 
 EMBED_MODEL = os.getenv("LOCAL_LLM_MODEL") or "EXAONE-3.5-7.8B-Instruct-AWQ"
 
