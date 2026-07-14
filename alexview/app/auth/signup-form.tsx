@@ -135,7 +135,7 @@ export function SignupForm() {
             passwordMismatch
               ? { text: "비밀번호가 다릅니다", tone: "error" }
               : passwordMatch
-                ? { text: "일치", tone: "success", icon: "check" }
+                ? { text: "일치", tone: "success" }
                 : undefined
           }
         />

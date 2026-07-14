@@ -75,7 +75,7 @@ export function GeminiChat({ layout = "default" }: GeminiChatProps) {
       className={`w-full min-w-0 font-sans antialiased ${isSidebar ? "" : "max-w-4xl"}`}
     >
       <div className={isSidebar ? "w-full" : "max-w-2xl"}>
-        <p className="text-xs font-mono tracking-widest uppercase" style={{ color: "#00FF88" }}>Gemini</p>
+        <p className="text-xs font-mono tracking-widest uppercase text-zinc-400">Gemini</p>
         <h2
           className={`font-semibold tracking-tight text-white ${
             isSidebar
@@ -216,7 +216,7 @@ export function GeminiChat({ layout = "default" }: GeminiChatProps) {
       </div>
 
       {error && (
-        <p className="mt-3 text-sm text-red-400" role="status">
+        <p className="mt-3 text-sm text-zinc-300" role="status">
           {error}
         </p>
       )}

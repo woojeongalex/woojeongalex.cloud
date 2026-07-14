@@ -150,7 +150,7 @@ export async function analyzeMediaFile(file: File): Promise<VocalAnalysisResult>
       })
     }
 
-    const intervalId = window.setInterval(tick, 120)
+    const intervalId = window.setInterval(tick, 250)
 
     media.onended = () => {
       window.clearInterval(intervalId)
