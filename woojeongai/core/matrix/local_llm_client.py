@@ -11,7 +11,7 @@ from typing import Any
 
 import requests
 
-_DEFAULT_MODEL = "LGAI-EXAONE/EXAONE-3.5-7.8B-Instruct-AWQ"
+_DEFAULT_MODEL = "EXAONE-3.5-7.8B-Instruct-AWQ"  # vllm serve --served-model-name과 일치해야 함
 
 
 class LocalLLMClient:
