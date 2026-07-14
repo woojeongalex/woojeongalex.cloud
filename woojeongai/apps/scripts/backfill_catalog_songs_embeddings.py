@@ -1,3 +1,4 @@
+# ruff: noqa: E402
 """catalog_songs.embedding 일괄 채우기: python scripts/backfill_catalog_songs_embeddings.py
 
 로컬 EXAONE 임베딩 서버(vLLM --runner pooling --convert embed)를 호출한다.
@@ -9,10 +10,14 @@ import os
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+_APPS_DIR = Path(__file__).resolve().parent.parent
+_BACKEND_DIR = _APPS_DIR.parent
+for _path in (_BACKEND_DIR, _APPS_DIR):
+    if str(_path) not in sys.path:
+        sys.path.insert(0, str(_path))
 from dotenv import load_dotenv
 
-load_dotenv(Path(__file__).resolve().parent.parent.parent / ".env")
+load_dotenv(_BACKEND_DIR.parent / ".env")
 
 EMBED_MODEL = os.getenv("LOCAL_LLM_MODEL") or "EXAONE-3.5-7.8B-Instruct-AWQ"
 
