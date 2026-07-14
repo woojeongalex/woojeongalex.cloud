@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { UserRound } from "lucide-react"
 import { PageBackButton } from "@/components/page-back-button"
 import { useUserSession } from "@/hooks/use-user-session"
 import {
@@ -46,8 +47,13 @@ export default function MyPage() {
     <main className="min-h-[calc(100vh-4rem)] bg-white px-4 py-10 text-zinc-950">
       <div className="mx-auto w-full max-w-lg">
         <PageBackButton href="/" label="홈으로" />
-        <h1 className="mt-6 text-3xl font-semibold tracking-tight">마이페이지</h1>
-        <p className="mt-2 text-sm text-zinc-600">
+        <div className="mt-6 flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-zinc-200 bg-zinc-100">
+            <UserRound className="h-5 w-5 text-zinc-900" aria-hidden="true" />
+          </div>
+          <h1 className="text-3xl font-semibold tracking-tight">마이페이지</h1>
+        </div>
+        <p className="mt-3 text-sm text-zinc-600">
           안녕하세요, <span className="font-semibold text-zinc-950">{displayName}</span>님
         </p>
 

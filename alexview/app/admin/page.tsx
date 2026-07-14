@@ -46,23 +46,27 @@ interface IntentLogsRes { data: IntentLogItem[]; total: number }
 type NavItem = 'dashboard' | 'intent-logs' | 'passengers'
 
 // ── 색상 토큰 ─────────────────────────────────────────────────────────────────
+// Grayscale-only tokens. Roles that used to be conveyed by hue (success/danger/
+// category) are now conveyed by lightness: darker = higher emphasis/positive,
+// lighter = lower emphasis/negative. See ConfidenceBadge / survived badge for
+// the clearest examples of this convention.
 const C = {
   black:    '#000000',
   white:    '#FFFFFF',
   bg:       '#F8F8F8',
   border:   '#E4E4E4',
-  muted:    '#6B7280',
+  muted:    '#737373',
   dark:     '#0F1117',
-  green:    '#16A34A',
-  greenBg:  '#F0FDF4',
-  red:      '#DC2626',
-  redBg:    '#FEF2F2',
-  blue:     '#2563EB',
-  blueBg:   '#EFF6FF',
-  amber:    '#D97706',
-  amberBg:  '#FFFBEB',
-  purple:   '#7C3AED',
-  purpleBg: '#F5F3FF',
+  green:    '#18181B',
+  greenBg:  '#F4F4F5',
+  red:      '#A1A1AA',
+  redBg:    '#F4F4F5',
+  blue:     '#27272A',
+  blueBg:   '#F4F4F5',
+  amber:    '#71717A',
+  amberBg:  '#F4F4F5',
+  purple:   '#52525B',
+  purpleBg: '#F4F4F5',
 } as const
 
 const API = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:4000'
@@ -102,13 +106,13 @@ function Sparkline({ color, up }: { color: string; up: boolean }) {
 
 function IntentBadge({ intent }: { intent: string }) {
   const map: Record<string, { bg: string; color: string }> = {
-    count:      { bg: '#EFF6FF', color: '#2563EB' },
-    personal:   { bg: '#F5F3FF', color: '#7C3AED' },
-    importance: { bg: '#FFFBEB', color: '#D97706' },
-    death:      { bg: '#FEF2F2', color: '#DC2626' },
-    general:    { bg: '#F8F8F8', color: '#6B7280' },
+    count:      { bg: '#F4F4F5', color: '#27272A' },
+    personal:   { bg: '#F4F4F5', color: '#52525B' },
+    importance: { bg: '#F4F4F5', color: '#71717A' },
+    death:      { bg: '#F4F4F5', color: '#A1A1AA' },
+    general:    { bg: '#F8F8F8', color: '#737373' },
   }
-  const s = map[intent] ?? { bg: '#F8F8F8', color: '#6B7280' }
+  const s = map[intent] ?? { bg: '#F8F8F8', color: '#737373' }
   return (
     <span style={{
       display: 'inline-block', padding: '3px 10px', fontSize: 11,
@@ -327,8 +331,8 @@ export default function AdminPage() {
 
           {error && (
             <div style={{
-              background: C.redBg, border: `1px solid ${C.red}`, borderLeft: `3px solid ${C.red}`,
-              padding: '12px 16px', color: C.red, fontSize: 13, marginBottom: 20, borderRadius: 4,
+              background: C.bg, border: `1px solid ${C.border}`, borderLeft: `3px solid ${C.black}`,
+              padding: '12px 16px', color: C.black, fontSize: 13, marginBottom: 20, borderRadius: 4,
             }}>
               ⚠ {error}
             </div>

@@ -1,4 +1,4 @@
-import { Check, type LucideIcon } from "lucide-react"
+import { Check, X, type LucideIcon } from "lucide-react"
 import type { ReactNode } from "react"
 
 export type AvailabilityStatus = "idle" | "checking" | "available" | "taken" | "error"
@@ -38,12 +38,14 @@ export function AuthFormMessage({
   return (
     <>
       {error && (
-        <p className="text-sm font-medium text-red-600" role="status">
+        <p className="flex items-center gap-1.5 text-sm font-semibold text-zinc-900" role="status">
+          <X className="h-4 w-4 shrink-0" aria-hidden="true" />
           {error}
         </p>
       )}
       {success && (
-        <p className="text-sm font-medium text-green-700" role="status">
+        <p className="flex items-center gap-1.5 text-sm font-semibold text-zinc-900" role="status">
+          <Check className="h-4 w-4 shrink-0" aria-hidden="true" />
           {success}
         </p>
       )}
@@ -62,7 +64,7 @@ export function FormHeader({
 }) {
   return (
     <div className="flex items-center gap-3">
-      <div className="rounded-full bg-zinc-100 p-3">
+      <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-zinc-200 bg-zinc-100">
         <Icon className="h-5 w-5 text-zinc-900" aria-hidden="true" />
       </div>
       <div>
@@ -73,19 +75,15 @@ export function FormHeader({
   )
 }
 
-type FieldStatus = { text: string; tone: "success" | "error" | "neutral"; icon?: "check" }
+type FieldStatus = { text: string; tone: "success" | "error" | "neutral" }
 
 function StatusBadge({ status }: { status?: FieldStatus }) {
   if (!status) return null
-  const color =
-    status.tone === "success"
-      ? "text-green-600"
-      : status.tone === "error"
-        ? "text-red-600"
-        : "text-zinc-500"
+  const color = status.tone === "neutral" ? "text-zinc-500" : "text-zinc-900"
   return (
     <span className={`inline-flex items-center gap-1 text-xs font-semibold ${color}`}>
-      {status.icon === "check" && <Check className="h-3.5 w-3.5" aria-hidden="true" />}
+      {status.tone === "success" && <Check className="h-3.5 w-3.5" aria-hidden="true" />}
+      {status.tone === "error" && <X className="h-3.5 w-3.5" aria-hidden="true" />}
       {status.text}
     </span>
   )
