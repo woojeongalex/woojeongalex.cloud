@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { ArrowRight, AudioLines, Music4 } from "lucide-react"
+import { ExaoneChatBanner } from "@/components/exaone-chat-banner"
 import { GeminiChat } from "@/components/gemini-chat"
 import { IuemGuideCarousel } from "@/components/iuem-guide-carousel"
 import { WeeklyKingBanner } from "@/components/weekly-king-banner"
@@ -122,6 +123,13 @@ export default function HomePage() {
           <div className="mt-8 w-full max-w-xl md:mt-4 md:sticky md:top-32">
             <GeminiChat layout="sidebar" />
           </div>
+        </div>
+      </section>
+
+      {/* LOCAL AI (EXAONE) */}
+      <section className="border-b border-border">
+        <div className="mx-auto max-w-6xl px-4 py-10 md:py-14">
+          <ExaoneChatBanner />
         </div>
       </section>
 
