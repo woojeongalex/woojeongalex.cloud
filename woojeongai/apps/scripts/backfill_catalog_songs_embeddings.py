@@ -42,12 +42,11 @@ async def main() -> int:
 
     from sqlalchemy import text
 
-    from database import dispose_engine, get_session_factory, init_db
+    from core.matrix import database_manager
 
-    await init_db()
-    factory = get_session_factory()
+    database_manager.init_engine()
 
-    async with factory() as session:
+    async with database_manager.async_session_factory() as session:
         rows = (
             await session.execute(
                 text(
@@ -72,7 +71,7 @@ async def main() -> int:
 
         await session.commit()
 
-    await dispose_engine()
+    await database_manager.dispose_engine()
     print("ALL OK")
     return 0
 
