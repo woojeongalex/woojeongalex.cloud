@@ -35,9 +35,9 @@ def embed_text(base_url: str, text_input: str) -> list[float]:
 
 
 async def main() -> int:
-    base_url = (os.getenv("LOCAL_LLM_BASE_URL") or "").rstrip("/")
+    base_url = (os.getenv("LOCAL_LLM_EMBED_BASE_URL") or "").rstrip("/")
     if not base_url:
-        print("FAIL: LOCAL_LLM_BASE_URL 없음 (backend/.env)")
+        print("FAIL: LOCAL_LLM_EMBED_BASE_URL 없음 (backend/.env)")
         return 1
 
     from sqlalchemy import text
