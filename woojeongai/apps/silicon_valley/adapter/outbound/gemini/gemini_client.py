@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import google.generativeai as genai
+from google.api_core.exceptions import ResourceExhausted
 
 from core.matrix.keymaker_api import Keymaker
 from silicon_valley.app.ports.output.gemini_port import GeminiPort
 
 # 날씨·최신 뉴스처럼 실시간 정보가 필요한 질문에도 답할 수 있도록 구글 검색
 # 그라운딩을 켠다. 무료 티어는 이 기능에 별도의 훨씬 빡빡한 할당량이 있어
-# 429가 날 수 있다 — 순수 생성 할당량과는 별개다.
+# 429(ResourceExhausted)가 날 수 있다 — 순수 생성 할당량과는 별개다.
 _SEARCH_GROUNDING_TOOL = genai.protos.Tool(
     google_search_retrieval=genai.protos.GoogleSearchRetrieval()
 )
@@ -29,6 +30,13 @@ class GeminiClient(GeminiPort):
         model = self._keymaker.get_gemini_model()
         try:
             response = model.generate_content(message, tools=[_SEARCH_GROUNDING_TOOL])
+        except ResourceExhausted:
+            # 검색 그라운딩 할당량만 초과된 경우 -- 검색 없이 재시도해서
+            # 최소한 일반 지식으로라도 답하게 한다.
+            try:
+                response = model.generate_content(message)
+            except Exception as e:
+                raise RuntimeError(f"Gemini 호출 실패: {e}") from e
         except Exception as e:
             raise RuntimeError(f"Gemini 호출 실패: {e}") from e
 
