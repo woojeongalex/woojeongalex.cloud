@@ -20,6 +20,13 @@ def cosine_similarity(a: list[float], b: list[float]) -> float:
     return dot / (norm_a * norm_b)
 
 
+# 음악으로 잘못 분류하면 헨드릭스 페르소나가 사실을 지어내 답하는 반면, 일반으로
+# 잘못 분류해도 Gemini가 무난하게 답할 뿐이라 실패 비용이 비대칭적이다. 그래서
+# 애매한 경우(근소한 차이)는 GENERAL 쪽으로 기울인다 -- MUSIC이라 판단하려면
+# 일정 마진 이상 확실히 앞서야 한다.
+_MUSIC_CONFIDENCE_MARGIN = 0.03
+
+
 def classify_intent(
     query_vector: list[float],
     music_vectors: list[list[float]],
@@ -31,6 +38,6 @@ def classify_intent(
     general_score = max(
         (cosine_similarity(query_vector, v) for v in general_vectors), default=0.0
     )
-    return (
-        SemanticIntent.MUSIC if music_score >= general_score else SemanticIntent.GENERAL
-    )
+    if music_score - general_score > _MUSIC_CONFIDENCE_MARGIN:
+        return SemanticIntent.MUSIC
+    return SemanticIntent.GENERAL
