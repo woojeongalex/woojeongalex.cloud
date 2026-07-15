@@ -3,10 +3,13 @@
   "configurations": [
     {
       "name": "alexview",
-      "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["dev"],
-      "cwd": "alexview",
-      "port": 3000
+      "runtimeExecutable": "wsl",
+      "runtimeArgs": [
+        "-d", "Ubuntu", "-e", "bash", "-lc",
+        "cd /home/ship/projects/woojeongalex.cloud/alexview && pnpm dev"
+      ],
+      "port": 3000,
+      "autoPort": true
     }
   ]
 }
