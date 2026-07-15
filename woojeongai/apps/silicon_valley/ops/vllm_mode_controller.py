@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
-"""vLLM chat/embed 모드 전환 컨트롤러.
+"""vLLM chat/embed 모드 전환 컨트롤러 — 로컬 개발용 수동 보조 도구.
 
-ship 데스크탑 WSL에서 상시 실행(GPU 사용 안 함, 표준 라이브러리만 사용).
-friend2의 backend가 RAG 처리 중 vLLM을 chat<->embed 모드로 원격 전환할 때 호출한다.
-8GB GPU 한 장으로 두 모드를 동시에 못 띄우기 때문에 필요하다.
+**요청 처리 경로(core/matrix/local_llm_client.py, silicon_valley 인터랙터)와는
+무관하다.** 정석적인 배포에서는 생성용·임베딩용 vLLM 인스턴스가 각자 독립된
+엔드포인트로 항상 함께 떠 있어야 하고, 그러면 이 스크립트는 필요 없다.
+
+8GB급 GPU 한 장뿐인 이 개발 데스크탑에서는 두 인스턴스를 동시에 못 띄우므로,
+개발자가 수동으로 `curl -X POST localhost:8003/switch/embed`(또는 `/chat`)를
+호출해 모드를 바꿔가며 개별적으로 테스트할 때만 쓴다. 자동으로 요청마다
+전환하는 구조는 Cloudflare Tunnel의 ~100초 요청 제한에 걸려 실사용이
+불가능하다는 것이 확인됨 (2026-07-15) — 그래서 요청 경로에서 제거했다.
 
 실행: python3 vllm_mode_controller.py  (포트 8003)
 """
@@ -19,7 +25,7 @@ import urllib.error
 import urllib.request
 
 HOME = os.path.expanduser("~")
-VENV_PY = f"{HOME}/.venvs/exaone/bin/python3"
+VLLM_BIN = f"{HOME}/.venvs/exaone/bin/vllm"
 MODEL_PATH = f"{HOME}/models/EXAONE-3.5-7.8B-Instruct-AWQ"
 MODEL_NAME = "EXAONE-3.5-7.8B-Instruct-AWQ"
 MODEL_PORT = 8001
@@ -27,9 +33,7 @@ CONTROLLER_PORT = 8003
 LOG_PATH = f"{HOME}/vllm_serve.log"
 
 _BASE_CMD = [
-    VENV_PY,
-    "-m",
-    "vllm",
+    VLLM_BIN,
     "serve",
     MODEL_PATH,
     "--port",

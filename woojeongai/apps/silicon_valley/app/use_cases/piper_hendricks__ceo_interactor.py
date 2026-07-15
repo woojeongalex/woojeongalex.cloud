@@ -42,18 +42,15 @@ class HendricksCeoInteractor(HendricksCeoUseCase):
         return {}
 
     async def chat(self, message: str) -> str:
-        """RAG로 답한다: 임베딩 모드로 전환해 질문을 벡터화하고 관련 곡을 검색한 뒤,
-        채팅 모드로 되돌아와 그 컨텍스트를 참고해 페르소나로 답한다.
-        8GB GPU 한 장으로 두 모드를 동시에 못 띄워 매 요청마다 모드 전환이 발생한다."""
+        """RAG로 답한다: 질문을 임베딩해 관련 곡을 검색하고, 그 컨텍스트를
+        참고해 페르소나로 답한다. 임베딩 엔드포인트와 생성 엔드포인트는
+        서로 다른 vLLM 인스턴스로 항상 함께 떠 있는 것을 전제로 한다."""
         client = get_local_llm_client()
 
-        await asyncio.to_thread(client.switch_to_embed)
         query_vector = await asyncio.to_thread(client.embed, message)
-
         songs = await self.song_rag.search_similar_songs(query_vector, limit=5)
         context = _format_song_context(songs)
 
-        await asyncio.to_thread(client.switch_to_chat)
         system_prompt = (
             f"{HENDRICKS_CEO_SYSTEM_PROMPT}\n\n{context}"
             if context
