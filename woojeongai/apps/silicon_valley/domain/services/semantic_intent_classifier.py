@@ -25,8 +25,12 @@ def classify_intent(
     music_vectors: list[list[float]],
     general_vectors: list[list[float]],
 ) -> SemanticIntent:
-    music_score = max((cosine_similarity(query_vector, v) for v in music_vectors), default=0.0)
+    music_score = max(
+        (cosine_similarity(query_vector, v) for v in music_vectors), default=0.0
+    )
     general_score = max(
         (cosine_similarity(query_vector, v) for v in general_vectors), default=0.0
     )
-    return SemanticIntent.MUSIC if music_score >= general_score else SemanticIntent.GENERAL
+    return (
+        SemanticIntent.MUSIC if music_score >= general_score else SemanticIntent.GENERAL
+    )
