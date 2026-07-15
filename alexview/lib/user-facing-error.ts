@@ -46,6 +46,7 @@ export const UI_ERRORS = {
   geminiFailed: "요청에 실패했습니다. 잠시 후 다시 시도해 주세요.",
   geminiQuota:
     "AI 할당량을 초과했습니다. 잠시 후 다시 시도하거나 사용량을 확인해 주세요.",
+  exaoneFailed: "로컬 AI 응답에 실패했습니다. 잠시 후 다시 시도해 주세요.",
   backendUnavailable: "서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.",
   weatherFailed: "날씨를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.",
   weatherForecastFailed: "예보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.",
