@@ -65,6 +65,26 @@ def collate(tokenizer, batch: list[dict[str, list[int]]]) -> dict[str, torch.Ten
     }
 
 
+def _patch_exaone_input_embeddings(model) -> None:
+    """EXAONE의 trust_remote_code 모델링 코드는 get/set_input_embeddings를
+    오버라이드하지 않는다 — 예전 transformers는 이를 관례적으로 자동 처리했지만,
+    최신 transformers/peft는 명시적 구현을 요구해 NotImplementedError가 난다.
+    벤더 파일(modeling_exaone.py)은 건드리지 않고 클래스에 런타임으로 붙여준다.
+    """
+    transformer_cls = type(model.transformer)
+    causal_lm_cls = type(model)
+
+    if "get_input_embeddings" not in transformer_cls.__dict__:
+        transformer_cls.get_input_embeddings = lambda self: self.wte
+        transformer_cls.set_input_embeddings = lambda self, value: setattr(self, "wte", value)
+
+    if "get_input_embeddings" not in causal_lm_cls.__dict__:
+        causal_lm_cls.get_input_embeddings = lambda self: self.transformer.get_input_embeddings()
+        causal_lm_cls.set_input_embeddings = (
+            lambda self, value: self.transformer.set_input_embeddings(value)
+        )
+
+
 def main() -> int:
     tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH, trust_remote_code=True)
 
@@ -80,6 +100,7 @@ def main() -> int:
         device_map="auto",
         trust_remote_code=True,
     )
+    _patch_exaone_input_embeddings(model)
     model = prepare_model_for_kbit_training(model)
 
     lora_config = LoraConfig(
