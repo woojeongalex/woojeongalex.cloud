@@ -21,15 +21,26 @@ DATA_PATH = (
 
 # 한글 바로 옆에 공백 없이 영문 2글자 이상이 붙은 경우 (예: "지치고ograft") = 깨진 토큰
 _GARBLED_PATTERN = re.compile(r"[가-힣][a-zA-Z]{2,}|[a-zA-Z]{2,}[가-힣]")
+_KOREAN_PATTERN = re.compile(r"[가-힣]")
+
+# 답변은 곡 추천 이유를 설명하는 한국어 문장이어야 하므로, 한글 비중이 너무
+# 낮으면(예: " isometric" 같은 영단어 하나만 남은 응답) 깨진 것으로 간주한다.
+_MIN_LEN = {"user": 3, "assistant": 15}
+_MIN_KOREAN_CHARS_ASSISTANT = 10
 
 
 def is_clean(example: dict) -> bool:
     for msg in example["messages"]:
-        content = msg["content"]
+        content = msg["content"].strip()
+        role = msg["role"]
         if _GARBLED_PATTERN.search(content):
             return False
-        if len(content.strip()) < 5:
+        if len(content) < _MIN_LEN.get(role, 3):
             return False
+        if role == "assistant":
+            korean_chars = len(_KOREAN_PATTERN.findall(content))
+            if korean_chars < _MIN_KOREAN_CHARS_ASSISTANT:
+                return False
     return True
 
 
@@ -41,6 +52,12 @@ def main() -> int:
 
     clean = [e for e in examples if is_clean(e)]
     dropped = len(examples) - len(clean)
+
+    # 저장 전에 앞뒤 공백은 정리한다 (예: 선행 공백이 붙은 응답).
+    for example in clean:
+        for msg in example["messages"]:
+            msg["content"] = msg["content"].strip()
+
     kept = clean[:keep_n]
 
     with open(DATA_PATH, "w", encoding="utf-8") as f:
