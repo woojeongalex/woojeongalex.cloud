@@ -1,3 +1,4 @@
+# ruff: noqa: E402
 """음악 추천 QLoRA 학습용 합성 데이터셋 생성: python3 generate_music_qlora_dataset.py
 
 ship의 EXAONE-3.5-7.8B(채팅 모드)를 "교사" 모델로 써서, 상황/기분 기반 곡
@@ -9,10 +10,14 @@ import os
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+_APPS_DIR = Path(__file__).resolve().parent.parent
+_BACKEND_DIR = _APPS_DIR.parent
+for _path in (_BACKEND_DIR, _APPS_DIR):
+    if str(_path) not in sys.path:
+        sys.path.insert(0, str(_path))
 from dotenv import load_dotenv
 
-load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+load_dotenv(_BACKEND_DIR / ".env")
 
 OUTPUT_PATH = (
     Path(__file__).resolve().parent / "qlora_data" / "music_mood_recommendations.jsonl"
