@@ -19,7 +19,7 @@ import urllib.error
 import urllib.request
 
 HOME = os.path.expanduser("~")
-VENV_PY = f"{HOME}/.venvs/exaone/bin/python3"
+VLLM_BIN = f"{HOME}/.venvs/exaone/bin/vllm"
 MODEL_PATH = f"{HOME}/models/EXAONE-3.5-7.8B-Instruct-AWQ"
 MODEL_NAME = "EXAONE-3.5-7.8B-Instruct-AWQ"
 MODEL_PORT = 8001
@@ -27,9 +27,7 @@ CONTROLLER_PORT = 8003
 LOG_PATH = f"{HOME}/vllm_serve.log"
 
 _BASE_CMD = [
-    VENV_PY,
-    "-m",
-    "vllm",
+    VLLM_BIN,
     "serve",
     MODEL_PATH,
     "--port",
