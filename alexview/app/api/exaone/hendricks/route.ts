@@ -10,5 +10,5 @@ export async function POST(request: Request) {
   } catch {
     return NextResponse.json({ error: "요청 본문이 올바르지 않습니다." }, { status: 400 })
   }
-  return proxyPost("/silicon_valley/hendricks/chat", body, "로컬 AI 응답에 실패했습니다.", 240_000)
+  return proxyPost("/silicon_valley/chat", body, "로컬 AI 응답에 실패했습니다.", 240_000)
 }
