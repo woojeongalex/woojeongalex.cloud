@@ -9,3 +9,6 @@
 models/
 *.safetensors
 *.gguf
+
+# QLoRA 학습 산출물 (friend2에만 존재)
+woojeongai/apps/scripts/qlora_output/
