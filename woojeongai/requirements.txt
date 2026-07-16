@@ -14,6 +14,8 @@ requests==2.32.5
 beautifulsoup4==4.13.4
 lxml==5.3.0
 redis==5.2.1
+boto3==1.35.99
+ultralytics==8.3.58
 python-multipart==0.0.29
 numpy==2.4.6
 matplotlib==3.10.3
