@@ -92,7 +92,6 @@ alexview/
     music-api-fetch.ts
     speech-api.ts
     instrument-api.ts
-    gemini-generate.ts
     utils.ts                   # cn() 등 공통 유틸
   hooks/                       # 커스텀 React 훅
     use-async-action.ts        # 로딩·에러 상태 관리
