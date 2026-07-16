@@ -13,6 +13,8 @@ from star_craft.app.ports.output.web_crawl_port import WebCrawlPort
 logger = logging.getLogger(__name__)
 
 _REQUEST_TIMEOUT = 10
+# User-Agent 없이 요청하면 위키피디아 등 다수 사이트가 봇으로 간주해 403을 준다.
+_HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; StarCraftCrawler/1.0)"}
 
 
 class Bs4WebCrawlGateway(WebCrawlPort):
@@ -23,7 +25,7 @@ class Bs4WebCrawlGateway(WebCrawlPort):
         return await asyncio.to_thread(self._crawl_sync, target)
 
     def _crawl_sync(self, target: CrawlTarget) -> list[CrawlResult]:
-        response = requests.get(target.website, timeout=_REQUEST_TIMEOUT)
+        response = requests.get(target.website, headers=_HEADERS, timeout=_REQUEST_TIMEOUT)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, "lxml")
 

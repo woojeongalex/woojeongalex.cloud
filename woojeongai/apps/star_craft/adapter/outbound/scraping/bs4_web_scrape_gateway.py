@@ -14,6 +14,8 @@ logger = logging.getLogger(__name__)
 
 _REQUEST_TIMEOUT = 10
 _TEXT_TAGS = ("p", "li", "h1", "h2", "h3")
+# User-Agent 없이 요청하면 위키피디아 등 다수 사이트가 봇으로 간주해 403을 준다.
+_HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; StarCraftScraper/1.0)"}
 
 
 class Bs4WebScrapeGateway(WebScrapePort):
@@ -23,7 +25,7 @@ class Bs4WebScrapeGateway(WebScrapePort):
         return await asyncio.to_thread(self._scrape_sync, target)
 
     def _scrape_sync(self, target: CrawlTarget) -> list[ScrapeResult]:
-        response = requests.get(target.website, timeout=_REQUEST_TIMEOUT)
+        response = requests.get(target.website, headers=_HEADERS, timeout=_REQUEST_TIMEOUT)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, "lxml")
 
