@@ -4,7 +4,7 @@ import asyncio
 import logging
 
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 
 from star_craft.app.dtos.crawl_target_dto import CrawlTarget
 from star_craft.app.dtos.crawler_dto import CrawlResult
@@ -29,8 +29,10 @@ class Bs4WebCrawlGateway(WebCrawlPort):
 
         results: list[CrawlResult] = []
         for link in soup.find_all("a", href=True):
+            if not isinstance(link, Tag):
+                continue
             link_text = link.get_text(strip=True)
-            href = link["href"]
+            href = str(link["href"])
             if target.keyword in link_text or target.keyword in href:
                 results.append(
                     CrawlResult(
