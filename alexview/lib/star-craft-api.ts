@@ -13,14 +13,14 @@ export type ScrapeResultItem = {
   snippet: string
 }
 
-export async function submitCrawl(
+export async function commandCrawl(
   website: string,
-  keyword: string
+  command: string
 ): Promise<{ count: number; results: CrawlResultItem[] }> {
-  const res = await fetch("/api/star-craft/crawler/submit", {
+  const res = await fetch("/api/star-craft/crawler/command", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ website, keyword }),
+    body: JSON.stringify({ website, command }),
     cache: "no-store",
   })
   const data = (await res.json()) as { count?: number; results?: CrawlResultItem[]; error?: string }
@@ -30,14 +30,14 @@ export async function submitCrawl(
   return { count: data.count ?? 0, results: data.results ?? [] }
 }
 
-export async function submitScrape(
+export async function commandScrape(
   website: string,
-  keyword: string
+  command: string
 ): Promise<{ count: number; results: ScrapeResultItem[] }> {
-  const res = await fetch("/api/star-craft/scraper/submit", {
+  const res = await fetch("/api/star-craft/scraper/command", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ website, keyword }),
+    body: JSON.stringify({ website, command }),
     cache: "no-store",
   })
   const data = (await res.json()) as { count?: number; results?: ScrapeResultItem[]; error?: string }

@@ -3,7 +3,7 @@
 import { DragEvent, useEffect, useRef, useState } from "react"
 import { Bot, Send } from "lucide-react"
 import { useAsyncAction } from "@/hooks/use-async-action"
-import { submitCrawl, submitScrape } from "@/lib/star-craft-api"
+import { commandCrawl, commandScrape } from "@/lib/star-craft-api"
 import { UI_ERRORS } from "@/lib/user-facing-error"
 
 type PanelMode = "crawler" | "scraper"
@@ -18,10 +18,10 @@ function CrawlerScraperPanel({
   mode: PanelMode
   title: string
   description: string
-  onSubmit: (website: string, keyword: string) => Promise<{ count: number; summary: string }>
+  onSubmit: (website: string, command: string) => Promise<{ count: number; keyword?: string }>
 }) {
   const [website, setWebsite] = useState("")
-  const [keyword, setKeyword] = useState("")
+  const [command, setCommand] = useState("")
   const [isDragging, setIsDragging] = useState(false)
   const [messages, setMessages] = useState<LogMessage[]>([])
   const { loading, error, run, setError } = useAsyncAction()
@@ -35,24 +35,25 @@ function CrawlerScraperPanel({
 
   async function handleSubmit() {
     const url = website.trim()
-    const kw = keyword.trim()
-    if (!url || !kw || loading) return
+    const cmd = command.trim()
+    if (!url || !cmd || loading) return
 
     setError(null)
     setMessages((prev) => [
       ...prev,
-      { id: crypto.randomUUID(), role: "user", content: `🔗 ${url}\n🔑 ${kw}` },
+      { id: crypto.randomUUID(), role: "user", content: `🔗 ${url}\n💬 ${cmd}` },
     ])
     setWebsite("")
-    setKeyword("")
+    setCommand("")
 
     await run(
       async () => {
-        const { summary } = await onSubmit(url, kw)
-        setMessages((prev) => [
-          ...prev,
-          { id: crypto.randomUUID(), role: "assistant", content: summary },
-        ])
+        const { count, keyword } = await onSubmit(url, cmd)
+        const noun = mode === "crawler" ? "링크" : "문단"
+        const summary = keyword
+          ? `✅ "${keyword}" 키워드로 ${noun} ${count}건 발견 (JSONL에 누적 저장됨)`
+          : `✅ ${noun} ${count}건 발견 (JSONL에 누적 저장됨)`
+        setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: "assistant", content: summary }])
       },
       { fallbackError: mode === "crawler" ? UI_ERRORS.crawlerFailed : UI_ERRORS.scraperFailed }
     )
@@ -93,7 +94,11 @@ function CrawlerScraperPanel({
               </p>
             </div>
           ))}
-          {loading && <p className="text-muted-foreground">처리 중… (사이트 크기에 따라 시간이 걸릴 수 있어요)</p>}
+          {loading && (
+            <p className="text-muted-foreground">
+              명령을 이해하고 처리하는 중… (사이트 크기에 따라 시간이 걸릴 수 있어요)
+            </p>
+          )}
         </div>
       )}
 
@@ -119,28 +124,28 @@ function CrawlerScraperPanel({
           }`}
         />
         <div className="flex items-center gap-2">
-          <label htmlFor={`${mode}-keyword`} className="sr-only">
-            검색 키워드
+          <label htmlFor={`${mode}-command`} className="sr-only">
+            자연어 명령
           </label>
           <input
-            id={`${mode}-keyword`}
+            id={`${mode}-command`}
             type="text"
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
+            value={command}
+            onChange={(e) => setCommand(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault()
                 void handleSubmit()
               }
             }}
-            placeholder="키워드 입력"
+            placeholder="예: 재즈 관련 내용 찾아줘"
             disabled={loading}
             className="flex-1 rounded-lg border border-border bg-transparent px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground"
           />
           <button
             type="button"
             onClick={() => void handleSubmit()}
-            disabled={loading || !website.trim() || !keyword.trim()}
+            disabled={loading || !website.trim() || !command.trim()}
             className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-35"
             aria-label="실행"
           >
@@ -169,15 +174,16 @@ export function CrawlerScraperBanner() {
           <p className="text-xs font-mono tracking-widest uppercase text-muted-foreground">
             Web Crawler · Scraper
           </p>
-          <p className="text-sm text-muted-foreground">웹사이트와 키워드로 수집을 실행해 보세요</p>
+          <p className="text-sm text-muted-foreground">사이트 주소와 자연어 명령으로 수집을 실행해 보세요</p>
         </div>
       </div>
 
       <h2 className="mt-4 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-        원하는 사이트에서 키워드로 데이터를 모아보세요.
+        원하는 사이트에서 말하는 대로 데이터를 모아보세요.
       </h2>
       <p className="mt-2 text-sm leading-6 text-muted-foreground">
-        왼쪽은 링크를 찾는 크롤러, 오른쪽은 본문을 추출하는 스크래퍼입니다. 주소창의 링크를
+        왼쪽은 링크를 찾는 크롤러, 오른쪽은 본문을 추출하는 스크래퍼입니다. 사이트 주소를 넣고
+        "재즈 관련 내용 찾아줘"처럼 자연어로 말하면 알아서 이해해서 실행합니다. 주소창의 링크를
         URL 칸에 드래그해서 놓을 수도 있어요.
       </p>
 
@@ -185,19 +191,19 @@ export function CrawlerScraperBanner() {
         <CrawlerScraperPanel
           mode="crawler"
           title="링크 크롤러"
-          description="페이지에서 키워드가 포함된 링크를 찾습니다."
-          onSubmit={async (website, keyword) => {
-            const { count } = await submitCrawl(website, keyword)
-            return { count, summary: `✅ 링크 ${count}건 발견 (JSONL에 누적 저장됨)` }
+          description="페이지에서 원하는 키워드가 포함된 링크를 찾습니다."
+          onSubmit={async (website, command) => {
+            const { count, results } = await commandCrawl(website, command)
+            return { count, keyword: results[0]?.keyword }
           }}
         />
         <CrawlerScraperPanel
           mode="scraper"
           title="본문 스크래퍼"
-          description="페이지 본문에서 키워드가 포함된 문단을 추출합니다."
-          onSubmit={async (website, keyword) => {
-            const { count } = await submitScrape(website, keyword)
-            return { count, summary: `✅ 문단 ${count}건 발견 (JSONL에 누적 저장됨)` }
+          description="페이지 본문에서 원하는 키워드가 포함된 문단을 추출합니다."
+          onSubmit={async (website, command) => {
+            const { count, results } = await commandScrape(website, command)
+            return { count, keyword: results[0]?.keyword }
           }}
         />
       </div>
