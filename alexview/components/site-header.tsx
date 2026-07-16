@@ -3,7 +3,6 @@
 import Link from "next/link"
 import { BarChart2, ChevronDown, Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
-import { WeatherWidget } from "@/components/weather-widget"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -56,7 +55,6 @@ export function SiteHeader() {
 
         <div className="flex min-w-0 flex-col gap-2 md:items-end">
           <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <WeatherWidget variant="compact" />
             <ThemeToggle />
             <DropdownMenu>
               <DropdownMenuTrigger

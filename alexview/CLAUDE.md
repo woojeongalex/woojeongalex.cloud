@@ -80,7 +80,7 @@ alexview/
       auth/                    # login / signup / check-id / check-nickname
       music/[...path]/         # Music API 프록시
       titanic/[...path]/       # Titanic API 프록시
-      chat/ gemini/ songs/ weather/
+      chat/ gemini/ songs/
   components/
     ui/                        # Radix UI + Shadcn/ui (button, input, dialog ...)
   lib/                         # API 클라이언트·유틸
