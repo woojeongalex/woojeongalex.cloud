@@ -25,6 +25,11 @@ class RedisCrawlTargetRepository(CrawlTargetPort):
         logger.info(f"[RedisCrawlTargetRepository] 대상 {len(raw_items)}건 로드")
         return [self._parse(item) for item in raw_items]
 
+    async def enqueue(self, target: CrawlTarget) -> None:
+        payload = json.dumps({"website": target.website, "keyword": target.keyword})
+        await asyncio.to_thread(self._client.rpush, REDIS_CRAWL_TARGETS_KEY, payload)
+        logger.info(f"[RedisCrawlTargetRepository] 대상 등록 | website={target.website} keyword={target.keyword}")
+
     @staticmethod
     def _parse(raw: str) -> CrawlTarget:
         data = json.loads(raw)
