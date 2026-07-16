@@ -14,6 +14,7 @@ from silicon_valley.adapter.inbound.api.v1.piper_gilfoyle_system_router import (
 from silicon_valley.adapter.inbound.api.v1.piper_hendricks__ceo_router import (
     hendricks_ceo_router,
 )
+from silicon_valley.adapter.inbound.api.v1.gemini_chat_router import gemini_chat_router
 from silicon_valley.adapter.inbound.api.v1.semantic_router import semantic_chat_router
 
 silicon_valley_router = APIRouter(prefix="/silicon_valley", tags=["silicon_valley"])
@@ -25,5 +26,6 @@ silicon_valley_router.include_router(dunn_coo_router)
 silicon_valley_router.include_router(gilfoyle_system_router)
 silicon_valley_router.include_router(hendricks_ceo_router)
 silicon_valley_router.include_router(semantic_chat_router)
+silicon_valley_router.include_router(gemini_chat_router)
 
 __all__ = ["silicon_valley_router"]
