@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from star_craft.adapter.inbound.api.schemas.scraper_schema import (
+    CommandScrapeRequest,
     ScrapeResponse,
     ScrapeResultItem,
     SubmitScrapeRequest,
@@ -37,4 +38,16 @@ async def submit_scraper(
     scraper: ScraperUseCase = Depends(get_scraper_use_case),
 ) -> ScrapeResponse:
     results = await scraper.submit(CrawlTarget(website=request.website, keyword=request.keyword))
+    return _to_response(results)
+
+
+@scraper_router.post("/command", summary="자연어 명령을 이해해서 대상을 등록하고 즉시 스크래핑")
+async def command_scraper(
+    request: CommandScrapeRequest,
+    scraper: ScraperUseCase = Depends(get_scraper_use_case),
+) -> ScrapeResponse:
+    try:
+        results = await scraper.submit_from_command(request.website, request.command)
+    except RuntimeError as e:
+        raise HTTPException(status_code=422, detail=str(e)) from e
     return _to_response(results)

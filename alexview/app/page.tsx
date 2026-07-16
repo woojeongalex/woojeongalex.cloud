@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { ArrowRight, AudioLines, Music4 } from "lucide-react"
+import { CrawlerScraperBanner } from "@/components/crawler-scraper-banner"
 import { ExaoneChatBanner } from "@/components/exaone-chat-banner"
 import { GeminiChat } from "@/components/gemini-chat"
 import { IuemGuideCarousel } from "@/components/iuem-guide-carousel"
@@ -130,6 +131,13 @@ export default function HomePage() {
       <section className="border-b border-border">
         <div className="mx-auto max-w-6xl px-4 py-10 md:py-14">
           <ExaoneChatBanner />
+        </div>
+      </section>
+
+      {/* WEB CRAWLER / SCRAPER */}
+      <section className="border-b border-border">
+        <div className="mx-auto max-w-6xl px-4 py-10 md:py-14">
+          <CrawlerScraperBanner />
         </div>
       </section>
 

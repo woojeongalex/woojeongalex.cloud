@@ -11,8 +11,10 @@ from star_craft.adapter.outbound.scraping.bs4_web_crawl_gateway import Bs4WebCra
 from star_craft.app.ports.input.crawler_use_case import CrawlerUseCase
 from star_craft.app.ports.output.crawl_target_port import CrawlTargetPort
 from star_craft.app.ports.output.jsonl_export_port import JsonlExportPort
+from star_craft.app.ports.output.keyword_parser_port import KeywordParserPort
 from star_craft.app.ports.output.web_crawl_port import WebCrawlPort
 from star_craft.app.use_cases.crawler_interactor import CrawlerInteractor
+from star_craft.dependencies.keyword_parser_provider import get_keyword_parser
 
 _BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 _CRAWLED_DIR = os.getenv("STAR_CRAFT_CRAWLED_DIR") or os.path.join(
@@ -38,5 +40,8 @@ def get_crawler_use_case(
     targets: CrawlTargetPort = Depends(get_crawl_target_repository),
     crawler: WebCrawlPort = Depends(get_web_crawl_gateway),
     jsonl_export: JsonlExportPort = Depends(get_crawl_export_gateway),
+    keyword_parser: KeywordParserPort = Depends(get_keyword_parser),
 ) -> CrawlerUseCase:
-    return CrawlerInteractor(targets=targets, crawler=crawler, jsonl_export=jsonl_export)
+    return CrawlerInteractor(
+        targets=targets, crawler=crawler, jsonl_export=jsonl_export, keyword_parser=keyword_parser
+    )
