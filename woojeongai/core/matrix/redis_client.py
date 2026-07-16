@@ -9,8 +9,15 @@ core/matrix/secret_manager.py(Keymaker), core/matrix/local_llm_client.py와
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
 import redis
+
+
+def _load_env_once() -> None:
+    from dotenv import load_dotenv
+
+    load_dotenv(Path(__file__).resolve().parents[2] / ".env")
 
 
 class RedisClient:
@@ -23,6 +30,10 @@ class RedisClient:
         password: str | None = None,
         db: int | None = None,
     ) -> None:
+        # docker-compose는 backend 컨테이너에 DATABASE_URL만 넘기고 나머지
+        # .env 값은 안 실어준다 -- 다른 코드(Keymaker 등)가 먼저 .env를
+        # 로드해줬는지에 기대지 않도록 여기서도 직접 로드한다.
+        _load_env_once()
         self._host = host or os.getenv("REDIS_HOST") or "redis"
         self._port = port or int(os.getenv("REDIS_PORT") or 6379)
         self._password = password if password is not None else os.getenv("REDIS_PASSWORD") or None
