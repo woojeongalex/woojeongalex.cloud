@@ -7,7 +7,7 @@ import { ChangeEvent, DragEvent, KeyboardEvent, useEffect, useRef, useState } fr
 import { useAsyncAction } from "@/hooks/use-async-action"
 import { setUploadedFileName, uploadTitanicCsv } from "@/lib/titanic-api"
 
-const ACCENT = "#00FF88"
+const ACCENT = "#FFFFFF"
 
 type ChatMessage = { role: "user" | "assistant"; text: string }
 
