@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from star_craft.adapter.inbound.api.schemas.crawler_schema import (
+    CommandCrawlRequest,
     CrawlResponse,
     CrawlResultItem,
     SubmitCrawlRequest,
@@ -42,4 +43,16 @@ async def submit_crawler(
     crawler: CrawlerUseCase = Depends(get_crawler_use_case),
 ) -> CrawlResponse:
     results = await crawler.submit(CrawlTarget(website=request.website, keyword=request.keyword))
+    return _to_response(results)
+
+
+@crawler_router.post("/command", summary="자연어 명령을 이해해서 대상을 등록하고 즉시 크롤링")
+async def command_crawler(
+    request: CommandCrawlRequest,
+    crawler: CrawlerUseCase = Depends(get_crawler_use_case),
+) -> CrawlResponse:
+    try:
+        results = await crawler.submit_from_command(request.website, request.command)
+    except RuntimeError as e:
+        raise HTTPException(status_code=422, detail=str(e)) from e
     return _to_response(results)

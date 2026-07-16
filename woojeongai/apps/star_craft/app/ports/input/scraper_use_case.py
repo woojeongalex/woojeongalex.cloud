@@ -18,3 +18,8 @@ class ScraperUseCase(ABC):
     async def submit(self, target: CrawlTarget) -> list[ScrapeResult]:
         """대상 하나를 Redis에 등록하고 즉시 스크래핑해 결과를 반환한다."""
         pass
+
+    @abstractmethod
+    async def submit_from_command(self, website: str, command: str) -> list[ScrapeResult]:
+        """자연어 명령에서 키워드를 이해해 대상을 등록하고 즉시 스크래핑한다."""
+        pass

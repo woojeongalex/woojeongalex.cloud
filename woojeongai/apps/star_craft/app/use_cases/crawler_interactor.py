@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import asyncio
+
 from star_craft.app.dtos.crawl_target_dto import CrawlTarget
 from star_craft.app.dtos.crawler_dto import CrawlResult
 from star_craft.app.ports.input.crawler_use_case import CrawlerUseCase
 from star_craft.app.ports.output.crawl_target_port import CrawlTargetPort
 from star_craft.app.ports.output.jsonl_export_port import JsonlExportPort
+from star_craft.app.ports.output.keyword_parser_port import KeywordParserPort
 from star_craft.app.ports.output.web_crawl_port import WebCrawlPort
 
 _JSONL_FILENAME = "crawl_results.jsonl"
@@ -20,10 +23,17 @@ def _to_row(result: CrawlResult) -> dict[str, str]:
 
 
 class CrawlerInteractor(CrawlerUseCase):
-    def __init__(self, targets: CrawlTargetPort, crawler: WebCrawlPort, jsonl_export: JsonlExportPort):
+    def __init__(
+        self,
+        targets: CrawlTargetPort,
+        crawler: WebCrawlPort,
+        jsonl_export: JsonlExportPort,
+        keyword_parser: KeywordParserPort,
+    ):
         self.targets = targets
         self.crawler = crawler
         self.jsonl_export = jsonl_export
+        self.keyword_parser = keyword_parser
 
     async def crawl(self) -> list[CrawlResult]:
         crawl_targets = await self.targets.read_targets()
@@ -40,3 +50,7 @@ class CrawlerInteractor(CrawlerUseCase):
         results = await self.crawler.crawl(target)
         self.jsonl_export.export(_JSONL_FILENAME, [_to_row(r) for r in results])
         return results
+
+    async def submit_from_command(self, website: str, command: str) -> list[CrawlResult]:
+        keyword = await asyncio.to_thread(self.keyword_parser.extract_keyword, command)
+        return await self.submit(CrawlTarget(website=website, keyword=keyword))
