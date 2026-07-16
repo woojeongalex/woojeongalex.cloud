@@ -4,7 +4,7 @@ from star_craft.app.ports.input.vision_use_case import VisionUseCase
 from star_craft.app.use_cases.vision_interactor import VisionInteractor
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends
-from core.matrix.gird_oracle_database_manager import get_db
+from core.matrix.database_manager import get_db
 from star_craft.adapter.outbound.repositories.vision_repository import VisionRepository
 from star_craft.adapter.outbound.s3.s3_image_storage_gateway import S3ImageStorageGateway
 from star_craft.app.ports.output.image_storage_gateway import ImageStorageGateway
