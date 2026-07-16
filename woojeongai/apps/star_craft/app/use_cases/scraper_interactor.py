@@ -1,10 +1,17 @@
 from __future__ import annotations
 
+from star_craft.app.dtos.crawl_target_dto import CrawlTarget
 from star_craft.app.dtos.scraper_dto import ScrapeResult
 from star_craft.app.ports.input.scraper_use_case import ScraperUseCase
 from star_craft.app.ports.output.crawl_target_port import CrawlTargetPort
 from star_craft.app.ports.output.jsonl_export_port import JsonlExportPort
 from star_craft.app.ports.output.web_scrape_port import WebScrapePort
+
+_JSONL_FILENAME = "scrape_results.jsonl"
+
+
+def _to_row(result: ScrapeResult) -> dict[str, str]:
+    return {"website": result.website, "keyword": result.keyword, "snippet": result.snippet}
 
 
 class ScraperInteractor(ScraperUseCase):
@@ -20,11 +27,11 @@ class ScraperInteractor(ScraperUseCase):
         for target in crawl_targets:
             results.extend(await self.scraper.scrape(target))
 
-        self.jsonl_export.export(
-            "scrape_results.jsonl",
-            [
-                {"website": r.website, "keyword": r.keyword, "snippet": r.snippet}
-                for r in results
-            ],
-        )
+        self.jsonl_export.export(_JSONL_FILENAME, [_to_row(r) for r in results])
+        return results
+
+    async def submit(self, target: CrawlTarget) -> list[ScrapeResult]:
+        await self.targets.enqueue(target)
+        results = await self.scraper.scrape(target)
+        self.jsonl_export.export(_JSONL_FILENAME, [_to_row(r) for r in results])
         return results

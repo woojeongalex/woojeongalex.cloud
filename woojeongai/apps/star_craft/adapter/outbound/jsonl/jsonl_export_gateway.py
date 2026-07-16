@@ -17,12 +17,14 @@ class JsonlExportGateway(JsonlExportPort):
         self._output_dir = output_dir
 
     def export(self, filename: str, rows: list[dict[str, str]]) -> str:
+        """파일 끝에 이어 쓴다 (누적) -- JSONL은 매 실행 결과를 계속 쌓아가는
+        용도라, 이전 실행 결과를 덮어쓰지 않는다."""
         os.makedirs(self._output_dir, exist_ok=True)
         path = os.path.join(self._output_dir, filename)
 
-        with open(path, "w", encoding="utf-8") as f:
+        with open(path, "a", encoding="utf-8") as f:
             for row in rows:
                 f.write(json.dumps(row, ensure_ascii=False) + "\n")
 
-        logger.info(f"[JsonlExportGateway] {len(rows)}건 저장 | path={path}")
+        logger.info(f"[JsonlExportGateway] {len(rows)}건 추가 저장 | path={path}")
         return path
