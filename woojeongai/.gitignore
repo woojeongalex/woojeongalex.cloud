@@ -103,7 +103,8 @@ coverage/
 # 로그 / 임시 파일
 # ------------------------------------------------------------
 apps/scripts/.rag_test_cache.json
-apps/star_craft/resources/exports/
+resources/crawled/
+resources/scraped/
 *.log
 logs/
 npm-debug.log*
