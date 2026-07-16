@@ -10,5 +10,5 @@ export async function POST(request: Request) {
   } catch {
     return NextResponse.json({ error: "요청 본문이 올바르지 않습니다." }, { status: 400 })
   }
-  return proxyPost("/star-craft/crawler/submit", body, "크롤링에 실패했습니다.", 60_000)
+  return proxyPost("/star-craft/crawler/command", body, "크롤링에 실패했습니다.", 60_000)
 }

@@ -4,6 +4,7 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { ChangeEvent, DragEvent, KeyboardEvent, useEffect, useRef, useState } from "react"
 
+import { CrawlerScraperBanner } from "@/components/crawler-scraper-banner"
 import { useAsyncAction } from "@/hooks/use-async-action"
 import { setUploadedFileName, uploadTitanicCsv } from "@/lib/titanic-api"
 
@@ -327,6 +328,18 @@ export default function TitanicHomePage() {
               </div>
             )}
           </article>
+        </section>
+
+        {/* 웹 크롤러 / 스크래퍼 */}
+        <section>
+          <h2 className="text-xl font-semibold text-white">웹 크롤러 · 스크래퍼</h2>
+          <p className="mt-2 text-sm" style={{ color: "#9ca3af" }}>
+            사이트 주소와 자연어 명령으로 원하는 데이터를 수집해보세요. 탭을 눌러 크롤러와
+            스크래퍼를 전환할 수 있습니다.
+          </p>
+          <div className="mt-5">
+            <CrawlerScraperBanner />
+          </div>
         </section>
       </div>
     </main>
