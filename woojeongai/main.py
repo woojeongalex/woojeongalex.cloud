@@ -34,6 +34,7 @@ from music.adapter.inbound.api import music_router
 from friday13th.adapter.inbound.api.v1 import login_router, signup_router
 from titanic.adapter.inbound.api import titanic_router
 from silicon_valley.adapter.inbound.api import silicon_valley_router
+from star_craft.adapter.inbound.api import star_craft_router
 
 logger = logging.getLogger(__name__)
 
@@ -88,6 +89,7 @@ app.include_router(login_router)
 app.include_router(titanic_router)
 app.include_router(silicon_valley_router)
 app.include_router(music_router)
+app.include_router(star_craft_router)
 
 
 @app.get("/health")
