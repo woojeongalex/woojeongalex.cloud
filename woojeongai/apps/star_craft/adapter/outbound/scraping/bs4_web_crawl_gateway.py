@@ -29,13 +29,14 @@ class Bs4WebCrawlGateway(WebCrawlPort):
         response.raise_for_status()
         soup = BeautifulSoup(response.text, "lxml")
 
+        keyword_lower = target.keyword.lower()
         results: list[CrawlResult] = []
         for link in soup.find_all("a", href=True):
             if not isinstance(link, Tag):
                 continue
             link_text = link.get_text(strip=True)
             href = str(link["href"])
-            if target.keyword in link_text or target.keyword in href:
+            if keyword_lower in link_text.lower() or keyword_lower in href.lower():
                 results.append(
                     CrawlResult(
                         website=target.website,

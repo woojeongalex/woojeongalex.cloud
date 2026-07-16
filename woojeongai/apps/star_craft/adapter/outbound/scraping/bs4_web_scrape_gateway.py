@@ -29,10 +29,11 @@ class Bs4WebScrapeGateway(WebScrapePort):
         response.raise_for_status()
         soup = BeautifulSoup(response.text, "lxml")
 
+        keyword_lower = target.keyword.lower()
         results: list[ScrapeResult] = []
         for tag in soup.find_all(_TEXT_TAGS):
             text = tag.get_text(strip=True)
-            if target.keyword in text:
+            if keyword_lower in text.lower():
                 results.append(
                     ScrapeResult(website=target.website, keyword=target.keyword, snippet=text)
                 )
