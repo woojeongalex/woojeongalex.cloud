@@ -25,7 +25,9 @@ class Bs4WebScrapeGateway(WebScrapePort):
         return await asyncio.to_thread(self._scrape_sync, target)
 
     def _scrape_sync(self, target: CrawlTarget) -> list[ScrapeResult]:
-        response = requests.get(target.website, headers=_HEADERS, timeout=_REQUEST_TIMEOUT)
+        response = requests.get(
+            target.website, headers=_HEADERS, timeout=_REQUEST_TIMEOUT
+        )
         response.raise_for_status()
         soup = BeautifulSoup(response.text, "lxml")
 
@@ -35,8 +37,12 @@ class Bs4WebScrapeGateway(WebScrapePort):
             text = tag.get_text(strip=True)
             if text and (not keyword_lower or keyword_lower in text.lower()):
                 results.append(
-                    ScrapeResult(website=target.website, keyword=target.keyword, snippet=text)
+                    ScrapeResult(
+                        website=target.website, keyword=target.keyword, snippet=text
+                    )
                 )
 
-        logger.info(f"[Bs4WebScrapeGateway] {target.website} 스크래핑 완료 | 매칭 {len(results)}건")
+        logger.info(
+            f"[Bs4WebScrapeGateway] {target.website} 스크래핑 완료 | 매칭 {len(results)}건"
+        )
         return results

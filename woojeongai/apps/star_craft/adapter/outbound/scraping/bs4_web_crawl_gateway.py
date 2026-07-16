@@ -25,7 +25,9 @@ class Bs4WebCrawlGateway(WebCrawlPort):
         return await asyncio.to_thread(self._crawl_sync, target)
 
     def _crawl_sync(self, target: CrawlTarget) -> list[CrawlResult]:
-        response = requests.get(target.website, headers=_HEADERS, timeout=_REQUEST_TIMEOUT)
+        response = requests.get(
+            target.website, headers=_HEADERS, timeout=_REQUEST_TIMEOUT
+        )
         response.raise_for_status()
         soup = BeautifulSoup(response.text, "lxml")
 
@@ -36,7 +38,11 @@ class Bs4WebCrawlGateway(WebCrawlPort):
                 continue
             link_text = link.get_text(strip=True)
             href = str(link["href"])
-            if not keyword_lower or keyword_lower in link_text.lower() or keyword_lower in href.lower():
+            if (
+                not keyword_lower
+                or keyword_lower in link_text.lower()
+                or keyword_lower in href.lower()
+            ):
                 results.append(
                     CrawlResult(
                         website=target.website,
@@ -46,5 +52,7 @@ class Bs4WebCrawlGateway(WebCrawlPort):
                     )
                 )
 
-        logger.info(f"[Bs4WebCrawlGateway] {target.website} 크롤링 완료 | 매칭 {len(results)}건")
+        logger.info(
+            f"[Bs4WebCrawlGateway] {target.website} 크롤링 완료 | 매칭 {len(results)}건"
+        )
         return results

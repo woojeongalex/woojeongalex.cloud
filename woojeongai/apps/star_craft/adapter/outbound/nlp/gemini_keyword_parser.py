@@ -30,7 +30,9 @@ class GeminiKeywordParser(KeywordParserPort):
 
     def extract_keyword(self, command: str) -> str:
         if not self._keymaker.is_gemini_ready():
-            raise RuntimeError("GEMINI_API_KEY가 설정되지 않았습니다. backend/.env를 확인하세요.")
+            raise RuntimeError(
+                "GEMINI_API_KEY가 설정되지 않았습니다. backend/.env를 확인하세요."
+            )
 
         model = self._keymaker.get_gemini_model()
         try:
@@ -41,7 +43,9 @@ class GeminiKeywordParser(KeywordParserPort):
         text = (response.text or "").strip()
         match = _JSON_PATTERN.search(text)
         if not match:
-            raise RuntimeError("명령에서 키워드를 이해하지 못했습니다. 다시 말씀해 주세요.")
+            raise RuntimeError(
+                "명령에서 키워드를 이해하지 못했습니다. 다시 말씀해 주세요."
+            )
 
         try:
             data = json.loads(match.group(0))
@@ -49,5 +53,7 @@ class GeminiKeywordParser(KeywordParserPort):
             raise RuntimeError("명령 해석 결과가 올바른 형식이 아닙니다.") from e
 
         keyword = str(data.get("keyword", "")).strip()
-        logger.info(f"[GeminiKeywordParser] 명령='{command}' → 키워드='{keyword or '(전체 수집)'}'")
+        logger.info(
+            f"[GeminiKeywordParser] 명령='{command}' → 키워드='{keyword or '(전체 수집)'}'"
+        )
         return keyword
