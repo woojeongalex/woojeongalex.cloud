@@ -36,7 +36,9 @@ class RedisClient:
         _load_env_once()
         self._host = host or os.getenv("REDIS_HOST") or "redis"
         self._port = port or int(os.getenv("REDIS_PORT") or 6379)
-        self._password = password if password is not None else os.getenv("REDIS_PASSWORD") or None
+        self._password = (
+            password if password is not None else os.getenv("REDIS_PASSWORD") or None
+        )
         self._db = db if db is not None else int(os.getenv("REDIS_DB") or 0)
         self._client: redis.Redis | None = None
 
@@ -66,6 +68,15 @@ class RedisClient:
 
     def rpush(self, key: str, *values: str) -> int:
         return self._get_client().rpush(key, *values)
+
+    def setex(self, key: str, ttl_seconds: int, value: str) -> None:
+        self._get_client().setex(key, ttl_seconds, value)
+
+    def get(self, key: str) -> str | None:
+        return self._get_client().get(key)
+
+    def delete(self, *keys: str) -> int:
+        return self._get_client().delete(*keys)
 
 
 def get_redis_client() -> RedisClient:
