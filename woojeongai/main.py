@@ -25,13 +25,19 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from adapters.db_health_adapter import DbHealthAdapter
+
 try:
     from database import dispose_engine, get_db, init_db
 except ModuleNotFoundError:
     from apps.database import dispose_engine, get_db, init_db
 from core.matrix.keymaker_api import get_keymaker
 from music.adapter.inbound.api import music_router
-from friday13th.adapter.inbound.api.v1 import login_router, signup_router
+from friday13th.adapter.inbound.api.v1 import (
+    login_router,
+    oauth_router,
+    signup_router,
+    token_router,
+)
 from titanic.adapter.inbound.api import titanic_router
 from silicon_valley.adapter.inbound.api import silicon_valley_router
 from star_craft.adapter.inbound.api import star_craft_router
@@ -64,7 +70,9 @@ async def lifespan(app: FastAPI):
         await init_db()
         logger.info("Neon DB 테이블 초기화 완료")
     except Exception as exc:
-        logger.exception("Neon DB init_db 실패 — auth API가 동작하지 않을 수 있습니다: %s", exc)
+        logger.exception(
+            "Neon DB init_db 실패 — auth API가 동작하지 않을 수 있습니다: %s", exc
+        )
     try:
         yield
     finally:
@@ -78,6 +86,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",
         "http://127.0.0.1:3000",
+        "https://woojeongalex.cloud",
+        "https://www.woojeongalex.cloud",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -86,6 +96,8 @@ app.add_middleware(
 
 app.include_router(signup_router)
 app.include_router(login_router)
+app.include_router(oauth_router)
+app.include_router(token_router)
 app.include_router(titanic_router)
 app.include_router(silicon_valley_router)
 app.include_router(music_router)
