@@ -21,7 +21,6 @@ from logging_setup import configure_logging
 configure_logging()
 
 from fastapi import Depends, FastAPI, HTTPException
-from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -33,7 +32,12 @@ except ModuleNotFoundError:
     from apps.database import dispose_engine, get_db, init_db
 from core.matrix.keymaker_api import get_keymaker
 from music.adapter.inbound.api import music_router
-from friday13th.adapter.inbound.api.v1 import login_router, oauth_router, signup_router, token_router
+from friday13th.adapter.inbound.api.v1 import (
+    login_router,
+    oauth_router,
+    signup_router,
+    token_router,
+)
 from titanic.adapter.inbound.api import titanic_router
 from silicon_valley.adapter.inbound.api import silicon_valley_router
 from star_craft.adapter.inbound.api import star_craft_router
@@ -82,16 +86,18 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",
         "http://127.0.0.1:3000",
+        "https://woojeongalex.cloud",
+        "https://www.woojeongalex.cloud",
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-app.include_router(oauth_router)
 app.include_router(signup_router)
-app.include_router(token_router)
 app.include_router(login_router)
+app.include_router(oauth_router)
+app.include_router(token_router)
 app.include_router(titanic_router)
 app.include_router(silicon_valley_router)
 app.include_router(music_router)
@@ -103,11 +109,9 @@ def health_check():
     return {"status": "ok"}
 
 
-@app.get("/", response_class=HTMLResponse, include_in_schema=False)
+@app.get("/")
 def read_root():
-    from friday13th.adapter.inbound.api.v1.oauth_router import _LOGIN_HTML
-
-    return HTMLResponse(_LOGIN_HTML)
+    return {"message": "FAST API 메인 페이지 ", "docs": "/docs"}
 
 
 @dataclass(frozen=True)

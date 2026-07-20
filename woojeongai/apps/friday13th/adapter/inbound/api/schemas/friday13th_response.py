@@ -14,13 +14,8 @@ class LoginResponse(BaseModel):
     role: str | None = None
     access_token: str | None = None
     refresh_token: str | None = None
-    token_type: str | None = None
+    token_type: str | None = "bearer"
 
 
 class UsernameCheckResponse(BaseModel):
     available: bool
-
-
-class TokenRefreshResponse(BaseModel):
-    access_token: str
-    token_type: str = "bearer"

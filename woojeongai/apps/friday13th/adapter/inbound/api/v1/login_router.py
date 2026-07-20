@@ -5,12 +5,11 @@ from friday13th.adapter.inbound.api.handlers.auth_inbound_handlers import (
 )
 from friday13th.adapter.inbound.api.schemas.friday13th_request import LoginRequest
 from friday13th.adapter.inbound.api.schemas.friday13th_response import LoginResponse
-from friday13th.app.ports.input.login_use_case import LoginUseCase
-from core.jwt.jwt_util import create_access_token, create_refresh_token
-from core.matrix.redis_client import get_redis_client
 from friday13th.adapter.outbound.redis.redis_session_repository import (
     RedisSessionRepository,
 )
+from friday13th.app.ports.input.login_use_case import LoginUseCase
+from core.jwt.jwt_util import create_access_token, create_refresh_token
 
 login_router = APIRouter(prefix="/api/auth", tags=["friday13th-login"])
 
@@ -25,27 +24,21 @@ async def login(
             lambda: use_case.login(request.username, request.password),
             "[login]",
         )
+        repo = RedisSessionRepository()
+        at, a_jti, a_ttl = create_access_token(out.username, out.role or "user")
+        rt, r_jti, r_ttl = create_refresh_token(out.username, out.role or "user")
+        repo.save_access(a_jti, out.username, a_ttl)
+        repo.save_refresh(out.username, r_jti, r_ttl)
+        return LoginResponse(
+            ok=out.ok,
+            message=out.message,
+            username=out.username,
+            nickname=out.nickname,
+            role=out.role,
+            access_token=at,
+            refresh_token=rt,
+            token_type="bearer",
+        )
     except ValueError as exc:
         status = 401 if "아이디 또는 비밀번호" in str(exc) else 422
         raise HTTPException(status_code=status, detail=str(exc)) from exc
-
-    username = out.username or request.username
-    role = out.role or "user"
-
-    access_token, access_jti, access_ttl = create_access_token(username, role)
-    refresh_token, refresh_jti, refresh_ttl = create_refresh_token(username, role)
-
-    repo = RedisSessionRepository(get_redis_client())
-    repo.save_access(access_jti, username, access_ttl)
-    repo.save_refresh(username, refresh_jti, refresh_ttl)
-
-    return LoginResponse(
-        ok=out.ok,
-        message=out.message,
-        username=username,
-        nickname=out.nickname,
-        role=role,
-        access_token=access_token,
-        refresh_token=refresh_token,
-        token_type="bearer",
-    )
