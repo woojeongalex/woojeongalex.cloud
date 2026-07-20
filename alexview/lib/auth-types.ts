@@ -6,6 +6,14 @@ export type LoginResponse = {
   username?: string | null
   nickname?: string | null
   role?: string
+  access_token?: string | null
+  refresh_token?: string | null
+  token_type?: string | null
+}
+
+export type TokenRefreshResponse = {
+  access_token: string
+  token_type: string
 }
 
 export type SignupResponse = {

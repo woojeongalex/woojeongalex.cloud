@@ -5,7 +5,7 @@ import { ArrowRight, LockKeyhole } from "lucide-react"
 import { postAuthJson } from "@/lib/auth-client"
 import { AUTH_MESSAGES } from "@/lib/auth-messages"
 import type { LoginResponse } from "@/lib/auth-types"
-import { setUserSession } from "@/lib/auth-session"
+import { setUserSession, setTokens } from "@/lib/auth-session"
 import { useAsyncAction } from "@/hooks/use-async-action"
 import { AuthFormMessage, AuthFormShell, btnPrimary, Field, FormHeader } from "./auth-components"
 
@@ -29,6 +29,9 @@ export function LoginForm() {
       {
         fallbackError: AUTH_MESSAGES.loginFailed,
         onSuccess: (data) => {
+          if (data.access_token && data.refresh_token) {
+            setTokens(data.access_token, data.refresh_token)
+          }
           setUserSession({
             username: data.username ?? username,
             nickname: data.nickname,
