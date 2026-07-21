@@ -25,7 +25,7 @@ function SocialCallbackInner() {
       .then((res) => res.json())
       .then((data: { username?: string; role?: string }) => {
         if (data.username) {
-          setUserSession({ username: data.username })
+          setUserSession({ username: data.username, role: data.role })
         }
         router.replace("/")
       })

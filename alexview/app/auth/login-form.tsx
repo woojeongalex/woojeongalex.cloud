@@ -35,6 +35,7 @@ export function LoginForm() {
           setUserSession({
             username: data.username ?? username,
             nickname: data.nickname,
+            role: data.role,
           })
           router.push("/")
         },

@@ -79,13 +79,15 @@ export function SiteHeader() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Link
-              href="/admin"
-              className={`${navLinkClass} gap-1.5 border-border bg-background text-muted-foreground hover:bg-accent hover:text-foreground`}
-            >
-              <BarChart2 className="size-3.5" aria-hidden />
-              Admin
-            </Link>
+            {user?.role === "admin" && (
+              <Link
+                href="/admin"
+                className={`${navLinkClass} gap-1.5 border-border bg-background text-muted-foreground hover:bg-accent hover:text-foreground`}
+              >
+                <BarChart2 className="size-3.5" aria-hidden />
+                Admin
+              </Link>
+            )}
             {!user && (
               <Link
                 href="/auth"

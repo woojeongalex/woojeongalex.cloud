@@ -3,6 +3,7 @@
 export type UserSession = {
   username: string
   nickname?: string | null
+  role?: string | null
 }
 
 const SESSION_KEY = "iuem_user"

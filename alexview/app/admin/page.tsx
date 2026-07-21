@@ -1,7 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { getUserSession } from '@/lib/auth-session'
 
 // ── 응답 타입 ────────────────────────────────────────────────────────────────
 interface StatsRes {
@@ -156,8 +158,16 @@ const navItems: { key: NavItem; label: string; icon: string }[] = [
 
 // ── 메인 컴포넌트 ─────────────────────────────────────────────────────────────
 export default function AdminPage() {
+  const router = useRouter()
   const isMobile = useIsMobile()
   const px = isMobile ? 16 : 40
+
+  useEffect(() => {
+    const session = getUserSession()
+    if (!session || session.role !== 'admin') {
+      router.replace('/')
+    }
+  }, [router])
 
   const [active, setActive]               = useState<NavItem>('dashboard')
   const [stats, setStats]                 = useState<StatsRes | null>(null)
