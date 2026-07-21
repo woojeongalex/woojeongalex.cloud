@@ -14,6 +14,8 @@ services:
       timeout: 5s
       retries: 5
       start_period: 15s
+    env_file:
+      - ./.env
     environment:
       - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgvector:5432/${POSTGRES_DB}
       # - ANTHROPIC_API_KEY=내_실제_API_키_입력
