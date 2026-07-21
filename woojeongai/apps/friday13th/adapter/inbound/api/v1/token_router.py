@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import jwt as pyjwt
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from core.jwt.jwt_util import create_access_token, decode_token
+from friday13th.adapter.inbound.api.deps.current_user_deps import get_current_user
 from friday13th.adapter.outbound.redis.redis_session_repository import (
     RedisSessionRepository,
 )
@@ -28,26 +29,8 @@ class MeResponse(BaseModel):
     role: str
 
 
-async def _get_current_user(authorization: str | None = Header(None)) -> dict:
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="인증 토큰이 필요합니다.")
-    token = authorization[7:].strip()
-    try:
-        payload = decode_token(token)
-    except pyjwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="토큰이 만료되었습니다.")
-    except pyjwt.PyJWTError:
-        raise HTTPException(status_code=401, detail="유효하지 않은 토큰입니다.")
-
-    jti = payload.get("jti", "")
-    repo = RedisSessionRepository()
-    if not repo.validate_access(jti):
-        raise HTTPException(status_code=401, detail="만료되거나 로그아웃된 토큰입니다.")
-    return payload
-
-
 @token_router.get("/me", response_model=MeResponse)
-async def me(payload: dict = Depends(_get_current_user)) -> MeResponse:
+async def me(payload: dict = Depends(get_current_user)) -> MeResponse:
     return MeResponse(username=payload["sub"], role=payload.get("role", "user"))
 
 
@@ -79,7 +62,7 @@ async def refresh_token(body: RefreshRequest) -> AccessTokenResponse:
 
 
 @token_router.post("/logout")
-async def logout(payload: dict = Depends(_get_current_user)) -> dict:
+async def logout(payload: dict = Depends(get_current_user)) -> dict:
     username = payload["sub"]
     jti = payload.get("jti", "")
     repo = RedisSessionRepository()

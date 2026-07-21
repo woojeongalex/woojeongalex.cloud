@@ -21,6 +21,7 @@ from logging_setup import configure_logging
 configure_logging()
 
 from fastapi import Depends, FastAPI, HTTPException
+from friday13th.adapter.inbound.api.deps.current_user_deps import require_admin
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -243,7 +244,10 @@ def chat(req: ChatRequest) -> ChatResponse:
 
 
 @app.get("/db-check")
-async def check_db(db: AsyncSession = Depends(get_db)):
+async def check_db(
+    db: AsyncSession = Depends(get_db),
+    _: dict = Depends(require_admin),
+):
     return await DbHealthAdapter.neon_time_check(db)
 
 
