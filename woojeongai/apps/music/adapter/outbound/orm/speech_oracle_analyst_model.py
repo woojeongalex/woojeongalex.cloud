@@ -1,10 +1,10 @@
 """스피치 코칭 세션 허브 + AI 피드백 — `speech_evaluations`, `speech_feedback_analyses`."""
 
 from datetime import datetime
-from typing import Any, Optional
+from typing import Optional
 
 from pydantic import ConfigDict
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, JSON, String, func
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, JSON, func
 from sqlmodel import Field, SQLModel
 
 

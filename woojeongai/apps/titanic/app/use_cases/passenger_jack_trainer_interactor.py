@@ -3,7 +3,6 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-import numpy as np
 import pandas as pd
 
 from titanic.adapter.outbound.orm.passenger_rose_model_strategies import build_all_strategies

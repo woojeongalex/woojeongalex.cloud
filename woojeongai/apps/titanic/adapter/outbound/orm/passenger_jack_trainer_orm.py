@@ -1,5 +1,5 @@
 from typing import Optional
-from sqlalchemy import String, Integer, Float
+from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from core.matrix.theone_base import Base

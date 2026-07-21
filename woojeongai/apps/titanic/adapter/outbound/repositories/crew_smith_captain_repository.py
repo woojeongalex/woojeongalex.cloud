@@ -19,7 +19,7 @@ class SmithCaptainRepository(SmithCaptainPort):
         return SmithCaptainResponse(
             status="success",
             type="STATISTICS",
-            message=f"나는 에드워드 스미스 선장이오. 타이타닉에 대해 무엇이든 물어보시오.",
+            message="나는 에드워드 스미스 선장이오. 타이타닉에 대해 무엇이든 물어보시오.",
         )
 
     async def chat(self, message: str) -> SmithCaptainResponse:

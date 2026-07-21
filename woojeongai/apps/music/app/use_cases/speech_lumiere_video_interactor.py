@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from music.adapter.inbound.api.schemas.speech_lumiere_video_schema import LumiereIntroduceSchema, LumiereIntroduceResponse
-from music.app.dtos.video_analysis_dto import LumiereIntroduceQuery, VideoVocalAnalysisResultDto
+from music.app.dtos.video_analysis_dto import VideoVocalAnalysisResultDto
 from music.app.ports.input.speech_lumiere_video_use_case import VideoAnalysisUseCase
 
 logger = logging.getLogger(__name__)

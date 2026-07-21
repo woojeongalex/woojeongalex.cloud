@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Optional
 
 from pydantic import ConfigDict
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, func
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, func
 from sqlmodel import Field, SQLModel
 
 
