@@ -21,7 +21,9 @@ from logging_setup import configure_logging
 configure_logging()
 
 from fastapi import Depends, FastAPI, HTTPException
-from friday13th.adapter.inbound.api.deps.current_user_deps import require_admin
+from core.dependencies import RoleChecker
+from apps.auth.rbac import Role
+require_admin = RoleChecker(Role.ADMIN)
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
