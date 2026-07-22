@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from core.jwt.jwt_util import create_access_token, decode_token
-from friday13th.adapter.inbound.api.deps.current_user_deps import get_current_user
+from core.dependencies import get_current_user
 from friday13th.adapter.outbound.redis.redis_session_repository import (
     RedisSessionRepository,
 )
