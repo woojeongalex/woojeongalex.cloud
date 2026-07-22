@@ -69,13 +69,8 @@ class ChatResponse(BaseModel):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    try:
-        await init_db()
-        logger.info("Neon DB 테이블 초기화 완료")
-    except Exception as exc:
-        logger.exception(
-            "Neon DB init_db 실패 — auth API가 동작하지 않을 수 있습니다: %s", exc
-        )
+    from core.matrix.database_manager import init_engine
+    init_engine()
     try:
         yield
     finally:
