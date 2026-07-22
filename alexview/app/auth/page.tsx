@@ -8,7 +8,7 @@ import { SignupForm } from "./signup-form"
 type View = "social" | "login" | "signup"
 type EmailMode = "login" | "signup"
 
-const API = process.env.NEXT_PUBLIC_API_BASE_URL ?? ""
+const AUTH = process.env.NEXT_PUBLIC_AUTH_BASE_URL ?? ""
 
 function KakaoIcon() {
   return (
@@ -65,7 +65,7 @@ function SocialButtons() {
       {PROVIDERS.map(({ id, label, style, Icon }) => (
         <a
           key={id}
-          href={`${API}/auth/${id}`}
+          href={`${AUTH}/auth/${id}`}
           className="inline-flex w-full items-center gap-3 rounded-xl px-5 py-3.5 text-sm font-semibold transition-opacity hover:opacity-90"
           style={style}
         >
