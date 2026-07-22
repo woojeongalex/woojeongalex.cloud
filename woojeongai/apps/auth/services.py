@@ -178,7 +178,6 @@ async def naver_fetch_user(code: str, state: str) -> dict | None:
         "username": f"naver_{social_id}",
         "nickname": profile.get("nickname") or profile.get("name") or f"naver_{social_id[:6]}",
         "email": profile.get("email") or "",
-        "provider": "naver",
     }
 
 
@@ -221,7 +220,6 @@ async def kakao_fetch_user(code: str) -> dict | None:
         "username": f"kakao_{kakao_id}",
         "nickname": props.get("nickname") or f"kakao_{kakao_id[:6]}",
         "email": account.get("email") or "",
-        "provider": "kakao",
     }
 
 
@@ -264,5 +262,4 @@ async def google_fetch_user(code: str) -> dict | None:
         "username": f"google_{google_sub}",
         "nickname": info.get("name") or f"google_{google_sub[:6]}",
         "email": info.get("email") or "",
-        "provider": "google",
     }
