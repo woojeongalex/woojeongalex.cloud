@@ -27,14 +27,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from apps.auth.router import auth_router
 
 try:
-    from database import dispose_engine, init_db
+    from database import dispose_engine
 except ModuleNotFoundError:
-    from apps.database import dispose_engine, init_db
+    from apps.database import dispose_engine
+
+from core.matrix.database_manager import init_engine
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await init_db()
+    # 마이그레이션은 backend 컨테이너가 담당 — auth는 엔진 초기화만 수행
+    init_engine()
     try:
         yield
     finally:
