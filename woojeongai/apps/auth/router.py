@@ -41,7 +41,10 @@ from friday13th.adapter.outbound.redis.redis_session_repository import (
 )
 from apps.auth.rbac import Role
 
+import logging
+
 auth_router = APIRouter(tags=["auth-gateway"])
+_log = logging.getLogger("auth_gateway")
 
 _FRONTEND_URL = os.getenv("FRONTEND_URL", "https://woojeongalex.cloud")
 _require_admin = RoleChecker(Role.ADMIN)
@@ -221,7 +224,8 @@ async def naver_callback(
         user = await find_or_create_user(db, provider="naver", ip_address=_get_ip(request), **info)
         at, rt = issue_token_pair(user)
         return _ok_redirect(at, rt)
-    except Exception:
+    except Exception as exc:
+        _log.exception("naver_callback error: %s", exc)
         return _err_redirect("naver_error")
 
 
@@ -249,7 +253,8 @@ async def kakao_callback(
         user = await find_or_create_user(db, provider="kakao", ip_address=_get_ip(request), **info)
         at, rt = issue_token_pair(user)
         return _ok_redirect(at, rt)
-    except Exception:
+    except Exception as exc:
+        _log.exception("kakao_callback error: %s", exc)
         return _err_redirect("kakao_error")
 
 
