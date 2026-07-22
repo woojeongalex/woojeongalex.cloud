@@ -6,7 +6,7 @@ from music.dependencies.instrument_director import (
     get_instrument_catalog_use_case,
     get_instrument_recorder_use_case,
 )
-from music.dependencies.maestro_director import get_maestro_use_case
+from music.dependencies.vocal_maestro_analyzer_director import get_maestro_use_case
 from music.dependencies.oracle_director import get_oracle_use_case
 from music.dependencies.search_director import get_search_use_case
 from music.dependencies.speech_director import (

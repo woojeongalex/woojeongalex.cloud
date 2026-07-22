@@ -5,10 +5,11 @@ from __future__ import annotations
 import asyncio
 import os
 import secrets
+from datetime import datetime, timezone
 from urllib.parse import urlencode
 
 import requests as http
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.security import create_access_token, create_refresh_token
@@ -42,6 +43,58 @@ async def _post_json(url: str, data: dict) -> dict:
     return await asyncio.to_thread(lambda: http.post(url, data=data, timeout=10).json())
 
 
+# ── 로그인 이벤트 기록 ─────────────────────────────────────────────────────────
+
+
+async def _record_login_event(
+    db: AsyncSession,
+    user: UserEntity,
+    provider: str,
+    ip_address: str | None,
+) -> None:
+    now = datetime.now(timezone.utc)
+
+    # last_login_at 갱신
+    await db.execute(
+        text("UPDATE users SET last_login_at = :ts WHERE id = :uid"),
+        {"ts": now, "uid": user.id},
+    )
+
+    # login_events 기록
+    await db.execute(
+        text(
+            "INSERT INTO login_events (user_id, username, nickname, email, provider, ip_address, logged_in_at)"
+            " VALUES (:uid, :uname, :nick, :email, :prov, :ip, :ts)"
+        ),
+        {
+            "uid": user.id,
+            "uname": user.username,
+            "nick": user.nickname,
+            "email": user.email or "",
+            "prov": provider,
+            "ip": ip_address,
+            "ts": now,
+        },
+    )
+    await db.commit()
+
+    # 비동기 알림 (실패해도 로그인은 정상 처리)
+    try:
+        from apps.auth.login_notifier import notify_login
+        await notify_login(
+            user_id=user.id,
+            username=user.username,
+            nickname=user.nickname,
+            email=user.email or "",
+            provider=provider,
+            ip_address=ip_address,
+            logged_in_at=now.strftime("%Y-%m-%d %H:%M:%S UTC"),
+        )
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).warning("[auth][login_event] 알림 실패: %s", e)
+
+
 # ── 공통 유저 조회/생성 ────────────────────────────────────────────────────────
 
 
@@ -50,6 +103,8 @@ async def find_or_create_user(
     username: str,
     nickname: str,
     email: str,
+    provider: str = "unknown",
+    ip_address: str | None = None,
 ) -> UserEntity:
     row = (
         await db.execute(select(UserEntity).where(UserEntity.username == username))
@@ -65,6 +120,8 @@ async def find_or_create_user(
         db.add(row)
         await db.commit()
         await db.refresh(row)
+
+    await _record_login_event(db, row, provider, ip_address)
     return row
 
 
@@ -119,10 +176,9 @@ async def naver_fetch_user(code: str, state: str) -> dict | None:
         return None
     return {
         "username": f"naver_{social_id}",
-        "nickname": profile.get("nickname")
-        or profile.get("name")
-        or f"naver_{social_id[:6]}",
+        "nickname": profile.get("nickname") or profile.get("name") or f"naver_{social_id[:6]}",
         "email": profile.get("email") or "",
+        "provider": "naver",
     }
 
 
@@ -165,6 +221,7 @@ async def kakao_fetch_user(code: str) -> dict | None:
         "username": f"kakao_{kakao_id}",
         "nickname": props.get("nickname") or f"kakao_{kakao_id[:6]}",
         "email": account.get("email") or "",
+        "provider": "kakao",
     }
 
 
@@ -207,4 +264,5 @@ async def google_fetch_user(code: str) -> dict | None:
         "username": f"google_{google_sub}",
         "nickname": info.get("name") or f"google_{google_sub[:6]}",
         "email": info.get("email") or "",
+        "provider": "google",
     }

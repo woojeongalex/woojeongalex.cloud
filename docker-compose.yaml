@@ -7,8 +7,6 @@ services:
   backend:
     build: ./woojeongai
     container_name: titanic_backend_container
-    ports:
-      - "8000:8000"
     volumes:
       - ./woojeongai:/app
       - ./woojeongai/output:/app/output:ro
@@ -33,6 +31,8 @@ services:
     build: ./woojeongai
     container_name: auth_gateway_container
     command: uvicorn auth_main:app --host 0.0.0.0 --port 9000
+    volumes:
+      - ./woojeongai:/app
     env_file:
       - ./.env
     environment:
@@ -124,6 +124,19 @@ services:
       - NEO4J_dbms_security_auth__minimum__password__length=4
     networks: [woojeongalex_net]
     restart: unless-stopped
+
+  # 8. cloudflared — Cloudflare Tunnel (컨테이너 내부 DNS 방식)
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared_container
+    command: tunnel run --token ${TUNNEL_TOKEN}
+    networks: [woojeongalex_net]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    depends_on:
+      - backend
+      - auth
 
 volumes:
   n8n_data:

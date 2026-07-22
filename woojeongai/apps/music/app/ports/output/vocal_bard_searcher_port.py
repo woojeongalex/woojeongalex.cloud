@@ -16,6 +16,11 @@ class ListPort(ABC):
         pass
 
     @abstractmethod
+    async def search_catalog(self, query: str) -> list[SongMrHitDto]:
+        """catalog_songs 테이블에서 키워드 검색 (DB 기반)."""
+        pass
+
+    @abstractmethod
     async def save_search_results(
         self, items: list[SongMrSearchSaveDto]
     ) -> list[SongMrHitDto]:

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 
-from sqlalchemy import select
+from sqlalchemy import select, or_, Table, Column, String, Integer, MetaData
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from music.adapter.outbound.orm.vocal_bard_searcher_model import SongMrSearchListEntity
@@ -10,6 +10,19 @@ from music.app.dtos.search_dto import BardIntroduceQuery, BardIntroduceResponse,
 from music.app.ports.output.vocal_bard_searcher_port import ListPort
 
 logger = logging.getLogger(__name__)
+
+_catalog_songs = Table(
+    "catalog_songs",
+    MetaData(),
+    Column("catalog_song_id", String(64), primary_key=True),
+    Column("title", String(256)),
+    Column("artist", String(256)),
+    Column("bpm", Integer),
+    Column("song_key", String(64)),
+    Column("range_label", String(128)),
+    Column("mr_track_name", String(256)),
+    Column("mr_description", String(512)),
+)
 
 
 class BardSearcherPgRepository(ListPort):
@@ -25,7 +38,39 @@ class BardSearcherPgRepository(ListPort):
         entity = (await self._session.execute(stmt)).scalar_one_or_none()
         if entity is None:
             return None
-        return _to_hit_dto(entity)
+        return _to_hit_dto_from_mr(entity)
+
+    async def search_catalog(self, query: str) -> list[SongMrHitDto]:
+        needle = f"%{query}%"
+        stmt = (
+            select(_catalog_songs)
+            .where(
+                or_(
+                    _catalog_songs.c.title.ilike(needle),
+                    _catalog_songs.c.artist.ilike(needle),
+                    _catalog_songs.c.mr_track_name.ilike(needle),
+                    _catalog_songs.c.mr_description.ilike(needle),
+                    _catalog_songs.c.range_label.ilike(needle),
+                )
+            )
+            .limit(20)
+        )
+        rows = (await self._session.execute(stmt)).mappings().all()
+        logger.info("[MUSIC][bard][5/repository] catalog search query=%s hits=%s", query, len(rows))
+        return [
+            SongMrHitDto(
+                id=0,
+                catalog_song_id=r["catalog_song_id"],
+                title=r["title"],
+                artist=r["artist"],
+                bpm=r["bpm"],
+                song_key=r["song_key"],
+                range_label=r["range_label"],
+                mr_track_name=r["mr_track_name"],
+                mr_description=r["mr_description"],
+            )
+            for r in rows
+        ]
 
     async def save_search_results(
         self, items: list[SongMrSearchSaveDto]
@@ -51,14 +96,14 @@ class BardSearcherPgRepository(ListPort):
         for row in rows:
             await self._session.refresh(row)
         logger.info(
-            "[MUSIC][bard][5/repository] Neon commit song_mr_search_lists rows=%s ids=%s",
+            "[MUSIC][bard][5/repository] commit song_mr_search_lists rows=%s ids=%s",
             len(rows),
             [r.id for r in rows],
         )
-        return [_to_hit_dto(r) for r in rows]
+        return [_to_hit_dto_from_mr(r) for r in rows]
 
 
-def _to_hit_dto(e: SongMrSearchListEntity) -> SongMrHitDto:
+def _to_hit_dto_from_mr(e: SongMrSearchListEntity) -> SongMrHitDto:
     return SongMrHitDto(
         id=e.id,
         catalog_song_id=e.catalog_song_id,
