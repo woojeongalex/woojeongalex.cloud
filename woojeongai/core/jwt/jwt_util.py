@@ -1,3 +1,6 @@
+# DEPRECATED: HS256 기반 구현. 신규 코드는 core.security (RS256) 를 사용하세요.
+# 기존 friday13th 앱이 의존 중이므로 삭제하지 않습니다.
+
 from __future__ import annotations
 
 import os
