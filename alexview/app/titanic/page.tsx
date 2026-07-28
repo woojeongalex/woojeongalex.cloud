@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { ChangeEvent, DragEvent, KeyboardEvent, useEffect, useRef, useState } from "react"
+import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from "react"
 
 import { CrawlerScraperBanner } from "@/components/crawler-scraper-banner"
 import { useAsyncAction } from "@/hooks/use-async-action"
@@ -16,7 +16,6 @@ export default function TitanicHomePage() {
   const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
   const chatEndRef = useRef<HTMLDivElement>(null)
-  const [isDragging, setIsDragging] = useState(false)
   const [uploadedFileName, setUploadedFileNameState] = useState<string | null>(null)
   const { loading, error, run } = useAsyncAction()
 
@@ -75,14 +74,6 @@ export default function TitanicHomePage() {
     event.target.value = ""
   }
 
-  const handleDrop = async (event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault()
-    setIsDragging(false)
-    const file = event.dataTransfer.files?.[0]
-    if (!file) return
-    await run(() => handleCsvUpload(file), { fallbackError: "업로드에 실패했습니다." })
-  }
-
   return (
     <main
       className="min-h-[calc(100vh-4rem)] px-4 py-10"
@@ -118,21 +109,18 @@ export default function TitanicHomePage() {
           </article>
 
           <article className="rounded-2xl border p-6" style={{ borderColor: "#1f1f1f", background: "#111111" }}>
-            <h2 className="text-xl font-semibold text-white">드래그 앤 드롭</h2>
-            <p className="mt-2 text-sm" style={{ color: "#9ca3af" }}>CSV 파일을 아래 영역에 놓아 업로드합니다.</p>
-            <div
-              onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
-              onDragLeave={() => setIsDragging(false)}
-              onDrop={handleDrop}
-              className="mt-5 flex min-h-40 items-center justify-center rounded-xl border-2 border-dashed px-4 text-center text-sm transition-colors"
-              style={{
-                borderColor: isDragging ? ACCENT : "#2a2a2a",
-                background: isDragging ? "#0d1a12" : "#0d0d0d",
-                color: isDragging ? ACCENT : "#6b7280",
-              }}
+            <h2 className="text-xl font-semibold text-white">LangChain LLM과 대화하기</h2>
+            <p className="mt-2 text-sm" style={{ color: "#9ca3af" }}>
+              레트로 메신저 감성의 채팅창에서 LangChain 기반 LLM과 대화해보세요.
+            </p>
+            <button
+              type="button"
+              onClick={() => router.push("/titanic/langchain-chat")}
+              className="mt-5 rounded-xl px-5 py-3 text-sm font-medium transition-opacity hover:opacity-80"
+              style={{ background: ACCENT, color: "#0A0A0A" }}
             >
-              여기에 Titanic CSV 파일을 드래그해서 놓으세요.
-            </div>
+              채팅 시작하기
+            </button>
           </article>
         </section>
 
