@@ -1,0 +1,9 @@
+services:
+  backend:
+    build: .
+    image: woojeongalexcloud-backend
+    container_name: backend
+    network_mode: host
+    env_file:
+      - .env
+    restart: unless-stopped
