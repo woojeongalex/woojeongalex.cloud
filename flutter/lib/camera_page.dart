@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:typed_data';
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html' as html;
 
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 
 import 'services/ocr_service.dart';
 
@@ -13,7 +15,6 @@ class CameraPage extends StatefulWidget {
 }
 
 class _CameraPageState extends State<CameraPage> {
-  final ImagePicker _picker = ImagePicker();
   final OcrService _ocr = OcrService();
 
   Uint8List? _imageBytes;
@@ -22,21 +23,36 @@ class _CameraPageState extends State<CameraPage> {
   bool _loading = false;
   String? _error;
 
-  Future<void> _pickImage(ImageSource source) async {
-    try {
-      final picked = await _picker.pickImage(source: source, imageQuality: 85);
-      if (picked == null) return;
+  Future<void> _pickImage({required bool camera}) async {
+    final completer = Completer<void>();
+    final input = html.FileUploadInputElement()..accept = 'image/*';
+    if (camera) input.setAttribute('capture', 'environment');
 
-      final bytes = await picked.readAsBytes();
-      setState(() {
-        _imageBytes = bytes;
-        _filename = picked.name;
-        _ocrText = null;
-        _error = null;
-      });
-    } catch (e) {
-      setState(() => _error = '$e');
-    }
+    input.onChange.listen((_) async {
+      final file = input.files?.first;
+      if (file == null) {
+        completer.complete();
+        return;
+      }
+      final reader = html.FileReader();
+      reader.readAsArrayBuffer(file);
+      await reader.onLoadEnd.first;
+      final result = reader.result;
+      if (result is List<int> && mounted) {
+        setState(() {
+          _imageBytes = Uint8List.fromList(result);
+          _filename = file.name;
+          _ocrText = null;
+          _error = null;
+        });
+      }
+      completer.complete();
+    });
+
+    html.document.body!.append(input);
+    input.click();
+    await completer.future;
+    input.remove();
   }
 
   Future<void> _runOcr() async {
@@ -99,14 +115,13 @@ class _CameraPageState extends State<CameraPage> {
               ),
               const SizedBox(height: 24),
 
-              // 이미지 선택 버튼
               Row(
                 children: [
                   Expanded(
                     child: _ActionButton(
                       icon: Icons.camera_alt_outlined,
                       label: '카메라',
-                      onTap: () => _pickImage(ImageSource.camera),
+                      onTap: () => _pickImage(camera: true),
                       isDark: isDark,
                     ),
                   ),
@@ -115,7 +130,7 @@ class _CameraPageState extends State<CameraPage> {
                     child: _ActionButton(
                       icon: Icons.photo_library_outlined,
                       label: '갤러리',
-                      onTap: () => _pickImage(ImageSource.gallery),
+                      onTap: () => _pickImage(camera: false),
                       isDark: isDark,
                     ),
                   ),
@@ -123,7 +138,6 @@ class _CameraPageState extends State<CameraPage> {
               ),
               const SizedBox(height: 24),
 
-              // 선택된 이미지 미리보기
               if (_imageBytes != null) ...[
                 Container(
                   decoration: BoxDecoration(
@@ -155,7 +169,6 @@ class _CameraPageState extends State<CameraPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // OCR 실행 버튼
                 SizedBox(
                   width: double.infinity,
                   height: 48,
@@ -189,7 +202,6 @@ class _CameraPageState extends State<CameraPage> {
                 ),
               ],
 
-              // 에러
               if (_error != null) ...[
                 const SizedBox(height: 16),
                 Container(
@@ -205,7 +217,6 @@ class _CameraPageState extends State<CameraPage> {
                 ),
               ],
 
-              // OCR 결과
               if (_ocrText != null) ...[
                 const SizedBox(height: 24),
                 Container(
