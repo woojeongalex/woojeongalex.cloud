@@ -58,6 +58,8 @@ app.add_middleware(
         "http://localhost:3000",
         "https://woojeongalex.cloud",
         "https://www.woojeongalex.cloud",
+        "https://app.woojeongalex.cloud",
+        "http://app.woojeongalex.cloud",
     ],
     allow_credentials=True,
     allow_methods=["*"],
