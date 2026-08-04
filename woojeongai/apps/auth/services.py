@@ -236,12 +236,23 @@ async def kakao_verify_mobile_token(access_token: str) -> dict | None:
     app_id가 KAKAO_APP_ID(카카오 콘솔 앱 설정 > 요약정보의 숫자 앱 ID)와
     일치하는지 반드시 확인한다.
     """
+    import logging
+
+    _log = logging.getLogger(__name__)
+
     token_info = await _get(
         "https://kapi.kakao.com/v2/user/access_token_info",
         {"Authorization": f"Bearer {access_token}"},
     )
+    _log.info("[kakao_mobile] token_info=%s", token_info)
+
     expected_app_id = os.getenv("KAKAO_APP_ID", "")
     if not expected_app_id or "app_id" not in token_info:
+        _log.warning(
+            "[kakao_mobile] KAKAO_APP_ID=%r, token app_id=%r",
+            expected_app_id,
+            token_info.get("app_id"),
+        )
         return None
     if str(token_info.get("app_id")) != expected_app_id:
         return None
