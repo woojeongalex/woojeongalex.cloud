@@ -20,6 +20,7 @@ boto3==1.35.99
 ultralytics==8.3.58
 timm==1.0.15
 Pillow==11.1.0
+pytesseract==0.3.13
 neo4j==5.28.1
 neo4j-graphrag==1.18.0
 langchain-core

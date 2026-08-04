@@ -85,6 +85,13 @@ class S3Manager:
         )
         return f"https://{resolved_bucket}.s3.{self._region}.amazonaws.com/{key}"
 
+    def get_bytes(self, key: str, bucket: str | None = None) -> bytes:
+        """S3에 적재된 객체를 메모리로 바로 읽어온다 (임시 파일 없이)."""
+        response = self._get_client().get_object(
+            Bucket=self._resolve_bucket(bucket), Key=key
+        )
+        return response["Body"].read()
+
     def download_file(
         self, key: str, local_path: str, bucket: str | None = None
     ) -> None:

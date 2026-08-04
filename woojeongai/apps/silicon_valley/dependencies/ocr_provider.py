@@ -3,7 +3,7 @@ import os
 from fastapi import Depends
 
 from core.matrix.aws_s3_manager import get_s3_manager
-from silicon_valley.adapter.outbound.ocr.textract_adapter import TextractOcrAdapter
+from silicon_valley.adapter.outbound.ocr.tesseract_adapter import TesseractOcrAdapter
 from silicon_valley.adapter.outbound.s3.s3_image_storage_adapter import (
     S3ImageStorageAdapter,
 )
@@ -18,7 +18,7 @@ def get_ocr_storage_port() -> S3ImageStoragePort:
 
 
 def get_ocr_port() -> OcrPort:
-    return TextractOcrAdapter(region=os.getenv("AWS_REGION", "ap-northeast-2"))
+    return TesseractOcrAdapter(s3_manager=get_s3_manager())
 
 
 def get_ocr_use_case(
