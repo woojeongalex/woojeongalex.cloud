@@ -8,6 +8,7 @@ Keymaker를 통해 backend/.env(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)에서�
 from __future__ import annotations
 
 import boto3
+from botocore.config import Config
 
 from core.matrix.secret_manager import get_keymaker
 
@@ -46,6 +47,12 @@ class S3Manager:
                 aws_access_key_id=self._access_key,
                 aws_secret_access_key=self._secret_key,
                 region_name=self._region,
+                # 기본값이면 presigned URL이 리전 없는 s3.amazonaws.com으로 나오고,
+                # 그 주소는 리전 엔드포인트로 302되면서 서명이 깨져 403이 된다.
+                config=Config(
+                    signature_version="s3v4",
+                    s3={"addressing_style": "virtual"},
+                ),
             )
         return self._client
 
