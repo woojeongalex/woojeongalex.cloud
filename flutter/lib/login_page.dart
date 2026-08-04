@@ -36,10 +36,7 @@ class _LoginPageState extends State<LoginPage> {
       if (!mounted) return;
       setState(() => _loading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('오류: $e'),
-          duration: const Duration(seconds: 8),
-        ),
+        SnackBar(content: Text('오류: $e'), duration: const Duration(seconds: 8)),
       );
     }
   }

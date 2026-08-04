@@ -5,18 +5,15 @@ import 'package:flutter/services.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:video_player/video_player.dart';
 
+import 'home_page.dart';
 import 'login_page.dart';
 import 'services/auth_service.dart';
-import 'stopwatch_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   const nativeAppKey = String.fromEnvironment('KAKAO_NATIVE_APP_KEY');
   const jsAppKey = String.fromEnvironment('KAKAO_JS_APP_KEY');
-  KakaoSdk.init(
-    nativeAppKey: nativeAppKey,
-    javaScriptAppKey: jsAppKey,
-  );
+  KakaoSdk.init(nativeAppKey: nativeAppKey, javaScriptAppKey: jsAppKey);
   runApp(const TaperApp());
 }
 
@@ -108,7 +105,7 @@ class _VideoIntroScreenState extends State<VideoIntroScreen> {
   void initState() {
     super.initState();
     _playIntro();
-    _timer = Timer(_introDuration, _goToStopwatch);
+    _timer = Timer(_introDuration, _goToHome);
   }
 
   @override
@@ -128,17 +125,17 @@ class _VideoIntroScreenState extends State<VideoIntroScreen> {
       await _controller.play();
       setState(() {});
     } on Object {
-      _goToStopwatch();
+      _goToHome();
     }
   }
 
-  void _goToStopwatch() {
+  void _goToHome() {
     if (_navigated || !mounted) {
       return;
     }
     _navigated = true;
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute<void>(builder: (_) => const StopwatchPage()),
+      MaterialPageRoute<void>(builder: (_) => const HomePage()),
     );
   }
 
