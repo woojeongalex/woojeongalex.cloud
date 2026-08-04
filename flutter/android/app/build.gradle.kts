@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.ragtailor.taper"
+    namespace = "cloud.woojeongalex.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -20,13 +20,19 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.ragtailor.taper"
+        applicationId = "cloud.woojeongalex.app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        val localProps = java.util.Properties()
+        val localFile = rootProject.file("local.properties")
+        if (localFile.exists()) localProps.load(localFile.inputStream())
+        manifestPlaceholders["KAKAO_NATIVE_APP_KEY"] =
+            localProps.getProperty("kakao.native.app.key", "")
     }
 
     buildTypes {

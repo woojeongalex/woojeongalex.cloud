@@ -1,4 +1,4 @@
-package com.ragtailor.stopwatch
+package cloud.woojeongalex.stopwatch
 
 import android.app.Activity
 import android.graphics.drawable.GradientDrawable
@@ -16,22 +16,9 @@ import android.widget.ListView
 import android.widget.TextView
 import java.util.Locale
 
-/**
- * `lib/stopwatch_page.dart`의 스톱워치를 안드로이드 네이티브 View로 옮긴 화면.
- *
- * - 큰 숫자로 총 경과 시간을 표시한다 (mm:ss.cc, 1시간 이상이면 h:mm:ss.cc).
- * - 왼쪽 버튼: 실행 중이면 `랩`(스플릿 기록), 정지 상태면 `재설정`.
- * - 오른쪽 버튼: `시작` / `중단`.
- * - 랩 목록은 최신이 위로 쌓이며, 완료된 랩 중 가장 짧은 랩은 초록, 가장 긴 랩은 빨강으로 표시한다.
- *   진행 중인 랩은 색 구분 대상에서 제외한다.
- *
- * XML 레이아웃과 외부 의존성(AppCompat, Compose, RecyclerView) 없이 프레임워크 View만 사용한다.
- * 따라서 `android/app/build.gradle.kts`를 수정하지 않고 그대로 빌드된다.
- */
 class StopwatchActivity : Activity() {
 
     private companion object {
-        /** 100분의 1초 표시가 매끄럽게 보이는 갱신 주기. */
         const val TICK_MS = 16L
 
         const val COLOR_BG = 0xFF000000.toInt()
@@ -43,13 +30,11 @@ class StopwatchActivity : Activity() {
         const val COLOR_STOP_BTN = 0xFF3A181B.toInt()
         const val COLOR_START_BTN = 0xFF0B2E16.toInt()
 
-        /** mm:ss.cc 형식. 1시간을 넘으면 h:mm:ss.cc. */
         fun format(millis: Long): String {
             val hours = millis / 3_600_000
             val minutes = millis / 60_000 % 60
             val seconds = millis / 1_000 % 60
             val centis = millis % 1_000 / 10
-            // 로케일에 따라 숫자 표기가 바뀌지 않도록 Locale.US로 고정한다.
             return if (hours > 0) {
                 String.format(Locale.US, "%d:%02d:%02d.%02d", hours, minutes, seconds, centis)
             } else {
@@ -58,27 +43,13 @@ class StopwatchActivity : Activity() {
         }
     }
 
-    // ── 상태 ────────────────────────────────────────────────────────────────
-
-    /** 정지 시점까지 누적된 시간. */
     private var accumulatedMs = 0L
-
-    /** 마지막으로 시작한 시각 (SystemClock 기준). */
     private var startedAt = 0L
-
     private var running = false
-
-    /** 완료된 랩의 소요 시간 (기록한 순서). */
     private val laps = mutableListOf<Long>()
-
-    /** 현재 진행 중인 랩이 시작된 시점 (총 경과 시간 기준). */
     private var lapStartMs = 0L
-
-    /** 완료된 랩이 2개 이상일 때만 유효한 인덱스. 아니면 -1. */
     private var fastestIndex = -1
     private var slowestIndex = -1
-
-    // ── View ────────────────────────────────────────────────────────────────
 
     private lateinit var timeView: TextView
     private lateinit var lapButton: TextView
@@ -97,13 +68,10 @@ class StopwatchActivity : Activity() {
         }
     }
 
-    /** 총 경과 시간. 시스템 시계 기준이라 프레임이 밀려도 시간이 어긋나지 않는다. */
     private fun elapsedMs(): Long =
         accumulatedMs + if (running) SystemClock.elapsedRealtime() - startedAt else 0L
 
     private fun hasRecord(): Boolean = running || elapsedMs() > 0L
-
-    // ── 생명주기 ────────────────────────────────────────────────────────────
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -118,7 +86,6 @@ class StopwatchActivity : Activity() {
         }
     }
 
-    /** 화면이 가려진 동안에는 갱신을 멈춘다. 시계 자체는 계속 흐른다. */
     override fun onStop() {
         handler.removeCallbacks(ticker)
         super.onStop()
@@ -129,9 +96,6 @@ class StopwatchActivity : Activity() {
         super.onDestroy()
     }
 
-    // ── 동작 ────────────────────────────────────────────────────────────────
-
-    /** 시작 ↔ 중단. */
     private fun toggleRun() {
         if (running) {
             accumulatedMs = elapsedMs()
@@ -145,7 +109,6 @@ class StopwatchActivity : Activity() {
         render()
     }
 
-    /** 실행 중이면 랩 기록, 정지 상태면 전체 초기화. */
     private fun lapOrReset() {
         if (running) {
             val now = elapsedMs()
@@ -163,7 +126,6 @@ class StopwatchActivity : Activity() {
         render()
     }
 
-    /** 완료된 랩 중 최단·최장 인덱스를 갱신한다. 랩이 1개뿐이면 구분하지 않는다. */
     private fun updateLapRanking() {
         if (laps.size < 2) {
             fastestIndex = -1
@@ -180,16 +142,12 @@ class StopwatchActivity : Activity() {
         slowestIndex = slowest
     }
 
-    // ── 렌더링 ──────────────────────────────────────────────────────────────
-
-    /** 매 틱마다 갱신되는 부분 — 총 경과 시간과 진행 중인 랩. */
     private fun renderTime() {
         val elapsed = elapsedMs()
         timeView.text = format(elapsed)
         currentLapValue.text = format(elapsed - lapStartMs)
     }
 
-    /** 버튼 상태처럼 조작 시점에만 바뀌는 부분. */
     private fun render() {
         renderTime()
 
@@ -206,8 +164,6 @@ class StopwatchActivity : Activity() {
         currentLapLabel.text = "랩 ${laps.size + 1}"
     }
 
-    // ── View 구성 ───────────────────────────────────────────────────────────
-
     private fun buildContentView(): View {
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -219,7 +175,6 @@ class StopwatchActivity : Activity() {
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 64f)
             setTextColor(COLOR_TEXT)
             gravity = Gravity.CENTER
-            // 숫자 폭을 고정해 시간이 흔들리지 않게 한다.
             fontFeatureSettings = "tnum"
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -237,7 +192,6 @@ class StopwatchActivity : Activity() {
             gravity = Gravity.CENTER_VERTICAL
             setPadding(dp(32), 0, dp(32), dp(24))
             addView(lapButton)
-            // 두 버튼을 좌우 끝으로 밀어내는 빈 공간.
             addView(View(this@StopwatchActivity), LinearLayout.LayoutParams(0, 1, 1f))
             addView(runButton)
         }
@@ -286,7 +240,6 @@ class StopwatchActivity : Activity() {
         }
     }
 
-    /** 랩 한 줄 — 왼쪽 라벨, 오른쪽 시간. */
     private fun lapRow(): LinearLayout {
         val row = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -319,9 +272,6 @@ class StopwatchActivity : Activity() {
 
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
 
-    // ── 완료된 랩 목록 ──────────────────────────────────────────────────────
-
-    /** 최신 랩이 위로 오도록 역순으로 노출한다. */
     private inner class LapAdapter : BaseAdapter() {
 
         override fun getCount(): Int = laps.size

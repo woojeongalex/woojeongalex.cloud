@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import base64
 import os
+from urllib.parse import urlencode
 
 import jwt as pyjwt
 from cryptography.hazmat.primitives import serialization
@@ -12,17 +13,25 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
-from urllib.parse import urlencode
 
 try:
     from database import get_db
 except ModuleNotFoundError:
     from apps.database import get_db
 
+import logging
+
+from friday13th.adapter.outbound.redis.redis_session_repository import (
+    RedisSessionRepository,
+)
+
+from apps.auth.rbac import Role
 from apps.auth.schemas import (
     AccessTokenResponse,
     JwksResponse,
+    KakaoMobileLoginRequest,
     RefreshRequest,
+    TokenResponse,
 )
 from apps.auth.services import (
     find_or_create_user,
@@ -31,17 +40,12 @@ from apps.auth.services import (
     issue_token_pair,
     kakao_authorize_url,
     kakao_fetch_user,
+    kakao_verify_mobile_token,
     naver_authorize_url,
     naver_fetch_user,
 )
-from core.dependencies import get_current_user, RoleChecker
+from core.dependencies import RoleChecker, get_current_user
 from core.security import create_access_token, verify_token
-from friday13th.adapter.outbound.redis.redis_session_repository import (
-    RedisSessionRepository,
-)
-from apps.auth.rbac import Role
-
-import logging
 
 auth_router = APIRouter(tags=["auth-gateway"])
 _log = logging.getLogger("auth_gateway")
@@ -165,19 +169,23 @@ async def login_report(
 ) -> dict:
     """최근 로그인 이벤트 조회 (관리자 전용)."""
     rows = (
-        await db.execute(
-            text(
-                "SELECT le.id, le.user_id, le.username, le.nickname, le.email,"
-                "       le.provider, le.ip_address, le.logged_in_at,"
-                "       u.role, u.last_login_at"
-                " FROM login_events le"
-                " LEFT JOIN users u ON u.id = le.user_id"
-                " ORDER BY le.logged_in_at DESC"
-                " LIMIT :lim"
-            ),
-            {"lim": limit},
+        (
+            await db.execute(
+                text(
+                    "SELECT le.id, le.user_id, le.username, le.nickname, le.email,"
+                    "       le.provider, le.ip_address, le.logged_in_at,"
+                    "       u.role, u.last_login_at"
+                    " FROM login_events le"
+                    " LEFT JOIN users u ON u.id = le.user_id"
+                    " ORDER BY le.logged_in_at DESC"
+                    " LIMIT :lim"
+                ),
+                {"lim": limit},
+            )
         )
-    ).mappings().all()
+        .mappings()
+        .all()
+    )
 
     events = [dict(r) for r in rows]
     for e in events:
@@ -221,7 +229,9 @@ async def naver_callback(
         info = await naver_fetch_user(code, state or "")
         if not info:
             return _err_redirect("naver_profile_failed")
-        user = await find_or_create_user(db, provider="naver", ip_address=_get_ip(request), **info)
+        user = await find_or_create_user(
+            db, provider="naver", ip_address=_get_ip(request), **info
+        )
         at, rt = issue_token_pair(user)
         return _ok_redirect(at, rt)
     except Exception as exc:
@@ -250,12 +260,34 @@ async def kakao_callback(
         info = await kakao_fetch_user(code)
         if not info:
             return _err_redirect("kakao_profile_failed")
-        user = await find_or_create_user(db, provider="kakao", ip_address=_get_ip(request), **info)
+        user = await find_or_create_user(
+            db, provider="kakao", ip_address=_get_ip(request), **info
+        )
         at, rt = issue_token_pair(user)
         return _ok_redirect(at, rt)
     except Exception as exc:
         _log.exception("kakao_callback error: %s", exc)
         return _err_redirect("kakao_error")
+
+
+# ── OAuth — Kakao (모바일 네이티브 SDK) ────────────────────────────────────────
+
+
+@auth_router.post("/kakao/mobile", response_model=TokenResponse)
+async def kakao_mobile_login(
+    request: Request,
+    body: KakaoMobileLoginRequest,
+    db: AsyncSession = Depends(get_db),
+) -> TokenResponse:
+    """Flutter 앱이 카카오 SDK로 발급받은 access token을 검증하고 JWT를 발급한다."""
+    info = await kakao_verify_mobile_token(body.access_token)
+    if not info:
+        raise HTTPException(status_code=401, detail="유효하지 않은 카카오 토큰입니다.")
+    user = await find_or_create_user(
+        db, provider="kakao_mobile", ip_address=_get_ip(request), **info
+    )
+    at, rt = issue_token_pair(user)
+    return TokenResponse(access_token=at, refresh_token=rt)
 
 
 # ── OAuth 콜백 — Google ───────────────────────────────────────────────────────
@@ -279,7 +311,9 @@ async def google_callback(
         info = await google_fetch_user(code)
         if not info:
             return _err_redirect("google_profile_failed")
-        user = await find_or_create_user(db, provider="google", ip_address=_get_ip(request), **info)
+        user = await find_or_create_user(
+            db, provider="google", ip_address=_get_ip(request), **info
+        )
         at, rt = issue_token_pair(user)
         return _ok_redirect(at, rt)
     except Exception:

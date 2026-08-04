@@ -2,11 +2,21 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:video_player/video_player.dart';
 
+import 'login_page.dart';
+import 'services/auth_service.dart';
 import 'stopwatch_page.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  const nativeAppKey = String.fromEnvironment('KAKAO_NATIVE_APP_KEY');
+  const jsAppKey = String.fromEnvironment('KAKAO_JS_APP_KEY');
+  KakaoSdk.init(
+    nativeAppKey: nativeAppKey,
+    javaScriptAppKey: jsAppKey,
+  );
   runApp(const TaperApp());
 }
 
@@ -29,8 +39,47 @@ class TaperApp extends StatelessWidget {
         useMaterial3: true,
       ),
       themeMode: ThemeMode.system,
-      home: const VideoIntroScreen(),
+      home: const AuthGate(),
     );
+  }
+}
+
+class AuthGate extends StatefulWidget {
+  const AuthGate({super.key});
+
+  @override
+  State<AuthGate> createState() => _AuthGateState();
+}
+
+class _AuthGateState extends State<AuthGate> {
+  final AuthService _auth = AuthService();
+  bool? _loggedIn;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAuth();
+  }
+
+  Future<void> _checkAuth() async {
+    final loggedIn = await _auth.isLoggedIn();
+    if (!mounted) return;
+    setState(() => _loggedIn = loggedIn);
+  }
+
+  void _onLoginSuccess() {
+    setState(() => _loggedIn = true);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_loggedIn == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    if (_loggedIn!) {
+      return const VideoIntroScreen();
+    }
+    return LoginPage(onLoginSuccess: _onLoginSuccess);
   }
 }
 
@@ -47,7 +96,7 @@ class VideoIntroScreen extends StatefulWidget {
 
 class _VideoIntroScreenState extends State<VideoIntroScreen> {
   static const String _videoAsset = 'assets/video/intro.mp4';
-  static const Duration _introDuration = Duration(seconds: 4);
+  static const Duration _introDuration = Duration(seconds: 5);
 
   final VideoPlayerController _controller = VideoPlayerController.asset(
     _videoAsset,
@@ -75,10 +124,10 @@ class _VideoIntroScreenState extends State<VideoIntroScreen> {
       if (!mounted) {
         return;
       }
+      await _controller.setVolume(0);
       await _controller.play();
       setState(() {});
     } on Object {
-      // 영상 파일이 없거나 코덱을 못 읽어도 인트로만 건너뛴다.
       _goToStopwatch();
     }
   }

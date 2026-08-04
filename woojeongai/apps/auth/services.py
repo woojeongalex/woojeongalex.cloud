@@ -9,15 +9,14 @@ from datetime import datetime, timezone
 from urllib.parse import urlencode
 
 import requests as http
-from sqlalchemy import select, text
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from core.security import create_access_token, create_refresh_token
 from friday13th.adapter.outbound.orm.user_model import UserEntity, hash_password
 from friday13th.adapter.outbound.redis.redis_session_repository import (
     RedisSessionRepository,
 )
+from sqlalchemy import select, text
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from core.security import create_access_token, create_refresh_token
 
 # ── HTTP 헬퍼 ─────────────────────────────────────────────────────────────────
 
@@ -81,6 +80,7 @@ async def _record_login_event(
     # 비동기 알림 (실패해도 로그인은 정상 처리)
     try:
         from apps.auth.login_notifier import notify_login
+
         await notify_login(
             user_id=user.id,
             username=user.username,
@@ -92,6 +92,7 @@ async def _record_login_event(
         )
     except Exception as e:
         import logging
+
         logging.getLogger(__name__).warning("[auth][login_event] 알림 실패: %s", e)
 
 
@@ -176,7 +177,9 @@ async def naver_fetch_user(code: str, state: str) -> dict | None:
         return None
     return {
         "username": f"naver_{social_id}",
-        "nickname": profile.get("nickname") or profile.get("name") or f"naver_{social_id[:6]}",
+        "nickname": profile.get("nickname")
+        or profile.get("name")
+        or f"naver_{social_id[:6]}",
         "email": profile.get("email") or "",
     }
 
@@ -210,6 +213,42 @@ async def kakao_fetch_user(code: str) -> dict | None:
     info = await _get(
         "https://kapi.kakao.com/v2/user/me",
         {"Authorization": f"Bearer {social_token}"},
+    )
+    kakao_id = str(info.get("id", ""))
+    if not kakao_id:
+        return None
+    props = info.get("properties", {})
+    account = info.get("kakao_account", {})
+    return {
+        "username": f"kakao_{kakao_id}",
+        "nickname": props.get("nickname") or f"kakao_{kakao_id[:6]}",
+        "email": account.get("email") or "",
+    }
+
+
+# ── Kakao OAuth — 모바일(네이티브 SDK) ─────────────────────────────────────────
+
+
+async def kakao_verify_mobile_token(access_token: str) -> dict | None:
+    """Flutter 앱이 SDK로 발급받은 access token 검증 후 프로필 반환.
+
+    다른 카카오 앱에서 발급된 토큰 재사용을 막기 위해 access_token_info의
+    app_id가 KAKAO_APP_ID(카카오 콘솔 앱 설정 > 요약정보의 숫자 앱 ID)와
+    일치하는지 반드시 확인한다.
+    """
+    token_info = await _get(
+        "https://kapi.kakao.com/v2/user/access_token_info",
+        {"Authorization": f"Bearer {access_token}"},
+    )
+    expected_app_id = os.getenv("KAKAO_APP_ID", "")
+    if not expected_app_id or "app_id" not in token_info:
+        return None
+    if str(token_info.get("app_id")) != expected_app_id:
+        return None
+
+    info = await _get(
+        "https://kapi.kakao.com/v2/user/me",
+        {"Authorization": f"Bearer {access_token}"},
     )
     kakao_id = str(info.get("id", ""))
     if not kakao_id:

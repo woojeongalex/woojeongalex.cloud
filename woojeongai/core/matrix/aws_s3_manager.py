@@ -68,6 +68,23 @@ class S3Manager:
     def upload_file(self, local_path: str, key: str, bucket: str | None = None) -> None:
         self._get_client().upload_file(local_path, self._resolve_bucket(bucket), key)
 
+    def put_bytes(
+        self,
+        key: str,
+        data: bytes,
+        content_type: str,
+        bucket: str | None = None,
+    ) -> str:
+        """메모리상의 바이트(업로드된 파일 등)를 바로 S3에 적재하고 접근 URL을 반환한다."""
+        resolved_bucket = self._resolve_bucket(bucket)
+        self._get_client().put_object(
+            Bucket=resolved_bucket,
+            Key=key,
+            Body=data,
+            ContentType=content_type,
+        )
+        return f"https://{resolved_bucket}.s3.{self._region}.amazonaws.com/{key}"
+
     def download_file(
         self, key: str, local_path: str, bucket: str | None = None
     ) -> None:

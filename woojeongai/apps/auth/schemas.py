@@ -23,6 +23,10 @@ class RefreshRequest(BaseModel):
     refresh_token: str
 
 
+class KakaoMobileLoginRequest(BaseModel):
+    access_token: str
+
+
 class JwksKey(BaseModel):
     kty: str
     use: str
