@@ -20,7 +20,7 @@ class OcrResult {
 }
 
 class OcrService {
-  static const String _baseUrl = 'https://api-backend.woojeongalex.cloud';
+  static const String _baseUrl = 'https://aws-api.woojeongalex.cloud';
 
   Future<OcrResult> uploadAndOcr({
     required Uint8List bytes,
