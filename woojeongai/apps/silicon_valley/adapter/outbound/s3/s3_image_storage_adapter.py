@@ -19,5 +19,7 @@ class S3ImageStorageAdapter(S3ImageStoragePort):
     ) -> tuple[str, str]:
         ext = filename.rsplit(".", 1)[-1] if "." in filename else "bin"
         key = f"{self._prefix}/{uuid.uuid4().hex}.{ext}"
-        url = await asyncio.to_thread(self._s3.put_bytes, key, data, content_type)
+        await asyncio.to_thread(self._s3.put_bytes, key, data, content_type)
+        # 버킷이 비공개라 put_bytes가 돌려주는 원본 주소는 브라우저에서 403이 난다.
+        url = await asyncio.to_thread(self._s3.presigned_url, key)
         return url, key

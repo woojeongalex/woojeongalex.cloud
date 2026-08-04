@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:typed_data';
-// ignore: avoid_web_libraries_in_flutter
+// 웹 전용 화면이라 브라우저 file input·canvas를 직접 쓴다.
+// image_picker는 웹에서 MissingPluginException이 나서 걷어냈다.
+// ignore: avoid_web_libraries_in_flutter, deprecated_member_use
 import 'dart:html' as html;
 
 import 'package:flutter/material.dart';
@@ -23,6 +25,47 @@ class _CameraPageState extends State<CameraPage> {
   bool _loading = false;
   String? _error;
 
+  /// 폰 사진은 4000px·4MB가 넘는데 OCR엔 그만한 해상도가 필요 없다.
+  /// 업로드 전에 줄여야 모바일 회선에서 대기 시간이 확 준다.
+  /// 반환값의 `converted`가 true면 내용이 JPEG로 다시 인코딩된 것이라
+  /// 파일명 확장자도 .jpg로 맞춰야 S3에 올바른 타입으로 적재된다.
+  Future<({Uint8List bytes, bool converted})> _downscale(
+    Uint8List bytes,
+  ) async {
+    const maxEdge = 1600;
+    final blob = html.Blob(<dynamic>[bytes]);
+    final url = html.Url.createObjectUrlFromBlob(blob);
+    try {
+      final img = html.ImageElement(src: url);
+      await img.onLoad.first;
+
+      final longest = img.naturalWidth > img.naturalHeight
+          ? img.naturalWidth
+          : img.naturalHeight;
+      if (longest <= maxEdge) return (bytes: bytes, converted: false);
+
+      final scale = maxEdge / longest;
+      final w = (img.naturalWidth * scale).round();
+      final h = (img.naturalHeight * scale).round();
+
+      final canvas = html.CanvasElement(width: w, height: h);
+      canvas.context2D.drawImageScaled(img, 0, 0, w, h);
+
+      final resized = await canvas.toBlob('image/jpeg', 0.85);
+      final reader = html.FileReader();
+      reader.readAsArrayBuffer(resized);
+      await reader.onLoadEnd.first;
+      final result = reader.result;
+      if (result is! List<int>) return (bytes: bytes, converted: false);
+      return (bytes: Uint8List.fromList(result), converted: true);
+    } catch (_) {
+      // 축소에 실패하면 원본으로라도 진행한다.
+      return (bytes: bytes, converted: false);
+    } finally {
+      html.Url.revokeObjectUrl(url);
+    }
+  }
+
   Future<void> _pickImage({required bool camera}) async {
     final completer = Completer<void>();
     final input = html.FileUploadInputElement()..accept = 'image/*';
@@ -39,9 +82,17 @@ class _CameraPageState extends State<CameraPage> {
       await reader.onLoadEnd.first;
       final result = reader.result;
       if (result is List<int> && mounted) {
+        final shrunk = await _downscale(Uint8List.fromList(result));
+        if (!mounted) {
+          completer.complete();
+          return;
+        }
+        final name = shrunk.converted
+            ? '${file.name.split('.').first}.jpg'
+            : file.name;
         setState(() {
-          _imageBytes = Uint8List.fromList(result);
-          _filename = file.name;
+          _imageBytes = shrunk.bytes;
+          _filename = name;
           _ocrText = null;
           _error = null;
         });

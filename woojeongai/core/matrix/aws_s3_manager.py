@@ -85,12 +85,22 @@ class S3Manager:
         )
         return f"https://{resolved_bucket}.s3.{self._region}.amazonaws.com/{key}"
 
-    def get_bytes(self, key: str, bucket: str | None = None) -> bytes:
-        """S3에 적재된 객체를 메모리로 바로 읽어온다 (임시 파일 없이)."""
-        response = self._get_client().get_object(
-            Bucket=self._resolve_bucket(bucket), Key=key
+    def presigned_url(
+        self,
+        key: str,
+        expires_in: int = 604800,
+        bucket: str | None = None,
+    ) -> str:
+        """비공개 버킷의 객체를 브라우저에서 열 수 있는 임시 URL을 만든다.
+
+        버킷이 비공개라 s3.amazonaws.com 원본 주소는 항상 AccessDenied가 난다.
+        기본 만료는 7일(SigV4 최대값).
+        """
+        return self._get_client().generate_presigned_url(
+            "get_object",
+            Params={"Bucket": self._resolve_bucket(bucket), "Key": key},
+            ExpiresIn=expires_in,
         )
-        return response["Body"].read()
 
     def download_file(
         self, key: str, local_path: str, bucket: str | None = None

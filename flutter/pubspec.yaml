@@ -47,6 +47,9 @@ dependencies:
   # 백엔드 API 호출
   http: ^1.4.0
 
+  # 멀티파트 업로드 시 Content-Type 지정 (MediaType)
+  http_parser: ^4.1.2
+
   # 카메라/갤러리 이미지 선택
   image_picker: ^1.1.2
 

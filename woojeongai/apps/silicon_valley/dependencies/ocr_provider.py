@@ -1,5 +1,3 @@
-import os
-
 from fastapi import Depends
 
 from core.matrix.aws_s3_manager import get_s3_manager
@@ -18,12 +16,11 @@ def get_ocr_storage_port() -> S3ImageStoragePort:
 
 
 def get_ocr_port() -> OcrPort:
-    return TesseractOcrAdapter(s3_manager=get_s3_manager())
+    return TesseractOcrAdapter()
 
 
 def get_ocr_use_case(
     storage: S3ImageStoragePort = Depends(get_ocr_storage_port),
     ocr: OcrPort = Depends(get_ocr_port),
 ) -> OcrUseCase:
-    bucket = os.getenv("AWS_S3_BUCKET", "")
-    return OcrInteractor(storage=storage, ocr=ocr, bucket=bucket)
+    return OcrInteractor(storage=storage, ocr=ocr)
