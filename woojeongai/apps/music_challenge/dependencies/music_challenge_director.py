@@ -1,0 +1,48 @@
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from music_challenge.adapter.outbound.gemini_evaluator_adapter import GeminiEvaluatorAdapter
+from music_challenge.adapter.outbound.pg.challenge_pg_repository import ChallengePgRepository
+from music_challenge.adapter.outbound.pg.evaluation_pg_repository import EvaluationPgRepository
+from music_challenge.adapter.outbound.pg.submission_pg_repository import SubmissionPgRepository
+from music_challenge.adapter.outbound.s3_media_storage_adapter import S3MediaStorageAdapter
+from music_challenge.app.ports.input.challenge_use_case import (
+    CreateChallengeUseCase,
+    GetChallengeUseCase,
+    ListChallengesUseCase,
+)
+from music_challenge.app.ports.input.submission_use_case import SubmitChallengeUseCase
+from music_challenge.app.use_cases.create_challenge_interactor import CreateChallengeInteractor
+from music_challenge.app.use_cases.get_challenge_interactor import GetChallengeInteractor
+from music_challenge.app.use_cases.list_challenges_interactor import ListChallengesInteractor
+from music_challenge.app.use_cases.submit_challenge_interactor import SubmitChallengeInteractor
+
+
+def get_create_challenge_use_case(session: AsyncSession) -> CreateChallengeUseCase:
+    return CreateChallengeInteractor(
+        challenge_repo=ChallengePgRepository(session),
+        storage=S3MediaStorageAdapter(),
+    )
+
+
+def get_list_challenges_use_case(session: AsyncSession) -> ListChallengesUseCase:
+    return ListChallengesInteractor(
+        challenge_repo=ChallengePgRepository(session),
+        storage=S3MediaStorageAdapter(),
+    )
+
+
+def get_challenge_use_case(session: AsyncSession) -> GetChallengeUseCase:
+    return GetChallengeInteractor(
+        challenge_repo=ChallengePgRepository(session),
+        storage=S3MediaStorageAdapter(),
+    )
+
+
+def get_submit_challenge_use_case(session: AsyncSession) -> SubmitChallengeUseCase:
+    return SubmitChallengeInteractor(
+        challenge_repo=ChallengePgRepository(session),
+        submission_repo=SubmissionPgRepository(session),
+        evaluation_repo=EvaluationPgRepository(session),
+        storage=S3MediaStorageAdapter(),
+        evaluator=GeminiEvaluatorAdapter(),
+    )

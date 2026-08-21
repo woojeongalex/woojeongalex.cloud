@@ -44,6 +44,8 @@ from friday13th.adapter.inbound.api.v1 import (
 from titanic.adapter.inbound.api import titanic_router
 from silicon_valley.adapter.inbound.api import silicon_valley_router
 from star_craft.adapter.inbound.api import star_craft_router
+from music_challenge.adapter.inbound.api import music_challenge_router
+import music_challenge.adapter.outbound.orm.music_challenge_orm  # noqa: F401 — Alembic autogenerate
 
 logger = logging.getLogger(__name__)
 
@@ -102,6 +104,7 @@ app.include_router(titanic_router)
 app.include_router(silicon_valley_router)
 app.include_router(music_router)
 app.include_router(star_craft_router)
+app.include_router(music_challenge_router)
 
 
 @app.get("/health")
