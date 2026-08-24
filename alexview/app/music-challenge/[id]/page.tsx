@@ -1,9 +1,13 @@
 import { notFound } from "next/navigation"
 import { ChallengeDetail } from "./challenge-detail"
 
-type PageProps = { params: Promise<{ id: string }> }
+type MusicChallengeDetailPageProps = {
+  params: Promise<{ id: string }>
+}
 
-export default async function MusicChallengeDetailPage({ params }: PageProps) {
+export default async function MusicChallengeDetailPage({
+  params,
+}: MusicChallengeDetailPageProps) {
   const { id } = await params
   const challengeId = Number(id)
 

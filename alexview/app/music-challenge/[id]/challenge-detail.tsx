@@ -22,7 +22,11 @@ const ACCEPT: Record<MediaType, string> = {
   video: "video/*",
 }
 
-export function ChallengeDetail({ challengeId }: { challengeId: number }) {
+type ChallengeDetailProps = {
+  challengeId: number
+}
+
+export function ChallengeDetail({ challengeId }: ChallengeDetailProps) {
   const [challenge, setChallenge] = useState<Challenge | null>(null)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
