@@ -50,4 +50,6 @@ export const UI_ERRORS = {
   backendUnavailable: "서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.",
   crawlerFailed: "크롤링에 실패했습니다. 잠시 후 다시 시도해 주세요.",
   scraperFailed: "스크래핑에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+  challengeLoadFailed: "챌린지를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.",
+  challengeSubmitFailed: "제출에 실패했습니다. 파일을 확인하고 다시 시도해 주세요.",
 } as const
