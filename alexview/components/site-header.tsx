@@ -77,6 +77,11 @@ export function SiteHeader() {
                     LESSON
                   </Link>
                 </DropdownMenuItem>
+                <DropdownMenuItem asChild className={pianoMenuKeyWhite}>
+                  <Link href="/music-challenge" className="flex w-full cursor-pointer">
+                    챌린지
+                  </Link>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             {user?.role === "admin" && (
