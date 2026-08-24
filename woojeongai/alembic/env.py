@@ -57,6 +57,7 @@ def _import_models() -> None:
     import friday13th.adapter.outbound.orm.user_model  # noqa: F401
     import titanic.adapter.outbound.orm.passenger_orm  # noqa: F401
     import titanic.adapter.outbound.orm.booking_orm  # noqa: F401
+    import music_challenge.adapter.outbound.orm.music_challenge_orm  # noqa: F401
 
 
 def run_migrations_offline() -> None:

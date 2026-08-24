@@ -22,7 +22,9 @@ class ChallengeSubmissionModel(SQLModel, table=True):
     __tablename__ = "challenge_submissions"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    challenge_id: Mapped[int] = mapped_column(Integer, ForeignKey("music_challenges.id"))
+    challenge_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("music_challenges.id"), index=True
+    )
     media_type: Mapped[str] = mapped_column(String(10))
     s3_key: Mapped[str] = mapped_column(String(500))
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
@@ -32,7 +34,9 @@ class SubmissionEvaluationModel(SQLModel, table=True):
     __tablename__ = "submission_evaluations"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    submission_id: Mapped[int] = mapped_column(Integer, ForeignKey("challenge_submissions.id"))
+    submission_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("challenge_submissions.id"), index=True
+    )
     score: Mapped[int] = mapped_column(Integer)
     feedback: Mapped[str] = mapped_column(Text)
     next_challenge_id: Mapped[Optional[int]] = mapped_column(
