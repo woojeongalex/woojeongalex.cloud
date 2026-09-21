@@ -54,11 +54,16 @@ export async function GET(request: NextRequest, context: RouteContext) {
   }
 }
 
-export async function POST(request: NextRequest, context: RouteContext) {
+/** 바디가 있는 요청(POST 제출·업로드, PUT 가사 저장)을 그대로 넘긴다. */
+async function forwardWithBody(
+  method: "POST" | "PUT",
+  request: NextRequest,
+  context: RouteContext
+): Promise<NextResponse> {
   const { path } = await context.params
   const contentType = request.headers.get("content-type") ?? ""
-  // 로그인 사용자를 제출물에 기록하려면 토큰이 백엔드까지 가야 한다.
-  // 비로그인이면 헤더가 없고, 백엔드는 익명 제출로 처리한다.
+  // 로그인 사용자를 제출물에 기록하거나 관리자 권한을 확인하려면 토큰이
+  // 백엔드까지 가야 한다. 비로그인이면 헤더가 없고, 백엔드가 알아서 판단한다.
   const authorization = request.headers.get("authorization")
 
   try {
@@ -73,7 +78,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     if (authorization) headers["Authorization"] = authorization
 
     const res = await fetch(backendUrl(path, request.nextUrl.search), {
-      method: "POST",
+      method,
       headers,
       body,
       cache: "no-store",
@@ -82,4 +87,12 @@ export async function POST(request: NextRequest, context: RouteContext) {
   } catch {
     return unavailable()
   }
+}
+
+export async function POST(request: NextRequest, context: RouteContext) {
+  return forwardWithBody("POST", request, context)
+}
+
+export async function PUT(request: NextRequest, context: RouteContext) {
+  return forwardWithBody("PUT", request, context)
 }

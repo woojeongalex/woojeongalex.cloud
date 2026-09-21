@@ -7,6 +7,12 @@
 # sys.path 에 backend/ 와 backend/apps/ 가 모두 들어가므로(alembic/env.py 참고)
 # apps 하위 패키지들은 최상위 이름으로 임포트된다 → 전부 1st party 로 선언한다.
 
+# ruff 0.16 에서 기본 규칙 세트가 넓어져(B008, DTZ003, EXE002 …) 같은 코드가 갑자기
+# 100 건 넘게 걸렸다. FastAPI 의 `Depends()` 기본값처럼 이 저장소가 일부러 쓰는 패턴까지
+# 잡으므로, 이전 기본값을 명시해 버전이 올라가도 기준이 흔들리지 않게 한다.
+[lint]
+select = ["E4", "E7", "E9", "F"]
+
 [lint.isort]
 known-first-party = [
     "adapters",

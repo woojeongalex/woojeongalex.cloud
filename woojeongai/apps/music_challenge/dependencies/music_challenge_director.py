@@ -6,9 +6,13 @@ from music_challenge.adapter.outbound.gemini_evaluator_adapter import (
 from music_challenge.adapter.outbound.librosa_audio_analysis_adapter import (
     LibrosaAudioAnalysisAdapter,
 )
+from music_challenge.adapter.outbound.librosa_melody_extractor_adapter import (
+    LibrosaMelodyExtractorAdapter,
+)
 from music_challenge.adapter.outbound.pg.challenge_pg_repository import (
     ChallengePgRepository,
 )
+from music_challenge.adapter.outbound.pg.chart_pg_repository import ChartPgRepository
 from music_challenge.adapter.outbound.pg.evaluation_pg_repository import (
     EvaluationPgRepository,
 )
@@ -26,14 +30,22 @@ from music_challenge.app.ports.input.challenge_use_case import (
     GetChallengeUseCase,
     ListChallengesUseCase,
 )
+from music_challenge.app.ports.input.chart_use_case import (
+    BuildChartUseCase,
+    GetChartUseCase,
+    UpdateLyricsUseCase,
+    UploadStemsUseCase,
+)
 from music_challenge.app.ports.input.history_use_case import GetMyHistoryUseCase
 from music_challenge.app.ports.input.submission_use_case import SubmitChallengeUseCase
+from music_challenge.app.use_cases.build_chart_interactor import BuildChartInteractor
 from music_challenge.app.use_cases.create_challenge_interactor import (
     CreateChallengeInteractor,
 )
 from music_challenge.app.use_cases.get_challenge_interactor import (
     GetChallengeInteractor,
 )
+from music_challenge.app.use_cases.get_chart_interactor import GetChartInteractor
 from music_challenge.app.use_cases.get_my_history_interactor import (
     GetMyHistoryInteractor,
 )
@@ -42,6 +54,12 @@ from music_challenge.app.use_cases.list_challenges_interactor import (
 )
 from music_challenge.app.use_cases.submit_challenge_interactor import (
     SubmitChallengeInteractor,
+)
+from music_challenge.app.use_cases.update_lyrics_interactor import (
+    UpdateLyricsInteractor,
+)
+from music_challenge.app.use_cases.upload_stems_interactor import (
+    UploadStemsInteractor,
 )
 
 
@@ -82,4 +100,35 @@ def get_my_history_use_case(session: AsyncSession) -> GetMyHistoryUseCase:
     return GetMyHistoryInteractor(
         submission_repo=SubmissionPgRepository(session),
         user_lookup=UserLookupPgRepository(session),
+    )
+
+
+def get_chart_use_case(session: AsyncSession) -> GetChartUseCase:
+    return GetChartInteractor(
+        challenge_repo=ChallengePgRepository(session),
+        chart_repo=ChartPgRepository(session),
+        storage=S3MediaStorageAdapter(),
+    )
+
+
+def get_upload_stems_use_case(session: AsyncSession) -> UploadStemsUseCase:
+    return UploadStemsInteractor(
+        challenge_repo=ChallengePgRepository(session),
+        chart_repo=ChartPgRepository(session),
+        storage=S3MediaStorageAdapter(),
+    )
+
+
+def get_build_chart_use_case(session: AsyncSession) -> BuildChartUseCase:
+    return BuildChartInteractor(
+        chart_repo=ChartPgRepository(session),
+        extractor=LibrosaMelodyExtractorAdapter(),
+    )
+
+
+def get_update_lyrics_use_case(session: AsyncSession) -> UpdateLyricsUseCase:
+    return UpdateLyricsInteractor(
+        challenge_repo=ChallengePgRepository(session),
+        chart_repo=ChartPgRepository(session),
+        storage=S3MediaStorageAdapter(),
     )

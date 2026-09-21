@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, File, Form, UploadFile
 
+from friday13th.adapter.inbound.api.deps.current_user_deps import require_admin
 from music_challenge.adapter.inbound.api.deps.music_challenge_deps import (
     get_challenge_use_case,
     get_create_challenge_use_case,
@@ -47,6 +48,7 @@ async def create_challenge(
     description: str = Form(...),
     challenge_type: ChallengeType = Form(...),
     music_file: UploadFile = File(...),
+    _admin: dict = Depends(require_admin),
     use_case: CreateChallengeUseCase = Depends(get_create_challenge_use_case),
 ) -> ChallengeResponse:
     data = await music_file.read()

@@ -10,7 +10,7 @@ SQLModel 기반이므로 SQLAlchemy 2.0 의 `Mapped[...]` / `mapped_column()` �
 
 from datetime import datetime
 
-from sqlalchemy import Column, Text
+from sqlalchemy import JSON, Column, Text
 from sqlmodel import Field, SQLModel
 
 
@@ -53,3 +53,24 @@ class SubmissionEvaluationModel(SQLModel, table=True):
     rhythm_score: int | None = Field(default=None)
     tempo: float | None = Field(default=None)
     created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class ChallengeChartModel(SQLModel, table=True):
+    """노래방 화면용 악보 — 정답 멜로디, 가사 타이밍, 스템 위치.
+
+    목록 조회마다 수백 개의 음표를 실어 나르지 않도록 챌린지와 분리했다.
+    """
+
+    __tablename__ = "challenge_charts"
+    challenge_id: int = Field(foreign_key="music_challenges.id", primary_key=True)
+    # empty | processing | ready | failed
+    status: str = Field(default="empty", max_length=20)
+    notes: list | None = Field(default=None, sa_column=Column(JSON, nullable=True))
+    duration: float | None = Field(default=None)
+    vocal_s3_key: str | None = Field(default=None, max_length=500)
+    instrumental_s3_key: str | None = Field(default=None, max_length=500)
+    lyric_lines: list | None = Field(
+        default=None, sa_column=Column(JSON, nullable=True)
+    )
+    error: str | None = Field(default=None, sa_column=Column(Text, nullable=True))
+    updated_at: datetime = Field(default_factory=datetime.utcnow)

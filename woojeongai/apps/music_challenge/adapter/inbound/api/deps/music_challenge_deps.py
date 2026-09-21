@@ -7,10 +7,21 @@ from music_challenge.app.ports.input.challenge_use_case import (
     GetChallengeUseCase,
     ListChallengesUseCase,
 )
+from music_challenge.app.ports.input.chart_use_case import (
+    GetChartUseCase,
+    UpdateLyricsUseCase,
+    UploadStemsUseCase,
+)
 from music_challenge.app.ports.input.history_use_case import GetMyHistoryUseCase
 from music_challenge.app.ports.input.submission_use_case import SubmitChallengeUseCase
 from music_challenge.dependencies.music_challenge_director import (
+    get_build_chart_use_case as _build_chart,
+)
+from music_challenge.dependencies.music_challenge_director import (
     get_challenge_use_case as _get,
+)
+from music_challenge.dependencies.music_challenge_director import (
+    get_chart_use_case as _chart,
 )
 from music_challenge.dependencies.music_challenge_director import (
     get_create_challenge_use_case as _create,
@@ -23,6 +34,12 @@ from music_challenge.dependencies.music_challenge_director import (
 )
 from music_challenge.dependencies.music_challenge_director import (
     get_submit_challenge_use_case as _submit,
+)
+from music_challenge.dependencies.music_challenge_director import (
+    get_update_lyrics_use_case as _update_lyrics,
+)
+from music_challenge.dependencies.music_challenge_director import (
+    get_upload_stems_use_case as _upload_stems,
 )
 
 
@@ -54,3 +71,29 @@ def get_my_history_use_case(
     session: AsyncSession = Depends(get_db),
 ) -> GetMyHistoryUseCase:
     return _history(session)
+
+
+def get_chart_use_case(
+    session: AsyncSession = Depends(get_db),
+) -> GetChartUseCase:
+    return _chart(session)
+
+
+def get_upload_stems_use_case(
+    session: AsyncSession = Depends(get_db),
+) -> UploadStemsUseCase:
+    return _upload_stems(session)
+
+
+def get_update_lyrics_use_case(
+    session: AsyncSession = Depends(get_db),
+) -> UpdateLyricsUseCase:
+    return _update_lyrics(session)
+
+
+async def run_build_chart(
+    challenge_id: int, vocal_key: str, vocal_bytes: bytes
+) -> None:
+    """BackgroundTasks 용. 요청 세션은 응답과 함께 닫히므로 새 세션을 연다."""
+    async for session in get_db():
+        await _build_chart(session).build(challenge_id, vocal_key, vocal_bytes)

@@ -91,6 +91,9 @@ async def create_all_tables() -> None:
     if engine is not None:
         await asyncio.to_thread(_run_alembic_upgrade_head)
 
+        # init_engine 은 엔진과 세션 팩토리를 함께 만든다. mypy 가 이를 모르므로 명시한다.
+        if async_session_factory is None:
+            return
         async with async_session_factory() as session:
             result = await session.execute(
                 text("SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename")

@@ -32,7 +32,9 @@ class ChallengePgRepository(ChallengeRepositoryPort):
         return self._to_entity(model) if model else None
 
     async def find_all_active(self) -> list[MusicChallenge]:
-        stmt = select(MusicChallengeModel).where(MusicChallengeModel.is_active == True)
+        stmt = select(MusicChallengeModel).where(
+            MusicChallengeModel.is_active.is_(True)
+        )
         rows = await self._session.execute(stmt)
         return [self._to_entity(r) for r in rows.scalars()]
 

@@ -178,15 +178,24 @@ export default function NewChallengePage() {
           >
             <h2 className="text-xl font-semibold">등록 완료</h2>
             <p className="mt-3 text-sm leading-7 text-muted-foreground">
-              &ldquo;{created.title}&rdquo; 챌린지가 생성되었습니다.
+              &ldquo;{created.title}&rdquo; 챌린지가 생성되었습니다. 노래방 화면에 음표와
+              가사가 흘러가게 하려면 악보 스튜디오에서 Suno 스템과 가사를 올려 주세요.
             </p>
-            <Link
-              href={`/music-challenge/${created.id}`}
-              className="mt-5 inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-3 text-sm font-medium transition-colors hover:bg-accent"
-            >
-              등록한 챌린지 보기
-              <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <Link
+                href={`/music-challenge/${created.id}/studio`}
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-80"
+              >
+                악보 스튜디오로
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
+              <Link
+                href={`/music-challenge/${created.id}`}
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-3 text-sm font-medium transition-colors hover:bg-accent"
+              >
+                등록한 챌린지 보기
+              </Link>
+            </div>
           </section>
         )}
       </div>

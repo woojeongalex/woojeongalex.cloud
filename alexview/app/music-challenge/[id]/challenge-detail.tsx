@@ -2,9 +2,18 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { ArrowLeft, ArrowRight, Mic, Sparkles, Square, Upload } from "lucide-react"
+import {
+  ArrowLeft,
+  ArrowRight,
+  Mic,
+  SlidersHorizontal,
+  Sparkles,
+  Square,
+  Upload,
+} from "lucide-react"
 import { useAsyncAction } from "@/hooks/use-async-action"
 import { useMicRecording } from "@/hooks/use-mic-recording"
+import { useUserSession } from "@/hooks/use-user-session"
 import { blobToWav } from "@/lib/audio-wav"
 import {
   CHALLENGE_TYPE_LABEL,
@@ -38,6 +47,7 @@ type ChallengeDetailProps = {
 }
 
 export function ChallengeDetail({ challengeId }: ChallengeDetailProps) {
+  const user = useUserSession()
   const [challenge, setChallenge] = useState<Challenge | null>(null)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -158,10 +168,21 @@ export function ChallengeDetail({ challengeId }: ChallengeDetailProps) {
           <>
             {/* 챌린지 정보 */}
             <header className="mt-6">
-              <span className="rounded-full border border-border bg-muted px-3 py-1 text-xs text-muted-foreground">
-                {CHALLENGE_TYPE_LABEL[challenge.challenge_type] ??
-                  challenge.challenge_type}
-              </span>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <span className="rounded-full border border-border bg-muted px-3 py-1 text-xs text-muted-foreground">
+                  {CHALLENGE_TYPE_LABEL[challenge.challenge_type] ??
+                    challenge.challenge_type}
+                </span>
+                {user?.role === "admin" && (
+                  <Link
+                    href={`/music-challenge/${challengeId}/studio`}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent"
+                  >
+                    <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
+                    악보 스튜디오
+                  </Link>
+                )}
+              </div>
               <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
                 {challenge.title}
               </h1>

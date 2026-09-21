@@ -1,8 +1,8 @@
 import {
   getMusicJson,
-  postMusicForm,
   getMusicJsonAuthed,
   postMusicFormAuthed,
+  putMusicJsonAuthed,
 } from "@/lib/music-api-fetch"
 
 const BASE = "/api/music-challenge"
@@ -74,7 +74,7 @@ export function submitChallenge(input: {
   return postMusicFormAuthed<Evaluation>(`${BASE}/submissions/submit`, form)
 }
 
-/** 챌린지 생성 — PM(운영자)이 AI 음악을 올릴 때 사용 */
+/** 챌린지 생성 — 관리자 전용. 서버가 토큰의 role 을 확인한다 */
 export function createChallenge(input: {
   title: string
   description: string
@@ -86,7 +86,7 @@ export function createChallenge(input: {
   form.append("description", input.description)
   form.append("challenge_type", input.challengeType)
   form.append("music_file", input.musicFile)
-  return postMusicForm<Challenge>(`${BASE}/challenges`, form)
+  return postMusicFormAuthed<Challenge>(`${BASE}/challenges`, form)
 }
 
 export type HistoryItem = {
@@ -112,4 +112,61 @@ export async function fetchMyHistory(limit = 30): Promise<HistoryPayload> {
     `${BASE}/submissions/me?limit=${limit}`
   )
   return { items: data.items ?? [], total: data.total ?? 0 }
+}
+
+export type ChartStatus = "empty" | "processing" | "ready" | "failed"
+
+/** 정답 멜로디의 음표 하나. 시간은 초, 음높이는 MIDI 번호(60 = 가온 도) */
+export type ChartNote = {
+  start: number
+  end: number
+  midi: number
+}
+
+/** 가사 한 줄. start 가 null 이면 아직 타이밍을 맞추지 않은 줄 */
+export type LyricLine = {
+  text: string
+  start: number | null
+}
+
+export type Chart = {
+  challenge_id: number
+  status: ChartStatus
+  notes: ChartNote[]
+  duration: number | null
+  lyric_lines: LyricLine[]
+  /** 도전 화면에서 틀 반주. 없으면 원곡을 대신 쓴다 */
+  instrumental_url: string | null
+  has_vocal: boolean
+  error: string | null
+}
+
+export function fetchChart(challengeId: number): Promise<Chart> {
+  return getMusicJson<Chart>(`${BASE}/challenges/${challengeId}/chart`)
+}
+
+/**
+ * 관리자 — 스템 업로드. 서버는 곧바로 processing 상태로 응답하고
+ * 정답 멜로디 추출은 뒤에서 한다. 완료 여부는 fetchChart 로 확인한다.
+ */
+export function uploadStems(input: {
+  challengeId: number
+  vocalFile: File
+  instrumentalFile: File | null
+}): Promise<Chart> {
+  const form = new FormData()
+  form.append("vocal_file", input.vocalFile)
+  if (input.instrumentalFile) form.append("instrumental_file", input.instrumentalFile)
+  return postMusicFormAuthed<Chart>(
+    `${BASE}/challenges/${input.challengeId}/stems`,
+    form
+  )
+}
+
+/** 관리자 — 가사와 줄별 타이밍 저장 */
+export function saveLyrics(challengeId: number, lines: LyricLine[]): Promise<Chart> {
+  return putMusicJsonAuthed<{ lines: LyricLine[] }, Chart>(
+    `${BASE}/challenges/${challengeId}/lyrics`,
+    { lines }
+  )
 }
