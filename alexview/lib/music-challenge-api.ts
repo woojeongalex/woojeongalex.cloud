@@ -1,6 +1,7 @@
 import {
   getMusicJson,
   postMusicForm,
+  getMusicJsonAuthed,
   postMusicFormAuthed,
 } from "@/lib/music-api-fetch"
 
@@ -86,4 +87,29 @@ export function createChallenge(input: {
   form.append("challenge_type", input.challengeType)
   form.append("music_file", input.musicFile)
   return postMusicForm<Challenge>(`${BASE}/challenges`, form)
+}
+
+export type HistoryItem = {
+  submission_id: number
+  challenge_id: number
+  challenge_title: string
+  challenge_type: ChallengeType
+  media_type: MediaType
+  created_at: string
+  score: number | null
+  pitch_score: number | null
+  rhythm_score: number | null
+}
+
+export type HistoryPayload = {
+  items: HistoryItem[]
+  total: number
+}
+
+/** 내 도전 기록 — 로그인 필수. 최신순으로 돌아온다. */
+export async function fetchMyHistory(limit = 30): Promise<HistoryPayload> {
+  const data = await getMusicJsonAuthed<HistoryPayload>(
+    `${BASE}/submissions/me?limit=${limit}`
+  )
+  return { items: data.items ?? [], total: data.total ?? 0 }
 }

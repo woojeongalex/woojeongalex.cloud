@@ -7,6 +7,7 @@ from music_challenge.app.ports.input.challenge_use_case import (
     GetChallengeUseCase,
     ListChallengesUseCase,
 )
+from music_challenge.app.ports.input.history_use_case import GetMyHistoryUseCase
 from music_challenge.app.ports.input.submission_use_case import SubmitChallengeUseCase
 from music_challenge.dependencies.music_challenge_director import (
     get_challenge_use_case as _get,
@@ -16,6 +17,9 @@ from music_challenge.dependencies.music_challenge_director import (
 )
 from music_challenge.dependencies.music_challenge_director import (
     get_list_challenges_use_case as _list,
+)
+from music_challenge.dependencies.music_challenge_director import (
+    get_my_history_use_case as _history,
 )
 from music_challenge.dependencies.music_challenge_director import (
     get_submit_challenge_use_case as _submit,
@@ -44,3 +48,9 @@ def get_submit_challenge_use_case(
     session: AsyncSession = Depends(get_db),
 ) -> SubmitChallengeUseCase:
     return _submit(session)
+
+
+def get_my_history_use_case(
+    session: AsyncSession = Depends(get_db),
+) -> GetMyHistoryUseCase:
+    return _history(session)

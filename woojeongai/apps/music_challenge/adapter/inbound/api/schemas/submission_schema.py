@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel
 
 
@@ -11,3 +13,20 @@ class EvaluationResponse(BaseModel):
     pitch_score: int | None = None
     rhythm_score: int | None = None
     tempo: float | None = None
+
+
+class SubmissionHistoryItemResponse(BaseModel):
+    submission_id: int
+    challenge_id: int
+    challenge_title: str
+    challenge_type: str
+    media_type: str
+    created_at: datetime
+    score: int | None = None
+    pitch_score: int | None = None
+    rhythm_score: int | None = None
+
+
+class SubmissionHistoryResponse(BaseModel):
+    items: list[SubmissionHistoryItemResponse]
+    total: int

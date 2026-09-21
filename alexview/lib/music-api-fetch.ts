@@ -85,3 +85,19 @@ export async function postMusicFormAuthed<TResponse>(
   }
   return data
 }
+
+/** 인증이 필요한 GET — authFetch 가 토큰 첨부와 401 재시도를 담당한다 */
+export async function getMusicJsonAuthed<T>(path: string): Promise<T> {
+  const res = await authFetch(path, { cache: "no-store" })
+  const data = (await res.json()) as T & { error?: string; detail?: string }
+  if (!res.ok) {
+    const msg =
+      typeof data.detail === "string"
+        ? data.detail
+        : typeof data.error === "string"
+          ? data.error
+          : undefined
+    throw new UserFacingError(apiErrorOrFallback(msg, UI_ERRORS.requestFailed))
+  }
+  return data
+}

@@ -26,12 +26,16 @@ from music_challenge.app.ports.input.challenge_use_case import (
     GetChallengeUseCase,
     ListChallengesUseCase,
 )
+from music_challenge.app.ports.input.history_use_case import GetMyHistoryUseCase
 from music_challenge.app.ports.input.submission_use_case import SubmitChallengeUseCase
 from music_challenge.app.use_cases.create_challenge_interactor import (
     CreateChallengeInteractor,
 )
 from music_challenge.app.use_cases.get_challenge_interactor import (
     GetChallengeInteractor,
+)
+from music_challenge.app.use_cases.get_my_history_interactor import (
+    GetMyHistoryInteractor,
 )
 from music_challenge.app.use_cases.list_challenges_interactor import (
     ListChallengesInteractor,
@@ -71,4 +75,11 @@ def get_submit_challenge_use_case(session: AsyncSession) -> SubmitChallengeUseCa
         evaluator=GeminiEvaluatorAdapter(),
         user_lookup=UserLookupPgRepository(session),
         audio_analysis=LibrosaAudioAnalysisAdapter(),
+    )
+
+
+def get_my_history_use_case(session: AsyncSession) -> GetMyHistoryUseCase:
+    return GetMyHistoryInteractor(
+        submission_repo=SubmissionPgRepository(session),
+        user_lookup=UserLookupPgRepository(session),
     )

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { ArrowRight, Mic2, Music4, Plus, Sparkles } from "lucide-react"
+import { ArrowRight, History, Mic2, Music4, Plus, Sparkles } from "lucide-react"
 import { useUserSession } from "@/hooks/use-user-session"
 import {
   CHALLENGE_TYPE_LABEL,
@@ -110,6 +110,15 @@ export default function MusicChallengePage() {
               <p className="font-mono text-sm text-muted-foreground">
                 총 {challenges.length}개
               </p>
+            )}
+            {user && (
+              <Link
+                href="/music-challenge/me"
+                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent"
+              >
+                <History className="h-4 w-4" aria-hidden="true" />
+                내 기록
+              </Link>
             )}
             {user?.role === "admin" && (
               <Link

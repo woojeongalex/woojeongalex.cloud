@@ -40,9 +40,12 @@ function unavailable(): NextResponse {
 
 export async function GET(request: NextRequest, context: RouteContext) {
   const { path } = await context.params
+  // 내 기록 조회처럼 로그인이 필요한 GET 도 있으므로 토큰을 넘긴다.
+  const authorization = request.headers.get("authorization")
   try {
     const res = await fetch(backendUrl(path, request.nextUrl.search), {
       method: "GET",
+      headers: authorization ? { Authorization: authorization } : undefined,
       cache: "no-store",
     })
     return await respond(res)

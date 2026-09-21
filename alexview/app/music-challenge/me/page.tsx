@@ -1,0 +1,234 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import Link from "next/link"
+import { ArrowLeft, ArrowRight, TrendingUp } from "lucide-react"
+import { useUserSession } from "@/hooks/use-user-session"
+import {
+  CHALLENGE_TYPE_LABEL,
+  fetchMyHistory,
+  type HistoryItem,
+} from "@/lib/music-challenge-api"
+import { toUserFacingMessage, UI_ERRORS } from "@/lib/user-facing-error"
+
+type ScoreTrendProps = {
+  scores: number[]
+}
+
+/**
+ * 점수 추이 스파크라인.
+ *
+ * 차트 라이브러리를 쓰지 않은 이유: 보여줄 값이 0~100 한 계열뿐이고,
+ * recharts 를 끌어오면 번들만 커진다. 눈금·축 없이 흐름만 보이면 충분하다.
+ */
+function ScoreTrend({ scores }: ScoreTrendProps) {
+  if (scores.length < 2) return null
+
+  const width = 100
+  const height = 28
+  const step = width / (scores.length - 1)
+  const points = scores
+    .map((s, i) => {
+      const x = i * step
+      const y = height - (Math.min(100, Math.max(0, s)) / 100) * height
+      return `${x.toFixed(1)},${y.toFixed(1)}`
+    })
+    .join(" ")
+
+  return (
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      preserveAspectRatio="none"
+      className="mt-3 h-14 w-full"
+      role="img"
+      aria-label={`점수 추이: ${scores.join(", ")}`}
+    >
+      <polyline
+        points={points}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        vectorEffect="non-scaling-stroke"
+      />
+    </svg>
+  )
+}
+
+type StatProps = {
+  label: string
+  value: string
+}
+
+function Stat({ label, value }: StatProps) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5">
+      <p className="text-sm text-muted-foreground">{label}</p>
+      <p className="mt-2 font-mono text-2xl font-semibold">{value}</p>
+    </div>
+  )
+}
+
+export default function MyHistoryPage() {
+  const user = useUserSession()
+  const [mounted, setMounted] = useState(false)
+  const [items, setItems] = useState<HistoryItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => setMounted(true), [])
+
+  useEffect(() => {
+    if (!mounted) return
+    if (!user) {
+      setLoading(false)
+      return
+    }
+    let alive = true
+    fetchMyHistory()
+      .then((data) => {
+        if (alive) setItems(data.items)
+      })
+      .catch((e) => {
+        if (alive) setError(toUserFacingMessage(e, UI_ERRORS.challengeLoadFailed))
+      })
+      .finally(() => {
+        if (alive) setLoading(false)
+      })
+    return () => {
+      alive = false
+    }
+  }, [mounted, user])
+
+  const scored = items.filter((i): i is HistoryItem & { score: number } => i.score !== null)
+  const best = scored.length ? Math.max(...scored.map((i) => i.score)) : null
+  const average = scored.length
+    ? Math.round(scored.reduce((sum, i) => sum + i.score, 0) / scored.length)
+    : null
+  // 서버는 최신순으로 주므로, 추이는 오래된 것부터 그린다.
+  const trend = scored.map((i) => i.score).reverse()
+
+  return (
+    <main className="min-h-[calc(100vh-4rem)] min-w-0 overflow-x-hidden bg-background text-foreground">
+      <div className="mx-auto max-w-4xl px-4 py-10 md:py-14">
+        <Link
+          href="/music-challenge"
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          챌린지 목록
+        </Link>
+
+        <h1 className="mt-6 text-3xl font-semibold tracking-tight sm:text-4xl">
+          내 도전 기록
+        </h1>
+        <p className="mt-4 text-base leading-8 text-muted-foreground">
+          제출할 때마다 점수가 쌓입니다. 같은 곡을 다시 불러 얼마나 나아졌는지
+          확인해 보세요.
+        </p>
+
+        {!mounted && (
+          <div className="mt-8 h-40 animate-pulse rounded-3xl bg-muted/40" role="status">
+            <span className="sr-only">기록을 불러오는 중입니다.</span>
+          </div>
+        )}
+
+        {mounted && !user && (
+          <p
+            role="status"
+            className="mt-8 rounded-2xl border border-border bg-muted/40 px-5 py-6 text-sm text-muted-foreground"
+          >
+            도전 기록은 로그인한 뒤에 볼 수 있습니다. 비로그인으로 참여한 제출은
+            기록에 남지 않습니다.
+          </p>
+        )}
+
+        {mounted && user && loading && (
+          <div className="mt-8 h-40 animate-pulse rounded-3xl bg-muted/40" role="status">
+            <span className="sr-only">기록을 불러오는 중입니다.</span>
+          </div>
+        )}
+
+        {mounted && user && !loading && error && (
+          <p
+            role="status"
+            className="mt-8 rounded-2xl border border-border bg-muted/40 px-5 py-6 text-sm text-muted-foreground"
+          >
+            {error}
+          </p>
+        )}
+
+        {mounted && user && !loading && !error && items.length === 0 && (
+          <div className="mt-8 rounded-3xl border border-border bg-muted/40 px-5 py-8 text-center">
+            <p className="text-sm text-muted-foreground">
+              아직 도전 기록이 없습니다.
+            </p>
+            <Link
+              href="/music-challenge"
+              className="mt-5 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-80"
+            >
+              첫 챌린지 시작하기
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          </div>
+        )}
+
+        {mounted && user && !loading && !error && items.length > 0 && (
+          <>
+            <section className="mt-8 grid gap-4 sm:grid-cols-3">
+              <Stat label="총 도전" value={`${items.length}회`} />
+              <Stat label="평균 점수" value={average === null ? "—" : `${average}`} />
+              <Stat label="최고 점수" value={best === null ? "—" : `${best}`} />
+            </section>
+
+            {trend.length >= 2 && (
+              <section className="mt-6 rounded-3xl border border-border bg-card p-6">
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4" aria-hidden="true" />
+                  <h2 className="text-sm font-medium">점수 추이</h2>
+                  <span className="ml-auto font-mono text-xs text-muted-foreground">
+                    오래된 순 → 최근
+                  </span>
+                </div>
+                <ScoreTrend scores={trend} />
+              </section>
+            )}
+
+            <section className="mt-6 space-y-3">
+              {items.map((item) => (
+                <Link
+                  key={item.submission_id}
+                  href={`/music-challenge/${item.challenge_id}`}
+                  className="flex items-center gap-4 rounded-2xl border border-border bg-card p-4 transition-colors hover:border-foreground/40 hover:bg-muted/40"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">
+                      {item.challenge_title}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {CHALLENGE_TYPE_LABEL[item.challenge_type] ?? item.challenge_type}
+                      {" · "}
+                      {new Date(item.created_at).toLocaleDateString("ko-KR")}
+                      {item.pitch_score !== null && (
+                        <>
+                          {" · 음정 "}
+                          {item.pitch_score}
+                          {" · 박자 "}
+                          {item.rhythm_score}
+                        </>
+                      )}
+                    </p>
+                  </div>
+                  <span className="shrink-0 font-mono text-xl font-semibold">
+                    {item.score ?? "—"}
+                  </span>
+                </Link>
+              ))}
+            </section>
+          </>
+        )}
+      </div>
+    </main>
+  )
+}

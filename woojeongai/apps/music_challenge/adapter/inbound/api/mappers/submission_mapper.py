@@ -1,7 +1,9 @@
 from music_challenge.adapter.inbound.api.schemas.submission_schema import (
     EvaluationResponse,
+    SubmissionHistoryItemResponse,
 )
 from music_challenge.app.dtos.evaluation_dto import EvaluationResult
+from music_challenge.app.dtos.history_dto import SubmissionHistoryItem
 
 
 def evaluation_result_to_response(result: EvaluationResult) -> EvaluationResponse:
@@ -14,4 +16,20 @@ def evaluation_result_to_response(result: EvaluationResult) -> EvaluationRespons
         pitch_score=result.pitch_score,
         rhythm_score=result.rhythm_score,
         tempo=result.tempo,
+    )
+
+
+def history_item_to_response(
+    item: SubmissionHistoryItem,
+) -> SubmissionHistoryItemResponse:
+    return SubmissionHistoryItemResponse(
+        submission_id=item.submission_id,
+        challenge_id=item.challenge_id,
+        challenge_title=item.challenge_title,
+        challenge_type=item.challenge_type,
+        media_type=item.media_type,
+        created_at=item.created_at,
+        score=item.score,
+        pitch_score=item.pitch_score,
+        rhythm_score=item.rhythm_score,
     )
