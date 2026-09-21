@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { ArrowLeft, ArrowRight, Sparkles, Upload } from "lucide-react"
+import { ArrowLeft, ArrowRight, Mic, Sparkles, Square, Upload } from "lucide-react"
 import { useAsyncAction } from "@/hooks/use-async-action"
+import { useMicRecording } from "@/hooks/use-mic-recording"
+import { blobToWav } from "@/lib/audio-wav"
 import {
   CHALLENGE_TYPE_LABEL,
   MEDIA_TYPE_LABEL,
@@ -22,6 +24,15 @@ const ACCEPT: Record<MediaType, string> = {
   video: "video/*",
 }
 
+type SubmitMode = "record" | "upload"
+
+const SUBMIT_MODES: SubmitMode[] = ["record", "upload"]
+
+const SUBMIT_MODE_LABEL: Record<SubmitMode, string> = {
+  record: "바로 녹음하기",
+  upload: "파일 올리기",
+}
+
 type ChallengeDetailProps = {
   challengeId: number
 }
@@ -32,7 +43,23 @@ export function ChallengeDetail({ challengeId }: ChallengeDetailProps) {
   const [loadError, setLoadError] = useState<string | null>(null)
   const [mediaType, setMediaType] = useState<MediaType>("audio")
   const [evaluation, setEvaluation] = useState<Evaluation | null>(null)
+  const [submitMode, setSubmitMode] = useState<SubmitMode>("record")
+  const [recordedWav, setRecordedWav] = useState<Blob | null>(null)
+  const [recordedUrl, setRecordedUrl] = useState<string | null>(null)
+  const [micError, setMicError] = useState<string | null>(null)
   const { loading: submitting, error: submitError, run } = useAsyncAction()
+  const mic = useMicRecording()
+
+  // 미리듣기용 object URL 은 새 녹음마다 교체하고 언마운트 때 해제한다.
+  useEffect(() => {
+    if (!recordedWav) {
+      setRecordedUrl(null)
+      return
+    }
+    const url = URL.createObjectURL(recordedWav)
+    setRecordedUrl(url)
+    return () => URL.revokeObjectURL(url)
+  }, [recordedWav])
 
   useEffect(() => {
     let alive = true
@@ -66,6 +93,37 @@ export function ChallengeDetail({ challengeId }: ChallengeDetailProps) {
         onSuccess: (result) => setEvaluation(result),
       }
     )
+  }
+
+  const handleStartRecording = async () => {
+    setMicError(null)
+    setRecordedWav(null)
+    setEvaluation(null)
+    const ok = await mic.start()
+    if (!ok) setMicError(UI_ERRORS.micStartFailed)
+  }
+
+  const handleStopRecording = () => {
+    void mic.stop(async (_sec, recorded) => {
+      // 브라우저는 webm/mp4 로만 녹음하는데 백엔드는 그걸 디코딩하지 못한다.
+      // WAV 로 바꿔 보내야 음정·박자 지표가 나온다.
+      const wav = await blobToWav(recorded)
+      if (!wav) {
+        setMicError(UI_ERRORS.challengeSubmitFailed)
+        return
+      }
+      setRecordedWav(wav)
+    })
+  }
+
+  const handleSubmitRecording = async () => {
+    if (!recordedWav) return
+    const file = new File([recordedWav], "recording.wav", { type: "audio/wav" })
+    setEvaluation(null)
+    await run(() => submitChallenge({ challengeId, mediaType: "audio", file }), {
+      fallbackError: UI_ERRORS.challengeSubmitFailed,
+      onSuccess: (result) => setEvaluation(result),
+    })
   }
 
   return (
@@ -135,63 +193,147 @@ export function ChallengeDetail({ challengeId }: ChallengeDetailProps) {
             <section className="mt-6 rounded-3xl border border-border bg-card p-6">
               <h2 className="text-xl font-semibold">내 챌린지 제출</h2>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                노래하거나 연주한 파일을 올리면 AI가 바로 채점합니다.
+                바로 불러서 녹음하거나, 준비한 파일을 올리면 AI가 채점합니다.
               </p>
 
-              <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
-                <fieldset>
-                  <legend className="text-sm font-medium">제출 형식</legend>
-                  <div className="mt-3 flex gap-2">
-                    {MEDIA_TYPES.map((type) => (
-                      <button
-                        key={type}
-                        type="button"
-                        aria-pressed={mediaType === type}
-                        onClick={() => setMediaType(type)}
-                        className={`rounded-full border px-4 py-2 text-sm transition-colors ${
-                          mediaType === type
-                            ? "border-foreground bg-foreground text-background"
-                            : "border-border bg-background text-muted-foreground hover:bg-accent"
-                        }`}
-                      >
-                        {MEDIA_TYPE_LABEL[type]}
-                      </button>
-                    ))}
-                  </div>
-                </fieldset>
-
-                <div>
-                  <label
-                    htmlFor="media_file"
-                    className="text-sm font-medium"
+              <div className="mt-6 flex gap-2">
+                {SUBMIT_MODES.map((mode) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    aria-pressed={submitMode === mode}
+                    onClick={() => {
+                      setSubmitMode(mode)
+                      mic.reset()
+                      setRecordedWav(null)
+                    }}
+                    className={`rounded-full border px-4 py-2 text-sm transition-colors ${
+                      submitMode === mode
+                        ? "border-foreground bg-foreground text-background"
+                        : "border-border bg-background text-muted-foreground hover:bg-accent"
+                    }`}
                   >
-                    파일 선택
-                  </label>
-                  <input
-                    id="media_file"
-                    name="media_file"
-                    type="file"
-                    required
-                    accept={ACCEPT[mediaType]}
-                    className="mt-3 block w-full cursor-pointer rounded-xl border border-border bg-background px-4 py-3 text-sm text-muted-foreground file:mr-4 file:rounded-full file:border-0 file:bg-foreground file:px-4 file:py-2 file:text-sm file:font-medium file:text-background"
-                  />
-                </div>
+                    {SUBMIT_MODE_LABEL[mode]}
+                  </button>
+                ))}
+              </div>
 
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <Upload className="h-4 w-4" aria-hidden="true" />
-                  {submitting ? "AI가 채점하는 중…" : "제출하고 채점받기"}
-                </button>
-
-                {submitError && (
-                  <p role="status" className="text-sm text-muted-foreground">
-                    {submitError}
+              {submitMode === "record" ? (
+                <div className="mt-6 space-y-5">
+                  <p className="rounded-2xl border border-border bg-muted/40 px-4 py-3 text-sm leading-6 text-muted-foreground">
+                    위의 AI 음악을 재생해 들으면서 따라 부르세요. 스피커로 들으면
+                    원곡이 함께 녹음되니 <strong>이어폰 사용을 권장</strong>합니다.
                   </p>
-                )}
-              </form>
+
+                  {mic.recording === "recording" ? (
+                    <button
+                      type="button"
+                      onClick={handleStopRecording}
+                      className="inline-flex items-center gap-2 rounded-full border border-foreground bg-foreground px-6 py-3.5 text-sm font-semibold text-background"
+                    >
+                      <Square className="h-4 w-4" aria-hidden="true" />
+                      녹음 중지
+                      <span className="ml-1 h-2 w-2 animate-pulse rounded-full bg-background/70" />
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleStartRecording}
+                      className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-6 py-3.5 text-sm font-medium transition-colors hover:bg-accent"
+                    >
+                      <Mic className="h-4 w-4" aria-hidden="true" />
+                      {mic.recording === "done" ? "다시 녹음하기" : "녹음 시작"}
+                    </button>
+                  )}
+
+                  {micError && (
+                    <p role="status" className="text-sm text-muted-foreground">
+                      {micError}
+                    </p>
+                  )}
+
+                  {recordedWav && (
+                    <div className="rounded-2xl border border-border bg-background/60 p-4">
+                      <p className="text-sm font-medium">
+                        녹음 완료 · {mic.durationSec}초
+                      </p>
+                      <audio
+                        className="mt-3 w-full"
+                        controls
+                        src={recordedUrl ?? undefined}
+                      />
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={handleSubmitRecording}
+                    disabled={submitting || !recordedWav}
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <Upload className="h-4 w-4" aria-hidden="true" />
+                    {submitting ? "AI가 채점하는 중…" : "제출하고 채점받기"}
+                  </button>
+
+                  {submitError && (
+                    <p role="status" className="text-sm text-muted-foreground">
+                      {submitError}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
+                  <fieldset>
+                    <legend className="text-sm font-medium">제출 형식</legend>
+                    <div className="mt-3 flex gap-2">
+                      {MEDIA_TYPES.map((type) => (
+                        <button
+                          key={type}
+                          type="button"
+                          aria-pressed={mediaType === type}
+                          onClick={() => setMediaType(type)}
+                          className={`rounded-full border px-4 py-2 text-sm transition-colors ${
+                            mediaType === type
+                              ? "border-foreground bg-foreground text-background"
+                              : "border-border bg-background text-muted-foreground hover:bg-accent"
+                          }`}
+                        >
+                          {MEDIA_TYPE_LABEL[type]}
+                        </button>
+                      ))}
+                    </div>
+                  </fieldset>
+
+                  <div>
+                    <label htmlFor="media_file" className="text-sm font-medium">
+                      파일 선택
+                    </label>
+                    <input
+                      id="media_file"
+                      name="media_file"
+                      type="file"
+                      required
+                      accept={ACCEPT[mediaType]}
+                      className="mt-3 block w-full cursor-pointer rounded-xl border border-border bg-background px-4 py-3 text-sm text-muted-foreground file:mr-4 file:rounded-full file:border-0 file:bg-foreground file:px-4 file:py-2 file:text-sm file:font-medium file:text-background"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <Upload className="h-4 w-4" aria-hidden="true" />
+                    {submitting ? "AI가 채점하는 중…" : "제출하고 채점받기"}
+                  </button>
+
+                  {submitError && (
+                    <p role="status" className="text-sm text-muted-foreground">
+                      {submitError}
+                    </p>
+                  )}
+                </form>
+              )}
             </section>
 
             {/* 평가 결과 */}
