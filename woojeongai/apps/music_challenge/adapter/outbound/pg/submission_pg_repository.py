@@ -1,3 +1,4 @@
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from music_challenge.adapter.outbound.orm.music_challenge_orm import (
@@ -30,6 +31,14 @@ class SubmissionPgRepository(SubmissionRepositoryPort):
     async def find_by_id(self, submission_id: int) -> ChallengeSubmission | None:
         model = await self._session.get(ChallengeSubmissionModel, submission_id)
         return self._to_entity(model) if model else None
+
+    async def find_attempted_challenge_ids(self, user_id: int) -> set[int]:
+        result = await self._session.execute(
+            select(ChallengeSubmissionModel.challenge_id)
+            .where(ChallengeSubmissionModel.user_id == user_id)
+            .distinct()
+        )
+        return set(result.scalars())
 
     def _to_entity(self, model: ChallengeSubmissionModel) -> ChallengeSubmission:
         return ChallengeSubmission(

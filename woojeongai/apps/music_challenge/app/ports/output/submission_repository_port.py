@@ -9,3 +9,11 @@ class SubmissionRepositoryPort(ABC):
 
     @abstractmethod
     async def find_by_id(self, submission_id: int) -> ChallengeSubmission | None: ...
+
+    @abstractmethod
+    async def find_attempted_challenge_ids(self, user_id: int) -> set[int]:
+        """해당 사용자가 한 번이라도 제출한 챌린지 id 집합.
+
+        추천에서 이미 해본 챌린지를 빼기 위해 쓴다.
+        """
+        ...

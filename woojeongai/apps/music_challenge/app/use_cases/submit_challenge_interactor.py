@@ -18,8 +18,12 @@ from music_challenge.app.ports.output.submission_repository_port import (
     SubmissionRepositoryPort,
 )
 from music_challenge.app.ports.output.user_lookup_port import UserLookupPort
+from music_challenge.domain.entities.challenge_entity import MusicChallenge
 from music_challenge.domain.entities.evaluation_entity import SubmissionEvaluation
 from music_challenge.domain.entities.submission_entity import ChallengeSubmission
+
+# 이 점수 미만이면 "같은 유형 더 연습", 이상이면 "다른 유형으로 확장"
+_PRACTICE_MORE_BELOW = 60
 
 
 class SubmitChallengeInteractor(SubmitChallengeUseCase):
@@ -74,13 +78,13 @@ class SubmitChallengeInteractor(SubmitChallengeUseCase):
             content_type=command.content_type,
         )
 
-        # TODO(Phase 4): 지금은 "다른 활성 챌린지 아무거나"다. 사용자 이력·점수를
-        # 반영한 추천 에이전트로 교체할 것.
         all_active = await self._challenge_repo.find_all_active()
-        next_id = next(
-            (c.id for c in all_active if c.id != command.challenge_id),
-            None,
+        attempted = (
+            await self._submission_repo.find_attempted_challenge_ids(user_id)
+            if user_id
+            else set()
         )
+        next_id = self._recommend_next(challenge, score, all_active, attempted)
 
         saved_eval = await self._evaluation_repo.save(
             SubmissionEvaluation(
@@ -100,3 +104,39 @@ class SubmitChallengeInteractor(SubmitChallengeUseCase):
             feedback=saved_eval.feedback,
             next_challenge_id=saved_eval.next_challenge_id,
         )
+
+    def _recommend_next(
+        self,
+        current: MusicChallenge,
+        score: int,
+        all_active: list[MusicChallenge],
+        attempted: set[int],
+    ) -> int | None:
+        """다음에 도전할 챌린지를 고른다.
+
+        규칙은 단순하지만 근거가 있다.
+        1. 방금 푼 것과 이미 해본 것은 뺀다(로그인 사용자만 이력을 안다).
+        2. 점수가 낮으면 같은 유형으로 더 연습시키고, 높으면 다른 유형으로
+           넓혀준다. 잘한 사람에게 같은 걸 또 주면 지루하고, 못한 사람에게
+           낯선 유형을 주면 이탈한다.
+        3. 후보가 없으면(다 해봤으면) 방금 것만 빼고 재도전을 권한다.
+        """
+        fresh = [c for c in all_active if c.id != current.id and c.id not in attempted]
+        candidates = fresh or [c for c in all_active if c.id != current.id]
+        if not candidates:
+            return None
+
+        if score < _PRACTICE_MORE_BELOW:
+            same_type = [
+                c for c in candidates if c.challenge_type == current.challenge_type
+            ]
+            if same_type:
+                return same_type[0].id
+        else:
+            other_type = [
+                c for c in candidates if c.challenge_type != current.challenge_type
+            ]
+            if other_type:
+                return other_type[0].id
+
+        return candidates[0].id

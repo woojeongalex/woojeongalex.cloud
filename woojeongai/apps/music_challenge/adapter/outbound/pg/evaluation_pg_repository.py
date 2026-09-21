@@ -27,7 +27,9 @@ class EvaluationPgRepository(EvaluationRepositoryPort):
         await self._session.refresh(model)
         return self._to_entity(model)
 
-    async def find_by_submission_id(self, submission_id: int) -> SubmissionEvaluation | None:
+    async def find_by_submission_id(
+        self, submission_id: int
+    ) -> SubmissionEvaluation | None:
         stmt = select(SubmissionEvaluationModel).where(
             SubmissionEvaluationModel.submission_id == submission_id
         )
