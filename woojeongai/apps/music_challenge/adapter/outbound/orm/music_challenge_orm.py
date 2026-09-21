@@ -9,7 +9,6 @@ SQLModel 기반이므로 SQLAlchemy 2.0 의 `Mapped[...]` / `mapped_column()` �
 """
 
 from datetime import datetime
-from typing import Optional
 
 from sqlalchemy import Column, Text
 from sqlmodel import Field, SQLModel
@@ -18,7 +17,7 @@ from sqlmodel import Field, SQLModel
 class MusicChallengeModel(SQLModel, table=True):
     __tablename__ = "music_challenges"
 
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: int | None = Field(default=None, primary_key=True)
     title: str = Field(max_length=200)
     description: str = Field(sa_column=Column(Text, nullable=False))
     music_s3_key: str = Field(max_length=500)
@@ -30,7 +29,7 @@ class MusicChallengeModel(SQLModel, table=True):
 class ChallengeSubmissionModel(SQLModel, table=True):
     __tablename__ = "challenge_submissions"
 
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: int | None = Field(default=None, primary_key=True)
     challenge_id: int = Field(foreign_key="music_challenges.id", index=True)
     media_type: str = Field(max_length=10)
     s3_key: str = Field(max_length=500)
@@ -40,11 +39,11 @@ class ChallengeSubmissionModel(SQLModel, table=True):
 class SubmissionEvaluationModel(SQLModel, table=True):
     __tablename__ = "submission_evaluations"
 
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: int | None = Field(default=None, primary_key=True)
     submission_id: int = Field(foreign_key="challenge_submissions.id", index=True)
     score: int
     feedback: str = Field(sa_column=Column(Text, nullable=False))
-    next_challenge_id: Optional[int] = Field(
+    next_challenge_id: int | None = Field(
         default=None, foreign_key="music_challenges.id"
     )
     created_at: datetime = Field(default_factory=datetime.utcnow)

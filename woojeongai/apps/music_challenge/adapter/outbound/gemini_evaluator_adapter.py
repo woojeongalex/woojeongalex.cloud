@@ -3,7 +3,11 @@ import json
 import logging
 
 from music_challenge.app.ports.output.ai_evaluator_port import AIEvaluatorPort
-from music_challenge.domain.value_objects.music_challenge_vo import ChallengeType, MediaType
+from music_challenge.domain.value_objects.music_challenge_vo import (
+    ChallengeType,
+    MediaType,
+)
+
 from core.matrix.keymaker_api import get_keymaker
 
 logger = logging.getLogger(__name__)
@@ -22,13 +26,19 @@ class GeminiEvaluatorAdapter(AIEvaluatorPort):
         content_type: str,
     ) -> tuple[int, str]:
         try:
-            import google.generativeai as genai
-
-            genai.configure(api_key=get_keymaker().get_gemini_api_key())
-            model = genai.GenerativeModel("gemini-1.5-flash")
+            # 모델명을 하드코딩하면 모델이 폐기될 때 조용히 404가 난다(실제로
+            # gemini-1.5-flash 가 그렇게 죽었다). 저장소 표준대로 Keymaker 가
+            # .env 의 GEMINI_MODEL 을 읽어 만든 모델을 재사용한다.
+            model = get_keymaker().get_gemini_model()
+            if model is None:
+                logger.warning("Gemini 모델 미설정 — GEMINI_API_KEY 를 확인하세요")
+                return 70, "AI 평가를 사용할 수 없어 기본 점수를 부여합니다."
 
             if len(media_bytes) > _MAX_INLINE_BYTES:
-                return 65, f"파일 크기 초과로 자동 분석이 제한되었습니다. [{challenge_title}] 챌린지 참여 감사합니다!"
+                return (
+                    65,
+                    f"파일 크기 초과로 자동 분석이 제한되었습니다. [{challenge_title}] 챌린지 참여 감사합니다!",
+                )
 
             b64 = base64.b64encode(media_bytes).decode()
             prompt = (
@@ -40,13 +50,15 @@ class GeminiEvaluatorAdapter(AIEvaluatorPort):
                 f"- 정확도 (음정·박자·리듬)\n"
                 f"- 표현력과 감정\n"
                 f"- 전체 완성도\n\n"
-                f"반드시 JSON으로만 응답: {{\"score\": 0~100 정수, \"feedback\": \"한국어 피드백 2~3문장\"}}"
+                f'반드시 JSON으로만 응답: {{"score": 0~100 정수, "feedback": "한국어 피드백 2~3문장"}}'
             )
 
-            response = model.generate_content([
-                {"mime_type": content_type, "data": b64},
-                prompt,
-            ])
+            response = model.generate_content(
+                [
+                    {"mime_type": content_type, "data": b64},
+                    prompt,
+                ]
+            )
             return self._parse(response.text)
         except Exception as e:
             logger.warning("Gemini 평가 실패: %s", e)
