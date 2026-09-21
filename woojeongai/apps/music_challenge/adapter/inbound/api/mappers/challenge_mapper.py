@@ -1,4 +1,6 @@
-from music_challenge.adapter.inbound.api.schemas.challenge_schema import ChallengeResponse
+from music_challenge.adapter.inbound.api.schemas.challenge_schema import (
+    ChallengeResponse,
+)
 from music_challenge.app.dtos.challenge_dto import ChallengeResult
 
 

@@ -1,6 +1,7 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from database import get_db
 from music_challenge.app.ports.input.challenge_use_case import (
     CreateChallengeUseCase,
     GetChallengeUseCase,
@@ -8,13 +9,17 @@ from music_challenge.app.ports.input.challenge_use_case import (
 )
 from music_challenge.app.ports.input.submission_use_case import SubmitChallengeUseCase
 from music_challenge.dependencies.music_challenge_director import (
-    get_create_challenge_use_case as _create,
     get_challenge_use_case as _get,
+)
+from music_challenge.dependencies.music_challenge_director import (
+    get_create_challenge_use_case as _create,
+)
+from music_challenge.dependencies.music_challenge_director import (
     get_list_challenges_use_case as _list,
+)
+from music_challenge.dependencies.music_challenge_director import (
     get_submit_challenge_use_case as _submit,
 )
-
-from database import get_db
 
 
 def get_create_challenge_use_case(

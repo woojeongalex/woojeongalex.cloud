@@ -11,3 +11,5 @@ class ChallengeSubmission:
     media_type: MediaType
     s3_key: str
     created_at: datetime
+    # 비로그인 제출은 None. 서버가 JWT 에서 도출한 값만 채운다.
+    user_id: int | None = None

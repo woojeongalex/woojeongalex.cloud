@@ -5,7 +5,9 @@ from music_challenge.adapter.inbound.api.deps.music_challenge_deps import (
     get_create_challenge_use_case,
     get_list_challenges_use_case,
 )
-from music_challenge.adapter.inbound.api.mappers.challenge_mapper import challenge_result_to_response
+from music_challenge.adapter.inbound.api.mappers.challenge_mapper import (
+    challenge_result_to_response,
+)
 from music_challenge.adapter.inbound.api.schemas.challenge_schema import (
     ChallengeResponse,
     ChallengesListResponse,

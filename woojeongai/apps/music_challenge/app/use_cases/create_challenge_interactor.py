@@ -1,9 +1,14 @@
 import uuid
 from datetime import datetime
 
-from music_challenge.app.dtos.challenge_dto import CreateChallengeCommand, ChallengeResult
+from music_challenge.app.dtos.challenge_dto import (
+    ChallengeResult,
+    CreateChallengeCommand,
+)
 from music_challenge.app.ports.input.challenge_use_case import CreateChallengeUseCase
-from music_challenge.app.ports.output.challenge_repository_port import ChallengeRepositoryPort
+from music_challenge.app.ports.output.challenge_repository_port import (
+    ChallengeRepositoryPort,
+)
 from music_challenge.app.ports.output.media_storage_port import MediaStoragePort
 from music_challenge.domain.entities.challenge_entity import MusicChallenge
 

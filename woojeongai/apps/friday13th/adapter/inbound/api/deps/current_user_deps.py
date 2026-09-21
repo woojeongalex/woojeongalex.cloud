@@ -30,3 +30,17 @@ async def require_admin(payload: dict = Depends(get_current_user)) -> dict:
     if payload.get("role") != "admin":
         raise HTTPException(status_code=403, detail="관리자 권한이 필요합니다.")
     return payload
+
+
+async def get_optional_user(authorization: str | None = Header(None)) -> dict | None:
+    """로그인했으면 토큰 페이로드, 아니면 None.
+
+    비로그인 참여를 허용하면서도 로그인한 사용자는 기록에 남겨야 하는
+    엔드포인트용. 토큰이 없거나 유효하지 않아도 401 을 내지 않는다.
+    """
+    if not authorization or not authorization.startswith("Bearer "):
+        return None
+    try:
+        return await get_current_user(authorization)
+    except HTTPException:
+        return None

@@ -2,7 +2,9 @@ from fastapi import HTTPException
 
 from music_challenge.app.dtos.challenge_dto import ChallengeResult
 from music_challenge.app.ports.input.challenge_use_case import GetChallengeUseCase
-from music_challenge.app.ports.output.challenge_repository_port import ChallengeRepositoryPort
+from music_challenge.app.ports.output.challenge_repository_port import (
+    ChallengeRepositoryPort,
+)
 from music_challenge.app.ports.output.media_storage_port import MediaStoragePort
 
 

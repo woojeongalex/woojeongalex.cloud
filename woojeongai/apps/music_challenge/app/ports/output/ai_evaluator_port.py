@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
 
-from music_challenge.domain.value_objects.music_challenge_vo import ChallengeType, MediaType
+from music_challenge.domain.value_objects.music_challenge_vo import (
+    ChallengeType,
+    MediaType,
+)
 
 
 class AIEvaluatorPort(ABC):

@@ -1,6 +1,7 @@
 import {
   getMusicJson,
   postMusicForm,
+  postMusicFormAuthed,
 } from "@/lib/music-api-fetch"
 
 const BASE = "/api/music-challenge"
@@ -50,7 +51,12 @@ export function fetchChallenge(challengeId: number): Promise<Challenge> {
   return getMusicJson<Challenge>(`${BASE}/challenges/${challengeId}`)
 }
 
-/** 사용자 제출 — 영상·음성 업로드 후 AI 평가 결과가 바로 돌아온다 */
+/**
+ * 사용자 제출 — 영상·음성 업로드 후 AI 평가 결과가 바로 돌아온다.
+ *
+ * 로그인 상태면 토큰이 함께 나가고 서버가 제출물에 사용자를 기록한다.
+ * 비로그인도 참여할 수 있으며 그 경우 기록에는 남지 않는다.
+ */
 export function submitChallenge(input: {
   challengeId: number
   mediaType: MediaType
@@ -60,7 +66,7 @@ export function submitChallenge(input: {
   form.append("challenge_id", String(input.challengeId))
   form.append("media_type", input.mediaType)
   form.append("media_file", input.file)
-  return postMusicForm<Evaluation>(`${BASE}/submissions/submit`, form)
+  return postMusicFormAuthed<Evaluation>(`${BASE}/submissions/submit`, form)
 }
 
 /** 챌린지 생성 — PM(운영자)이 AI 음악을 올릴 때 사용 */

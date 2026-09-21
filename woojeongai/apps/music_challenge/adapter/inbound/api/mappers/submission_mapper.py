@@ -1,4 +1,6 @@
-from music_challenge.adapter.inbound.api.schemas.submission_schema import EvaluationResponse
+from music_challenge.adapter.inbound.api.schemas.submission_schema import (
+    EvaluationResponse,
+)
 from music_challenge.app.dtos.evaluation_dto import EvaluationResult
 
 

@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
 
-from music_challenge.app.dtos.challenge_dto import CreateChallengeCommand, ChallengeResult
+from music_challenge.app.dtos.challenge_dto import (
+    ChallengeResult,
+    CreateChallengeCommand,
+)
 
 
 class CreateChallengeUseCase(ABC):

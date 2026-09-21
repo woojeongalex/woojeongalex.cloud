@@ -2,7 +2,9 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from music_challenge.adapter.outbound.orm.music_challenge_orm import MusicChallengeModel
-from music_challenge.app.ports.output.challenge_repository_port import ChallengeRepositoryPort
+from music_challenge.app.ports.output.challenge_repository_port import (
+    ChallengeRepositoryPort,
+)
 from music_challenge.domain.entities.challenge_entity import MusicChallenge
 from music_challenge.domain.value_objects.music_challenge_vo import ChallengeType
 
@@ -30,7 +32,7 @@ class ChallengePgRepository(ChallengeRepositoryPort):
         return self._to_entity(model) if model else None
 
     async def find_all_active(self) -> list[MusicChallenge]:
-        stmt = select(MusicChallengeModel).where(MusicChallengeModel.is_active == True)  # noqa: E712
+        stmt = select(MusicChallengeModel).where(MusicChallengeModel.is_active == True)
         rows = await self._session.execute(stmt)
         return [self._to_entity(r) for r in rows.scalars()]
 

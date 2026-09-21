@@ -54,6 +54,9 @@ export async function GET(request: NextRequest, context: RouteContext) {
 export async function POST(request: NextRequest, context: RouteContext) {
   const { path } = await context.params
   const contentType = request.headers.get("content-type") ?? ""
+  // 로그인 사용자를 제출물에 기록하려면 토큰이 백엔드까지 가야 한다.
+  // 비로그인이면 헤더가 없고, 백엔드는 익명 제출로 처리한다.
+  const authorization = request.headers.get("authorization")
 
   try {
     // multipart는 boundary가 들어간 원본 Content-Type을 그대로 넘겨야 하고,
@@ -62,9 +65,13 @@ export async function POST(request: NextRequest, context: RouteContext) {
       ? await request.arrayBuffer()
       : await request.text()
 
+    const headers: Record<string, string> = {}
+    if (contentType) headers["Content-Type"] = contentType
+    if (authorization) headers["Authorization"] = authorization
+
     const res = await fetch(backendUrl(path, request.nextUrl.search), {
       method: "POST",
-      headers: contentType ? { "Content-Type": contentType } : undefined,
+      headers,
       body,
       cache: "no-store",
     })

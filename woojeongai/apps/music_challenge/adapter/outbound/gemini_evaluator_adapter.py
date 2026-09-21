@@ -2,13 +2,12 @@ import base64
 import json
 import logging
 
+from core.matrix.keymaker_api import get_keymaker
 from music_challenge.app.ports.output.ai_evaluator_port import AIEvaluatorPort
 from music_challenge.domain.value_objects.music_challenge_vo import (
     ChallengeType,
     MediaType,
 )
-
-from core.matrix.keymaker_api import get_keymaker
 
 logger = logging.getLogger(__name__)
 

@@ -31,6 +31,8 @@ class ChallengeSubmissionModel(SQLModel, table=True):
 
     id: int | None = Field(default=None, primary_key=True)
     challenge_id: int = Field(foreign_key="music_challenges.id", index=True)
+    # 비로그인 참여도 허용하므로 nullable. 값은 반드시 서버가 JWT 에서 도출한다.
+    user_id: int | None = Field(default=None, foreign_key="users.id", index=True)
     media_type: str = Field(max_length=10)
     s3_key: str = Field(max_length=500)
     created_at: datetime = Field(default_factory=datetime.utcnow)

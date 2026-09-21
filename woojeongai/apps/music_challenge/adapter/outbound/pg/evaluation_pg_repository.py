@@ -1,8 +1,12 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from music_challenge.adapter.outbound.orm.music_challenge_orm import SubmissionEvaluationModel
-from music_challenge.app.ports.output.evaluation_repository_port import EvaluationRepositoryPort
+from music_challenge.adapter.outbound.orm.music_challenge_orm import (
+    SubmissionEvaluationModel,
+)
+from music_challenge.app.ports.output.evaluation_repository_port import (
+    EvaluationRepositoryPort,
+)
 from music_challenge.domain.entities.evaluation_entity import SubmissionEvaluation
 
 
