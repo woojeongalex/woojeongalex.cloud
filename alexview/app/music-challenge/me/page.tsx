@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { ArrowLeft, ArrowRight, TrendingUp } from "lucide-react"
+import { StatCard } from "@/components/common/stat-card"
+import { LoadingBlock, StatusNote } from "@/components/common/status-note"
+import { ScoreTrend } from "@/components/music/score-trend"
 import { useUserSession } from "@/hooks/use-user-session"
 import {
   CHALLENGE_TYPE_LABEL,
@@ -11,64 +14,7 @@ import {
 } from "@/lib/music-challenge-api"
 import { toUserFacingMessage, UI_ERRORS } from "@/lib/user-facing-error"
 
-type ScoreTrendProps = {
-  scores: number[]
-}
-
-/**
- * 점수 추이 스파크라인.
- *
- * 차트 라이브러리를 쓰지 않은 이유: 보여줄 값이 0~100 한 계열뿐이고,
- * recharts 를 끌어오면 번들만 커진다. 눈금·축 없이 흐름만 보이면 충분하다.
- */
-function ScoreTrend({ scores }: ScoreTrendProps) {
-  if (scores.length < 2) return null
-
-  const width = 100
-  const height = 28
-  const step = width / (scores.length - 1)
-  const points = scores
-    .map((s, i) => {
-      const x = i * step
-      const y = height - (Math.min(100, Math.max(0, s)) / 100) * height
-      return `${x.toFixed(1)},${y.toFixed(1)}`
-    })
-    .join(" ")
-
-  return (
-    <svg
-      viewBox={`0 0 ${width} ${height}`}
-      preserveAspectRatio="none"
-      className="mt-3 h-14 w-full"
-      role="img"
-      aria-label={`점수 추이: ${scores.join(", ")}`}
-    >
-      <polyline
-        points={points}
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        vectorEffect="non-scaling-stroke"
-      />
-    </svg>
-  )
-}
-
-type StatProps = {
-  label: string
-  value: string
-}
-
-function Stat({ label, value }: StatProps) {
-  return (
-    <div className="rounded-2xl border border-border bg-card p-5">
-      <p className="text-sm text-muted-foreground">{label}</p>
-      <p className="mt-2 font-mono text-2xl font-semibold">{value}</p>
-    </div>
-  )
-}
+type ScoredItem = HistoryItem & { score: number }
 
 export default function MyHistoryPage() {
   const user = useUserSession()
@@ -101,7 +47,7 @@ export default function MyHistoryPage() {
     }
   }, [mounted, user])
 
-  const scored = items.filter((i): i is HistoryItem & { score: number } => i.score !== null)
+  const scored = items.filter((i): i is ScoredItem => i.score !== null)
   const best = scored.length ? Math.max(...scored.map((i) => i.score)) : null
   const average = scored.length
     ? Math.round(scored.reduce((sum, i) => sum + i.score, 0) / scored.length)
@@ -129,41 +75,27 @@ export default function MyHistoryPage() {
         </p>
 
         {!mounted && (
-          <div className="mt-8 h-40 animate-pulse rounded-3xl bg-muted/40" role="status">
-            <span className="sr-only">기록을 불러오는 중입니다.</span>
-          </div>
+          <LoadingBlock label="기록을 불러오는 중입니다." className="mt-8 h-40" />
         )}
 
         {mounted && !user && (
-          <p
-            role="status"
-            className="mt-8 rounded-2xl border border-border bg-muted/40 px-5 py-6 text-sm text-muted-foreground"
-          >
+          <StatusNote className="mt-8">
             도전 기록은 로그인한 뒤에 볼 수 있습니다. 비로그인으로 참여한 제출은
             기록에 남지 않습니다.
-          </p>
+          </StatusNote>
         )}
 
         {mounted && user && loading && (
-          <div className="mt-8 h-40 animate-pulse rounded-3xl bg-muted/40" role="status">
-            <span className="sr-only">기록을 불러오는 중입니다.</span>
-          </div>
+          <LoadingBlock label="기록을 불러오는 중입니다." className="mt-8 h-40" />
         )}
 
         {mounted && user && !loading && error && (
-          <p
-            role="status"
-            className="mt-8 rounded-2xl border border-border bg-muted/40 px-5 py-6 text-sm text-muted-foreground"
-          >
-            {error}
-          </p>
+          <StatusNote className="mt-8">{error}</StatusNote>
         )}
 
         {mounted && user && !loading && !error && items.length === 0 && (
           <div className="mt-8 rounded-3xl border border-border bg-muted/40 px-5 py-8 text-center">
-            <p className="text-sm text-muted-foreground">
-              아직 도전 기록이 없습니다.
-            </p>
+            <p className="text-sm text-muted-foreground">아직 도전 기록이 없습니다.</p>
             <Link
               href="/music-challenge"
               className="mt-5 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-80"
@@ -177,9 +109,9 @@ export default function MyHistoryPage() {
         {mounted && user && !loading && !error && items.length > 0 && (
           <>
             <section className="mt-8 grid gap-4 sm:grid-cols-3">
-              <Stat label="총 도전" value={`${items.length}회`} />
-              <Stat label="평균 점수" value={average === null ? "—" : `${average}`} />
-              <Stat label="최고 점수" value={best === null ? "—" : `${best}`} />
+              <StatCard label="총 도전" value={`${items.length}회`} />
+              <StatCard label="평균 점수" value={average === null ? "—" : `${average}`} />
+              <StatCard label="최고 점수" value={best === null ? "—" : `${best}`} />
             </section>
 
             {trend.length >= 2 && (
@@ -203,9 +135,7 @@ export default function MyHistoryPage() {
                   className="flex items-center gap-4 rounded-2xl border border-border bg-card p-4 transition-colors hover:border-foreground/40 hover:bg-muted/40"
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">
-                      {item.challenge_title}
-                    </p>
+                    <p className="truncate text-sm font-medium">{item.challenge_title}</p>
                     <p className="mt-1 text-xs text-muted-foreground">
                       {CHALLENGE_TYPE_LABEL[item.challenge_type] ?? item.challenge_type}
                       {" · "}

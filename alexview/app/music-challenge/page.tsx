@@ -2,11 +2,14 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { ArrowRight, History, Mic2, Music4, Plus, Sparkles } from "lucide-react"
+import { History, Mic2, Music4, Plus, Sparkles } from "lucide-react"
+import { EyebrowBadge, SectionHeading } from "@/components/common/section-heading"
+import { LoadingBlock, StatusNote } from "@/components/common/status-note"
+import { ChallengeCard } from "@/components/music/challenge-card"
 import { useUserSession } from "@/hooks/use-user-session"
 import {
-  CHALLENGE_TYPE_LABEL,
   fetchChallenges,
+  fetchMyHistory,
   type Challenge,
 } from "@/lib/music-challenge-api"
 import { toUserFacingMessage, UI_ERRORS } from "@/lib/user-facing-error"
@@ -21,20 +24,21 @@ const STEPS = [
   {
     n: "02",
     icon: Mic2,
-    title: "영상 · 음성 제출",
-    description: "노래하거나 연주하는 모습을 녹음·녹화해서 그대로 올립니다.",
+    title: "녹음 · 녹화 제출",
+    description: "브라우저에서 바로 녹음하거나, 녹화해 둔 영상을 올립니다.",
   },
   {
     n: "03",
     icon: Sparkles,
     title: "AI 채점 · 다음 추천",
-    description: "AI가 점수와 피드백을 주고, 실력에 맞는 다음 챌린지를 추천합니다.",
+    description: "음정·박자 수치와 AI 피드백을 받고, 실력에 맞는 다음 곡을 추천받습니다.",
   },
 ]
 
 export default function MusicChallengePage() {
   const user = useUserSession()
   const [challenges, setChallenges] = useState<Challenge[]>([])
+  const [attemptedIds, setAttemptedIds] = useState<Set<number>>(new Set())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -55,15 +59,31 @@ export default function MusicChallengePage() {
     }
   }, [])
 
+  // 이미 도전한 곡을 표시하기 위한 보조 조회. 실패해도 목록은 그대로 보여준다.
+  useEffect(() => {
+    if (!user) {
+      setAttemptedIds(new Set())
+      return
+    }
+    let alive = true
+    fetchMyHistory(100)
+      .then((data) => {
+        if (alive) setAttemptedIds(new Set(data.items.map((i) => i.challenge_id)))
+      })
+      .catch(() => {
+        if (alive) setAttemptedIds(new Set())
+      })
+    return () => {
+      alive = false
+    }
+  }, [user])
+
   return (
     <main className="min-h-[calc(100vh-4rem)] min-w-0 overflow-x-hidden bg-background text-foreground">
       {/* HERO */}
       <section className="border-b border-border">
         <div className="mx-auto max-w-6xl px-4 py-12 md:py-16">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-3 py-1 text-[11px] font-semibold tracking-wide text-muted-foreground">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-foreground" />
-            AI MUSIC CHALLENGE
-          </span>
+          <EyebrowBadge>AI MUSIC CHALLENGE</EyebrowBadge>
           <h1 className="mt-5 max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl">
             AI가 만든 음악에 도전하고,
             <br />
@@ -98,91 +118,62 @@ export default function MusicChallengePage() {
 
       {/* LIST */}
       <section className="mx-auto max-w-6xl px-4 py-12 md:py-14">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">진행 중인 챌린지</p>
-            <h2 className="mt-2 text-3xl font-semibold tracking-tight">
-              지금 도전할 수 있는 곡
-            </h2>
-          </div>
-          <div className="flex items-center gap-3">
-            {!loading && !error && (
-              <p className="font-mono text-sm text-muted-foreground">
-                총 {challenges.length}개
-              </p>
-            )}
-            {user && (
-              <Link
-                href="/music-challenge/me"
-                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent"
-              >
-                <History className="h-4 w-4" aria-hidden="true" />
-                내 기록
-              </Link>
-            )}
-            {user?.role === "admin" && (
-              <Link
-                href="/music-challenge/new"
-                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent"
-              >
-                <Plus className="h-4 w-4" aria-hidden="true" />
-                챌린지 등록
-              </Link>
-            )}
-          </div>
-        </div>
+        <SectionHeading
+          label="진행 중인 챌린지"
+          title="지금 도전할 수 있는 곡"
+          action={
+            <>
+              {!loading && !error && (
+                <p className="font-mono text-sm text-muted-foreground">
+                  총 {challenges.length}개
+                </p>
+              )}
+              {user && (
+                <Link
+                  href="/music-challenge/me"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent"
+                >
+                  <History className="h-4 w-4" aria-hidden="true" />
+                  내 기록
+                </Link>
+              )}
+              {user?.role === "admin" && (
+                <Link
+                  href="/music-challenge/new"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent"
+                >
+                  <Plus className="h-4 w-4" aria-hidden="true" />
+                  챌린지 등록
+                </Link>
+              )}
+            </>
+          }
+        />
 
         {loading && (
-          <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3" role="status">
-            <span className="sr-only">챌린지를 불러오는 중입니다.</span>
+          <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {[0, 1, 2].map((i) => (
-              <div
-                key={i}
-                className="h-52 animate-pulse rounded-3xl border border-border bg-muted/40"
-              />
+              <LoadingBlock key={i} label="챌린지를 불러오는 중입니다." className="h-52" />
             ))}
           </div>
         )}
 
-        {!loading && error && (
-          <p
-            role="status"
-            className="mt-8 rounded-2xl border border-border bg-muted/40 px-5 py-6 text-sm text-muted-foreground"
-          >
-            {error}
-          </p>
-        )}
+        {!loading && error && <StatusNote className="mt-8">{error}</StatusNote>}
 
         {!loading && !error && challenges.length === 0 && (
-          <p
-            role="status"
-            className="mt-8 rounded-2xl border border-border bg-muted/40 px-5 py-6 text-sm text-muted-foreground"
-          >
+          <StatusNote className="mt-8">
             아직 등록된 챌린지가 없습니다. 새로운 챌린지가 올라오면 여기에 표시됩니다.
-          </p>
+          </StatusNote>
         )}
 
         {!loading && !error && challenges.length > 0 && (
           <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {challenges.map((challenge) => (
-              <Link
+              <ChallengeCard
                 key={challenge.id}
-                href={`/music-challenge/${challenge.id}`}
-                className="group flex flex-col rounded-3xl border border-border bg-card p-6 transition-colors hover:border-foreground/40 hover:bg-muted/40"
-              >
-                <span className="w-fit rounded-full border border-border bg-muted px-3 py-1 text-xs text-muted-foreground">
-                  {CHALLENGE_TYPE_LABEL[challenge.challenge_type] ??
-                    challenge.challenge_type}
-                </span>
-                <h3 className="mt-4 text-xl font-semibold">{challenge.title}</h3>
-                <p className="mt-3 line-clamp-3 flex-1 text-sm leading-6 text-muted-foreground">
-                  {challenge.description}
-                </p>
-                <span className="mt-5 inline-flex items-center gap-2 text-sm font-medium">
-                  도전하기
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </span>
-              </Link>
+                challenge={challenge}
+                attempted={attemptedIds.has(challenge.id)}
+              />
             ))}
           </div>
         )}

@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { BarChart2, ChevronDown, Moon, Sun } from "lucide-react"
+import { BarChart2, ChevronDown, History, Moon, Music4, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 import {
   DropdownMenu,
@@ -20,6 +20,20 @@ const pianoMenuKeyWhite =
   "rounded-none bg-white px-4 py-3 font-medium text-zinc-900 focus:bg-zinc-100 focus:text-zinc-900 data-[highlighted]:bg-zinc-100 data-[highlighted]:text-zinc-900"
 const pianoMenuKeyBlack =
   "rounded-none border-t border-zinc-300 bg-zinc-900 px-4 py-3 font-medium text-white focus:bg-zinc-800 focus:text-white data-[highlighted]:bg-zinc-800 data-[highlighted]:text-white"
+
+/**
+ * 챌린지 외의 화면들.
+ *
+ * 챌린지가 이 서비스의 본류인데 드롭다운 안에 다른 메뉴들과 섞여 있어서
+ * 처음 온 사람은 열어보기 전까지 존재조차 알 수 없었다. 챌린지를 밖으로
+ * 꺼내고 나머지를 여기에 모은다.
+ */
+const SECONDARY_LINKS = [
+  { href: "/analyze", label: "보컬 분석" },
+  { href: "/instrument", label: "악기" },
+  { href: "/speech", label: "스피치" },
+  { href: "/titanic", label: "LESSON" },
+]
 
 function ThemeToggle() {
   const { theme, setTheme } = useTheme()
@@ -56,9 +70,25 @@ export function SiteHeader() {
         <div className="flex min-w-0 flex-col gap-2 md:items-end">
           <div className="flex min-w-0 flex-wrap items-center gap-2">
             <ThemeToggle />
+            <Link
+              href="/music-challenge"
+              className={`${navLinkClass} gap-1.5 border-zinc-900 bg-zinc-900 text-white hover:bg-zinc-800 dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200`}
+            >
+              <Music4 className="size-3.5" aria-hidden />
+              챌린지
+            </Link>
+            {user && (
+              <Link
+                href="/music-challenge/me"
+                className={`${navLinkClass} gap-1.5 border-border bg-background text-muted-foreground hover:bg-accent hover:text-foreground`}
+              >
+                <History className="size-3.5" aria-hidden />
+                내 기록
+              </Link>
+            )}
             <DropdownMenu>
               <DropdownMenuTrigger
-                className={`${navLinkClass} gap-1 border-zinc-900 bg-zinc-900 text-white hover:bg-zinc-800 dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200 data-[state=open]:bg-zinc-800 dark:data-[state=open]:bg-zinc-200`}
+                className={`${navLinkClass} gap-1 border-border bg-background text-foreground hover:bg-accent data-[state=open]:bg-accent`}
               >
                 MENU
                 <ChevronDown className="size-3.5 opacity-80" aria-hidden />
@@ -67,21 +97,17 @@ export function SiteHeader() {
                 align="end"
                 className="min-w-[9.5rem] overflow-hidden rounded-lg border border-zinc-900 bg-white p-0 shadow-md dark:border-zinc-100 dark:bg-zinc-900"
               >
-                <DropdownMenuItem asChild className={pianoMenuKeyWhite}>
-                  <Link href="/speech" className="flex w-full cursor-pointer">
-                    스피치
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild className={pianoMenuKeyBlack}>
-                  <Link href="/titanic" className="flex w-full cursor-pointer">
-                    LESSON
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild className={pianoMenuKeyWhite}>
-                  <Link href="/music-challenge" className="flex w-full cursor-pointer">
-                    챌린지
-                  </Link>
-                </DropdownMenuItem>
+                {SECONDARY_LINKS.map((link, i) => (
+                  <DropdownMenuItem
+                    key={link.href}
+                    asChild
+                    className={i % 2 === 0 ? pianoMenuKeyWhite : pianoMenuKeyBlack}
+                  >
+                    <Link href={link.href} className="flex w-full cursor-pointer">
+                      {link.label}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
               </DropdownMenuContent>
             </DropdownMenu>
             {user?.role === "admin" && (
