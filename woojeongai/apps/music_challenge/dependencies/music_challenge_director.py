@@ -3,6 +3,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from music_challenge.adapter.outbound.gemini_evaluator_adapter import (
     GeminiEvaluatorAdapter,
 )
+from music_challenge.adapter.outbound.librosa_audio_analysis_adapter import (
+    LibrosaAudioAnalysisAdapter,
+)
 from music_challenge.adapter.outbound.pg.challenge_pg_repository import (
     ChallengePgRepository,
 )
@@ -67,4 +70,5 @@ def get_submit_challenge_use_case(session: AsyncSession) -> SubmitChallengeUseCa
         storage=S3MediaStorageAdapter(),
         evaluator=GeminiEvaluatorAdapter(),
         user_lookup=UserLookupPgRepository(session),
+        audio_analysis=LibrosaAudioAnalysisAdapter(),
     )

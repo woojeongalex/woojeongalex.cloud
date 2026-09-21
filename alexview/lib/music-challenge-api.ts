@@ -29,6 +29,10 @@ export type Evaluation = {
   score: number
   feedback: string
   next_challenge_id: number | null
+  /** 신호 분석 기반 객관 지표. 영상 등 분석 불가 입력이면 null */
+  pitch_score: number | null
+  rhythm_score: number | null
+  tempo: number | null
 }
 
 export const CHALLENGE_TYPE_LABEL: Record<ChallengeType, string> = {

@@ -223,6 +223,26 @@ export function ChallengeDetail({ challengeId }: ChallengeDetailProps) {
                   />
                 </div>
 
+                {(evaluation.pitch_score !== null ||
+                  evaluation.rhythm_score !== null) && (
+                  <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                    <MetricBar
+                      label="음정 안정성"
+                      value={evaluation.pitch_score}
+                    />
+                    <MetricBar
+                      label="박자 일관성"
+                      value={evaluation.rhythm_score}
+                    />
+                  </div>
+                )}
+
+                {evaluation.tempo !== null && evaluation.tempo > 0 && (
+                  <p className="mt-4 font-mono text-xs text-muted-foreground">
+                    측정 템포 {evaluation.tempo.toFixed(1)} BPM
+                  </p>
+                )}
+
                 <p className="mt-6 whitespace-pre-line text-sm leading-7 text-muted-foreground">
                   {evaluation.feedback}
                 </p>
@@ -242,5 +262,33 @@ export function ChallengeDetail({ challengeId }: ChallengeDetailProps) {
         )}
       </div>
     </main>
+  )
+}
+
+type MetricBarProps = {
+  label: string
+  value: number | null
+}
+
+/**
+ * 신호 분석으로 측정한 객관 지표. 종합 점수(AI 판단)와 달리 같은 파일이면
+ * 항상 같은 값이 나오므로, 사용자가 연습 효과를 비교할 수 있는 기준이 된다.
+ */
+function MetricBar({ label, value }: MetricBarProps) {
+  if (value === null) return null
+  const clamped = Math.min(100, Math.max(0, value))
+  return (
+    <div className="rounded-2xl border border-border bg-background/60 p-4">
+      <div className="flex items-baseline justify-between">
+        <span className="text-sm text-muted-foreground">{label}</span>
+        <span className="font-mono text-lg font-semibold">{clamped}</span>
+      </div>
+      <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+        <div
+          className="h-full rounded-full bg-foreground transition-all"
+          style={{ width: `${clamped}%` }}
+        />
+      </div>
+    </div>
   )
 }

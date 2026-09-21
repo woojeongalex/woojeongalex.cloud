@@ -48,4 +48,8 @@ class SubmissionEvaluationModel(SQLModel, table=True):
     next_challenge_id: int | None = Field(
         default=None, foreign_key="music_challenges.id"
     )
+    # librosa 신호 분석 결과. 영상 등 분석 불가 입력이면 비어 있다.
+    pitch_score: int | None = Field(default=None)
+    rhythm_score: int | None = Field(default=None)
+    tempo: float | None = Field(default=None)
     created_at: datetime = Field(default_factory=datetime.utcnow)

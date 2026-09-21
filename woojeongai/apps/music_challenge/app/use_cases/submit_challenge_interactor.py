@@ -1,3 +1,4 @@
+import asyncio
 import uuid
 from datetime import datetime
 
@@ -7,6 +8,7 @@ from music_challenge.app.dtos.evaluation_dto import EvaluationResult
 from music_challenge.app.dtos.submission_dto import SubmitChallengeCommand
 from music_challenge.app.ports.input.submission_use_case import SubmitChallengeUseCase
 from music_challenge.app.ports.output.ai_evaluator_port import AIEvaluatorPort
+from music_challenge.app.ports.output.audio_analysis_port import AudioAnalysisPort
 from music_challenge.app.ports.output.challenge_repository_port import (
     ChallengeRepositoryPort,
 )
@@ -35,6 +37,7 @@ class SubmitChallengeInteractor(SubmitChallengeUseCase):
         storage: MediaStoragePort,
         evaluator: AIEvaluatorPort,
         user_lookup: UserLookupPort,
+        audio_analysis: AudioAnalysisPort,
     ) -> None:
         self._challenge_repo = challenge_repo
         self._submission_repo = submission_repo
@@ -42,6 +45,7 @@ class SubmitChallengeInteractor(SubmitChallengeUseCase):
         self._storage = storage
         self._evaluator = evaluator
         self._user_lookup = user_lookup
+        self._audio_analysis = audio_analysis
 
     async def submit(self, command: SubmitChallengeCommand) -> EvaluationResult:
         challenge = await self._challenge_repo.find_by_id(command.challenge_id)
@@ -69,6 +73,11 @@ class SubmitChallengeInteractor(SubmitChallengeUseCase):
             )
         )
 
+        # librosa 분석은 CPU-bound 동기 함수라 이벤트 루프를 막지 않게 위임한다.
+        metrics = await asyncio.to_thread(
+            self._audio_analysis.analyze, command.data, command.content_type
+        )
+
         score, feedback = await self._evaluator.evaluate(
             challenge_title=challenge.title,
             challenge_description=challenge.description,
@@ -76,6 +85,7 @@ class SubmitChallengeInteractor(SubmitChallengeUseCase):
             media_bytes=command.data,
             media_type=command.media_type,
             content_type=command.content_type,
+            metrics=metrics,
         )
 
         all_active = await self._challenge_repo.find_all_active()
@@ -93,6 +103,9 @@ class SubmitChallengeInteractor(SubmitChallengeUseCase):
                 score=score,
                 feedback=feedback,
                 next_challenge_id=next_id,
+                pitch_score=metrics.pitch_score if metrics else None,
+                rhythm_score=metrics.rhythm_score if metrics else None,
+                tempo=metrics.tempo if metrics else None,
                 created_at=datetime.utcnow(),
             )
         )
@@ -103,6 +116,9 @@ class SubmitChallengeInteractor(SubmitChallengeUseCase):
             score=saved_eval.score,
             feedback=saved_eval.feedback,
             next_challenge_id=saved_eval.next_challenge_id,
+            pitch_score=saved_eval.pitch_score,
+            rhythm_score=saved_eval.rhythm_score,
+            tempo=saved_eval.tempo,
         )
 
     def _recommend_next(

@@ -8,3 +8,6 @@ class EvaluationResult:
     score: int
     feedback: str
     next_challenge_id: int | None
+    pitch_score: int | None = None
+    rhythm_score: int | None = None
+    tempo: float | None = None

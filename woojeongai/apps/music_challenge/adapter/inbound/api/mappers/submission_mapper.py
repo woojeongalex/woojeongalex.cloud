@@ -11,4 +11,7 @@ def evaluation_result_to_response(result: EvaluationResult) -> EvaluationRespons
         score=result.score,
         feedback=result.feedback,
         next_challenge_id=result.next_challenge_id,
+        pitch_score=result.pitch_score,
+        rhythm_score=result.rhythm_score,
+        tempo=result.tempo,
     )

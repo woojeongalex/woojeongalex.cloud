@@ -20,6 +20,9 @@ class EvaluationPgRepository(EvaluationRepositoryPort):
             score=evaluation.score,
             feedback=evaluation.feedback,
             next_challenge_id=evaluation.next_challenge_id,
+            pitch_score=evaluation.pitch_score,
+            rhythm_score=evaluation.rhythm_score,
+            tempo=evaluation.tempo,
             created_at=evaluation.created_at,
         )
         self._session.add(model)
@@ -44,5 +47,8 @@ class EvaluationPgRepository(EvaluationRepositoryPort):
             score=model.score,
             feedback=model.feedback,
             next_challenge_id=model.next_challenge_id,
+            pitch_score=model.pitch_score,
+            rhythm_score=model.rhythm_score,
+            tempo=model.tempo,
             created_at=model.created_at,
         )
