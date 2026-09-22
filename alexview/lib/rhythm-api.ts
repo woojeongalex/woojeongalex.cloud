@@ -129,3 +129,17 @@ export async function fetchRhythmRanking(
   )
   return { items: data.items ?? [], me: data.me ?? null }
 }
+
+export type RhythmSong = {
+  challenge_id: number
+  title: string
+  bpm: number | null
+  duration: number | null
+  sheets: RhythmSheetSummary[]
+}
+
+/** 리듬 게임 메뉴의 곡 목록 — 채보가 준비된 곡만 */
+export async function fetchRhythmSongs(): Promise<RhythmSong[]> {
+  const data = await getMusicJson<{ items: RhythmSong[] }>(`${BASE}/rhythm/songs`)
+  return data.items ?? []
+}

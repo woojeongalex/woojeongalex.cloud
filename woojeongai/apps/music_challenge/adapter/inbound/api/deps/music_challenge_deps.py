@@ -22,11 +22,15 @@ from music_challenge.app.ports.input.submission_use_case import SubmitChallengeU
 from music_challenge.app.ports.input.rhythm_use_case import (
     GetRhythmChartUseCase,
     GetRhythmRankingUseCase,
+    ListRhythmSongsUseCase,
     RequestRhythmBuildUseCase,
     SubmitRhythmPlayUseCase,
 )
 from music_challenge.dependencies.music_challenge_director import (
     get_build_rhythm_chart_use_case as _build_rhythm_chart,
+)
+from music_challenge.dependencies.music_challenge_director import (
+    get_list_rhythm_songs_use_case as _list_rhythm_songs,
 )
 from music_challenge.dependencies.music_challenge_director import (
     get_request_rhythm_build_use_case as _request_rhythm_build,
@@ -175,3 +179,9 @@ async def run_build_rhythm_chart(
     """BackgroundTasks 용. 요청 세션은 응답과 함께 닫히므로 새 세션을 연다."""
     async for session in get_db():
         await _build_rhythm_chart(session).build(challenge_id, job_id, source_key)
+
+
+def get_list_rhythm_songs_use_case(
+    session: AsyncSession = Depends(get_db),
+) -> ListRhythmSongsUseCase:
+    return _list_rhythm_songs(session)

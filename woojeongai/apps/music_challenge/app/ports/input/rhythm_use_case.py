@@ -5,6 +5,7 @@ from music_challenge.app.dtos.rhythm_dto import (
     RhythmPlayResult,
     RhythmRankingEntry,
     RhythmSheetResult,
+    RhythmSongItem,
     RhythmStanding,
     SubmitRhythmPlayCommand,
 )
@@ -52,3 +53,9 @@ class GetRhythmRankingUseCase(ABC):
         limit: int,
         username: str | None,
     ) -> tuple[list[RhythmRankingEntry], RhythmStanding | None]: ...
+
+
+class ListRhythmSongsUseCase(ABC):
+    @abstractmethod
+    async def list(self) -> list[RhythmSongItem]:
+        """리듬 게임 메뉴의 곡 목록 — 활성 챌린지 중 채보가 준비된 곡만."""

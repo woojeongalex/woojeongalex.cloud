@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { BarChart2, ChevronDown, History, Moon, Music4, Sun } from "lucide-react"
+import { BarChart2, ChevronDown, Gamepad2, History, Moon, Music4, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 import {
   DropdownMenu,
@@ -76,6 +76,13 @@ export function SiteHeader() {
             >
               <Music4 className="size-3.5" aria-hidden />
               챌린지
+            </Link>
+            <Link
+              href="/rhythm"
+              className={`${navLinkClass} gap-1.5 border-sky-500 bg-sky-500 text-white hover:bg-sky-600`}
+            >
+              <Gamepad2 className="size-3.5" aria-hidden />
+              리듬 게임
             </Link>
             {user && (
               <Link

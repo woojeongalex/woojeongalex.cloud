@@ -76,3 +76,22 @@ class RhythmRankingEntry:
 class RhythmStanding:
     rank: int
     best_score: int
+
+
+@dataclass(frozen=True)
+class RhythmChartBrief:
+    """목록용 — 노트 없이 채보 요약만."""
+
+    challenge_id: int
+    bpm: float | None
+    duration: float | None
+    sheets: list[RhythmSheetSummary]
+
+
+@dataclass(frozen=True)
+class RhythmSongItem:
+    challenge_id: int
+    title: str
+    bpm: float | None
+    duration: float | None
+    sheets: list[RhythmSheetSummary]

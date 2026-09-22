@@ -1,6 +1,10 @@
 from abc import ABC, abstractmethod
 
-from music_challenge.app.dtos.rhythm_dto import RhythmRankingEntry, RhythmStanding
+from music_challenge.app.dtos.rhythm_dto import (
+    RhythmChartBrief,
+    RhythmRankingEntry,
+    RhythmStanding,
+)
 from music_challenge.domain.entities.rhythm_entity import RhythmChart, RhythmPlay
 from music_challenge.domain.value_objects.rhythm_vo import RhythmDifficulty
 
@@ -32,3 +36,9 @@ class RhythmRankingQueryPort(ABC):
         self, challenge_id: int, keys: int, difficulty: RhythmDifficulty, user_id: int
     ) -> RhythmStanding | None:
         """기록이 없으면 None."""
+
+
+class RhythmChartListQueryPort(ABC):
+    @abstractmethod
+    async def list_ready(self) -> list[RhythmChartBrief]:
+        """채보가 준비된 곡들의 요약. 노트는 싣지 않는다(곡마다 수천 개라서)."""

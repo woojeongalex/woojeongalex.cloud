@@ -7,6 +7,7 @@ from friday13th.adapter.inbound.api.deps.current_user_deps import (
     require_admin,
 )
 from music_challenge.adapter.inbound.api.deps.music_challenge_deps import (
+    get_list_rhythm_songs_use_case,
     get_request_rhythm_build_use_case,
     get_rhythm_chart_use_case,
     get_rhythm_ranking_use_case,
@@ -21,6 +22,8 @@ from music_challenge.adapter.inbound.api.schemas.rhythm_schema import (
     RhythmRankingResponse,
     RhythmSheetResponse,
     RhythmSheetSummaryResponse,
+    RhythmSongListResponse,
+    RhythmSongResponse,
     RhythmStandingResponse,
 )
 from music_challenge.app.dtos.rhythm_dto import (
@@ -30,6 +33,7 @@ from music_challenge.app.dtos.rhythm_dto import (
 from music_challenge.app.ports.input.rhythm_use_case import (
     GetRhythmChartUseCase,
     GetRhythmRankingUseCase,
+    ListRhythmSongsUseCase,
     RequestRhythmBuildUseCase,
     SubmitRhythmPlayUseCase,
 )
@@ -175,4 +179,35 @@ async def rhythm_ranking(
         me=RhythmStandingResponse(rank=me.rank, best_score=me.best_score)
         if me
         else None,
+    )
+
+
+# 리듬 게임은 챌린지와 별도 메뉴라 곡 목록은 /rhythm 아래에 둔다.
+rhythm_songs_router = APIRouter(prefix="/rhythm", tags=["music-challenge"])
+
+
+@rhythm_songs_router.get("/songs", response_model=RhythmSongListResponse)
+async def list_rhythm_songs(
+    use_case: ListRhythmSongsUseCase = Depends(get_list_rhythm_songs_use_case),
+) -> RhythmSongListResponse:
+    """채보가 준비된 곡 목록. 누구나 볼 수 있다."""
+    return RhythmSongListResponse(
+        items=[
+            RhythmSongResponse(
+                challenge_id=s.challenge_id,
+                title=s.title,
+                bpm=s.bpm,
+                duration=s.duration,
+                sheets=[
+                    RhythmSheetSummaryResponse(
+                        keys=x.keys,
+                        difficulty=x.difficulty,
+                        level=x.level,
+                        note_count=x.note_count,
+                    )
+                    for x in s.sheets
+                ],
+            )
+            for s in await use_case.list()
+        ]
     )

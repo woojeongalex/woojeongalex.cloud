@@ -70,3 +70,15 @@ class RhythmStandingResponse(BaseModel):
 class RhythmRankingResponse(BaseModel):
     items: list[RhythmRankingEntryResponse]
     me: RhythmStandingResponse | None = None
+
+
+class RhythmSongResponse(BaseModel):
+    challenge_id: int
+    title: str
+    bpm: float | None
+    duration: float | None
+    sheets: list[RhythmSheetSummaryResponse]
+
+
+class RhythmSongListResponse(BaseModel):
+    items: list[RhythmSongResponse]

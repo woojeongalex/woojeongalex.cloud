@@ -442,21 +442,21 @@ export function RhythmGame({ challengeId }: RhythmGameProps) {
 
   if (loadError && !challenge) {
     return (
-      <Shell challengeId={challengeId}>
+      <Shell>
         <StatusNote className="mt-8">{loadError}</StatusNote>
       </Shell>
     )
   }
   if (!challenge || !chart) {
     return (
-      <Shell challengeId={challengeId}>
+      <Shell>
         <LoadingBlock label="채보를 불러오는 중입니다." className="mt-8 h-64" />
       </Shell>
     )
   }
   if (chart.status !== "ready" && chart.sheets.length === 0) {
     return (
-      <Shell challengeId={challengeId}>
+      <Shell>
         <StatusNote className="mt-8">
           {chart.status === "processing"
             ? "채보를 만드는 중입니다. 잠시 뒤 새로고침해 주세요."
@@ -472,7 +472,7 @@ export function RhythmGame({ challengeId }: RhythmGameProps) {
   const inGame = phase === "playing"
 
   return (
-    <Shell challengeId={challengeId}>
+    <Shell>
       <div className="mt-6 flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-sm font-medium text-muted-foreground">
@@ -689,20 +689,19 @@ export function RhythmGame({ challengeId }: RhythmGameProps) {
 }
 
 type ShellProps = {
-  challengeId: number
   children: React.ReactNode
 }
 
-function Shell({ challengeId, children }: ShellProps) {
+function Shell({ children }: ShellProps) {
   return (
     <main className="min-h-[calc(100vh-4rem)] min-w-0 overflow-x-hidden bg-background text-foreground">
       <div className="mx-auto max-w-3xl px-4 py-8 md:py-12">
         <Link
-          href={`/music-challenge/${challengeId}`}
+          href="/rhythm"
           className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          챌린지로 돌아가기
+          곡 목록으로
         </Link>
         {children}
       </div>

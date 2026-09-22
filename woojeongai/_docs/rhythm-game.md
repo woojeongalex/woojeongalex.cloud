@@ -8,7 +8,8 @@
 ```
 [관리자] 스튜디오 "채보 만들기" → POST /challenges/{id}/rhythm/build (202)
 [백엔드] 원곡 S3 다운로드 → librosa 분석(10~20초) → 채보 6개 → rhythm_charts
-[브라우저] GET /rhythm/{keys}/{difficulty} → 노트 [time, lane, end|null]
+[브라우저] 헤더 "리듬 게임" → /rhythm (GET /rhythm/songs: 채보 있는 곡 목록) → /rhythm/{id}
+           GET /challenges/{id}/rhythm/{keys}/{difficulty} → 노트 [time, lane, end|null]
            키보드(4키 D F J K / 7키 S D F Space J K L)·터치 → 입력 기록 [lane, down, up]
 [백엔드] POST /rhythm/{keys}/{difficulty}/plays → 같은 규칙으로 다시 채점 → rhythm_plays
 ```

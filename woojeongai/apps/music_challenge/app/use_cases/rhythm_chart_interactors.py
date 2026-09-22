@@ -12,10 +12,12 @@ from music_challenge.app.dtos.rhythm_dto import (
     RhythmChartResult,
     RhythmSheetResult,
     RhythmSheetSummary,
+    RhythmSongItem,
 )
 from music_challenge.app.ports.input.rhythm_use_case import (
     BuildRhythmChartUseCase,
     GetRhythmChartUseCase,
+    ListRhythmSongsUseCase,
     RequestRhythmBuildUseCase,
 )
 from music_challenge.app.ports.output.challenge_repository_port import (
@@ -24,6 +26,7 @@ from music_challenge.app.ports.output.challenge_repository_port import (
 from music_challenge.app.ports.output.media_storage_port import MediaStoragePort
 from music_challenge.app.ports.output.rhythm_analyzer_port import RhythmAnalyzerPort
 from music_challenge.app.ports.output.rhythm_repository_port import (
+    RhythmChartListQueryPort,
     RhythmChartRepositoryPort,
 )
 from music_challenge.domain.entities.chart_entity import ChartStatus
@@ -208,3 +211,28 @@ class BuildRhythmChartInteractor(BuildRhythmChartUseCase):
                 updated_at=datetime.utcnow(),
             )
         )
+
+
+class ListRhythmSongsInteractor(ListRhythmSongsUseCase):
+    def __init__(
+        self,
+        challenge_repo: ChallengeRepositoryPort,
+        list_query: RhythmChartListQueryPort,
+    ) -> None:
+        self._challenge_repo = challenge_repo
+        self._list_query = list_query
+
+    async def list(self) -> list[RhythmSongItem]:
+        # 비활성(내린) 곡은 채보가 남아 있어도 메뉴에 보이지 않게 활성 챌린지와 맞춘다.
+        active = {c.id: c for c in await self._challenge_repo.find_all_active()}
+        return [
+            RhythmSongItem(
+                challenge_id=b.challenge_id,
+                title=active[b.challenge_id].title,
+                bpm=b.bpm,
+                duration=b.duration,
+                sheets=b.sheets,
+            )
+            for b in await self._list_query.list_ready()
+            if b.challenge_id in active and b.sheets
+        ]

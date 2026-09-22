@@ -9,8 +9,14 @@ from music_challenge.adapter.outbound.orm.music_challenge_orm import (
     RhythmChartModel,
     RhythmPlayModel,
 )
-from music_challenge.app.dtos.rhythm_dto import RhythmRankingEntry, RhythmStanding
+from music_challenge.app.dtos.rhythm_dto import (
+    RhythmChartBrief,
+    RhythmRankingEntry,
+    RhythmSheetSummary,
+    RhythmStanding,
+)
 from music_challenge.app.ports.output.rhythm_repository_port import (
+    RhythmChartListQueryPort,
     RhythmChartRepositoryPort,
     RhythmPlayRepositoryPort,
     RhythmRankingQueryPort,
@@ -200,3 +206,47 @@ class RhythmRankingPgQuery(RhythmRankingQueryPort):
         if row is None:
             return None
         return RhythmStanding(rank=int(row.rank), best_score=int(row.best_score))
+
+
+# 채보 JSON 에서 노트 배열은 길이만 센다 — 목록에 노트 수천 개를 실어 나르지 않도록.
+_READY_SHEETS = text(
+    """
+    SELECT c.challenge_id, c.bpm, c.duration,
+           (s ->> 'keys')::int AS keys,
+           s ->> 'difficulty' AS difficulty,
+           (s ->> 'level')::int AS level,
+           json_array_length(s -> 'notes') AS note_count
+    FROM rhythm_charts c
+    CROSS JOIN LATERAL json_array_elements(c.sheets) AS s
+    WHERE c.sheets IS NOT NULL
+    ORDER BY c.challenge_id, keys, level
+    """
+)
+
+
+class RhythmChartListPgQuery(RhythmChartListQueryPort):
+    def __init__(self, session: AsyncSession) -> None:
+        self._session = session
+
+    async def list_ready(self) -> list[RhythmChartBrief]:
+        rows = await self._session.execute(_READY_SHEETS)
+        by_id: dict[int, RhythmChartBrief] = {}
+        for r in rows:
+            brief = by_id.get(r.challenge_id)
+            if brief is None:
+                brief = RhythmChartBrief(
+                    challenge_id=int(r.challenge_id),
+                    bpm=r.bpm,
+                    duration=r.duration,
+                    sheets=[],
+                )
+                by_id[brief.challenge_id] = brief
+            brief.sheets.append(
+                RhythmSheetSummary(
+                    keys=int(r.keys),
+                    difficulty=RhythmDifficulty(r.difficulty),
+                    level=int(r.level),
+                    note_count=int(r.note_count),
+                )
+            )
+        return list(by_id.values())

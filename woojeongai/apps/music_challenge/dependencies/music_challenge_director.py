@@ -4,6 +4,7 @@ from music_challenge.adapter.outbound.librosa_rhythm_analyzer_adapter import (
     LibrosaRhythmAnalyzerAdapter,
 )
 from music_challenge.adapter.outbound.pg.rhythm_pg_repository import (
+    RhythmChartListPgQuery,
     RhythmChartPgRepository,
     RhythmPlayPgRepository,
     RhythmRankingPgQuery,
@@ -12,12 +13,14 @@ from music_challenge.app.ports.input.rhythm_use_case import (
     BuildRhythmChartUseCase,
     GetRhythmChartUseCase,
     GetRhythmRankingUseCase,
+    ListRhythmSongsUseCase,
     RequestRhythmBuildUseCase,
     SubmitRhythmPlayUseCase,
 )
 from music_challenge.app.use_cases.rhythm_chart_interactors import (
     BuildRhythmChartInteractor,
     GetRhythmChartInteractor,
+    ListRhythmSongsInteractor,
     RequestRhythmBuildInteractor,
 )
 from music_challenge.app.use_cases.rhythm_play_interactors import (
@@ -227,4 +230,11 @@ def get_rhythm_ranking_use_case(session: AsyncSession) -> GetRhythmRankingUseCas
         challenge_repo=ChallengePgRepository(session),
         ranking=RhythmRankingPgQuery(session),
         user_lookup=UserLookupPgRepository(session),
+    )
+
+
+def get_list_rhythm_songs_use_case(session: AsyncSession) -> ListRhythmSongsUseCase:
+    return ListRhythmSongsInteractor(
+        challenge_repo=ChallengePgRepository(session),
+        list_query=RhythmChartListPgQuery(session),
     )
