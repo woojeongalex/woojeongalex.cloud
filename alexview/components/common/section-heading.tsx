@@ -10,11 +10,11 @@ export function EyebrowBadge({ children, className }: EyebrowBadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-3 py-1 text-[11px] font-semibold tracking-wide text-muted-foreground",
+        "inline-flex items-center gap-2 rounded-full border border-neon-pink/50 bg-neon-pink/10 px-3.5 py-1 font-orbitron text-[11px] font-bold tracking-[0.2em] text-neon-pink shadow-[0_0_18px_-6px_#ff2e97]",
         className
       )}
     >
-      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-foreground" />
+      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-neon-pink shadow-[0_0_8px_#ff2e97]" />
       {children}
     </span>
   )
@@ -33,8 +33,8 @@ export function SectionHeading({ label, title, action }: SectionHeadingProps) {
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <p className="text-sm font-medium text-muted-foreground">{label}</p>
-        <h2 className="mt-2 text-3xl font-semibold tracking-tight">{title}</h2>
+        <p className="font-orbitron text-xs font-bold tracking-[0.25em] text-neon-cyan">{label}</p>
+        <h2 className="mt-2 font-display text-3xl tracking-tight text-white sm:text-4xl">{title}</h2>
       </div>
       {action && <div className="flex items-center gap-3">{action}</div>}
     </div>

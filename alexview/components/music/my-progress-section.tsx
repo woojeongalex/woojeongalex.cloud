@@ -56,7 +56,7 @@ export function MyProgressSection() {
   const trend = scored.map((i) => i.score).reverse()
 
   return (
-    <section className="border-b border-border bg-muted/30">
+    <section className="border-b border-border bg-night-900">
       <div className="mx-auto max-w-6xl px-4 py-12 md:py-14">
         <SectionHeading
           label="내 진척도"
@@ -64,7 +64,7 @@ export function MyProgressSection() {
           action={
             <Link
               href="/music-challenge/me"
-              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent"
+              className="inline-flex items-center gap-1.5 rounded-full border border-neon-cyan/60 px-4 py-2 text-sm font-medium text-neon-cyan transition-colors hover:bg-neon-cyan/10"
             >
               전체 기록
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -75,7 +75,7 @@ export function MyProgressSection() {
         {loading && <LoadingBlock label="기록을 불러오는 중입니다." className="mt-8 h-32" />}
 
         {!loading && items.length === 0 && (
-          <div className="mt-8 rounded-3xl border border-border bg-card px-5 py-8 text-center">
+          <div className="mt-8 rounded-3xl border border-dashed border-neon-pink/40 bg-card px-5 py-8 text-center">
             <p className="text-sm text-muted-foreground">
               아직 도전 기록이 없습니다. 한 곡만 불러도 점수가 쌓이기 시작합니다.
             </p>
@@ -91,9 +91,9 @@ export function MyProgressSection() {
             </div>
             <div className="rounded-3xl border border-border bg-card p-6">
               <div className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4" aria-hidden="true" />
-                <h3 className="text-sm font-medium">점수 추이</h3>
-                <span className="ml-auto font-mono text-xs text-muted-foreground">
+                <TrendingUp className="h-4 w-4 text-neon-pink" aria-hidden="true" />
+                <h3 className="font-display text-base text-white">점수 추이</h3>
+                <span className="ml-auto font-orbitron text-xs text-muted-foreground">
                   오래된 순 → 최근
                 </span>
               </div>

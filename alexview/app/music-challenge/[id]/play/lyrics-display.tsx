@@ -33,19 +33,19 @@ export function LyricsDisplay({ lines, time }: LyricsDisplayProps) {
         // 글자 모양대로 잘라 낸 그라데이션으로 채운다. 덧씌운 span 방식은 긴 줄이
         // 휴대폰에서 두 줄로 넘어가면 어긋난다.
         <p
-          className="bg-clip-text text-2xl font-semibold tracking-tight text-transparent sm:text-3xl"
+          className="bg-clip-text font-display text-2xl text-transparent drop-shadow-[0_0_12px_rgba(255,46,151,0.35)] sm:text-3xl"
           style={{
-            backgroundImage: `linear-gradient(to right, #38bdf8 ${fill * 100}%, rgba(255,255,255,0.35) ${fill * 100}%)`,
+            backgroundImage: `linear-gradient(to right, #ff2e97 ${fill * 100}%, rgba(255,255,255,0.35) ${fill * 100}%)`,
           }}
         >
           {current.text}
         </p>
       ) : (
-        <p className="text-2xl font-semibold tracking-tight text-white/35 sm:text-3xl">
+        <p className="font-display text-2xl text-white/40 sm:text-3xl">
           {upcoming?.text ?? " "}
         </p>
       )}
-      <p className="text-base text-white/40 sm:text-lg">{current ? (next?.text ?? " ") : " "}</p>
+      <p className="text-base text-neon-cyan/60 sm:text-lg">{current ? (next?.text ?? " ") : " "}</p>
     </div>
   )
 }

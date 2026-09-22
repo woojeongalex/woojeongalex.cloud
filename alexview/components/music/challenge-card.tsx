@@ -16,25 +16,25 @@ export function ChallengeCard({ challenge, attempted, className }: ChallengeCard
     <Link
       href={`/music-challenge/${challenge.id}`}
       className={cn(
-        "group flex flex-col rounded-3xl border border-border bg-card p-6 transition-colors hover:border-foreground/40 hover:bg-muted/40",
+        "glow-card group flex flex-col rounded-3xl border border-border bg-card p-6",
         className
       )}
     >
       <div className="flex flex-wrap items-center gap-2">
-        <span className="rounded-full border border-border bg-muted px-3 py-1 text-xs text-muted-foreground">
+        <span className="rounded-full border border-neon-cyan/50 bg-neon-cyan/10 px-3 py-1 text-xs font-medium text-neon-cyan">
           {CHALLENGE_TYPE_LABEL[challenge.challenge_type] ?? challenge.challenge_type}
         </span>
         {attempted && (
-          <span className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">
+          <span className="rounded-full border border-neon-green/50 bg-neon-green/10 px-3 py-1 text-xs font-medium text-neon-green">
             도전한 곡
           </span>
         )}
       </div>
-      <h3 className="mt-4 text-xl font-semibold">{challenge.title}</h3>
+      <h3 className="mt-4 font-display text-xl text-white">{challenge.title}</h3>
       <p className="mt-3 line-clamp-3 flex-1 text-sm leading-6 text-muted-foreground">
         {challenge.description}
       </p>
-      <span className="mt-5 inline-flex items-center gap-2 text-sm font-medium">
+      <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-neon-pink">
         {attempted ? "다시 도전하기" : "도전하기"}
         <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
       </span>

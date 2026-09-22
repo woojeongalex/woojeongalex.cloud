@@ -75,9 +75,9 @@ export function GeminiChat({ layout = "default" }: GeminiChatProps) {
       className={`w-full min-w-0 font-sans antialiased ${isSidebar ? "" : "max-w-4xl"}`}
     >
       <div className={isSidebar ? "w-full" : "max-w-2xl"}>
-        <p className="text-xs font-mono tracking-widest uppercase text-zinc-400">Gemini</p>
+        <p className="font-orbitron text-xs uppercase tracking-[0.25em] text-neon-cyan">Gemini</p>
         <h2
-          className={`font-semibold tracking-tight text-white ${
+          className={`font-display text-white ${
             isSidebar
               ? "mt-1.5 text-xl sm:text-2xl"
               : "mt-2 text-2xl sm:text-3xl"
@@ -88,14 +88,14 @@ export function GeminiChat({ layout = "default" }: GeminiChatProps) {
       </div>
 
       <div
-        className={`flex flex-col overflow-hidden rounded-2xl border border-zinc-700/60 bg-[#1e1e1e] ${
+        className={`flex flex-col overflow-hidden rounded-2xl border border-border bg-night-900 shadow-[0_0_32px_rgba(255,46,151,0.08)] ${
           isSidebar ? "mt-4 min-h-[22rem] sm:min-h-[25rem]" : "mt-6"
         }`}
       >
         {(hasThread || isSidebar) && (
           <div
             ref={scrollRef}
-            className={`space-y-2 overflow-y-auto border-b border-zinc-700/50 px-4 py-3 text-sm ${
+            className={`space-y-2 overflow-y-auto border-b border-border px-4 py-3 text-sm ${
               isSidebar
                 ? "min-h-[11rem] flex-1 max-h-[16rem] sm:min-h-[13rem] sm:max-h-[20rem]"
                 : hasThread
@@ -111,8 +111,8 @@ export function GeminiChat({ layout = "default" }: GeminiChatProps) {
                 <p
                   className={`max-w-[92%] rounded-lg px-3 py-2 leading-relaxed ${
                     m.role === "user"
-                      ? "bg-zinc-800 text-zinc-100"
-                      : "bg-zinc-800/60 text-zinc-300"
+                      ? "bg-neon-pink/20 text-foreground ring-1 ring-neon-pink/40"
+                      : "bg-night-800 text-foreground"
                   }`}
                 >
                   {m.content}
@@ -120,10 +120,10 @@ export function GeminiChat({ layout = "default" }: GeminiChatProps) {
               </div>
             ))}
             {loading && (
-              <p className="text-zinc-500">응답 작성 중…</p>
+              <p className="text-muted-foreground">응답 작성 중…</p>
             )}
             {isSidebar && !hasThread && (
-              <p className="text-center text-zinc-500">
+              <p className="text-center text-muted-foreground">
                 연습·음정·박자에 대해 질문을 입력해 보세요.
               </p>
             )}
@@ -145,7 +145,7 @@ export function GeminiChat({ layout = "default" }: GeminiChatProps) {
             }
           }}
           placeholder="프롬프트를 입력해 Gemini가 할 수 있는 일을 확인해 보세요."
-          className={`w-full resize-none border-0 bg-transparent px-4 text-[15px] leading-relaxed text-zinc-100 placeholder:text-zinc-500 outline-none ring-0 focus:ring-0 ${
+          className={`w-full resize-none border-0 bg-transparent px-4 text-[15px] leading-relaxed text-foreground placeholder:text-muted-foreground outline-none ring-0 focus:ring-0 ${
             isSidebar ? "pt-3 pb-1.5" : "pt-4 pb-2"
           }`}
           disabled={loading}
@@ -155,14 +155,14 @@ export function GeminiChat({ layout = "default" }: GeminiChatProps) {
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
-              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-zinc-700/80 bg-zinc-800/50 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200"
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-night-850 text-muted-foreground transition-colors hover:bg-accent hover:text-neon-cyan"
               aria-label="미리보기 끄기 (준비 중)"
             >
               <EyeOff className="h-4 w-4" aria-hidden="true" />
             </button>
             <button
               type="button"
-              className="inline-flex h-9 items-center gap-2 rounded-full border border-zinc-700/80 bg-zinc-800/40 px-3 text-xs font-medium text-zinc-300 transition-colors hover:bg-zinc-800"
+              className="inline-flex h-9 items-center gap-2 rounded-full border border-neon-cyan/60 bg-transparent px-3 text-xs font-medium text-neon-cyan transition-colors hover:bg-neon-cyan/10"
               aria-label="도구 (준비 중)"
             >
               <LayoutGrid className="h-3.5 w-3.5" aria-hidden="true" />
@@ -175,7 +175,7 @@ export function GeminiChat({ layout = "default" }: GeminiChatProps) {
               id="gemini-model"
               value={modelTier}
               onChange={(e) => setModelTier(e.target.value as "fast" | "pro")}
-              className="h-9 cursor-pointer rounded-lg border border-zinc-700/80 bg-zinc-800/50 px-2.5 text-xs text-zinc-300 outline-none hover:bg-zinc-800"
+              className="h-9 cursor-pointer rounded-lg border border-border bg-night-850 px-2.5 text-xs text-foreground outline-none hover:bg-accent"
               disabled={loading}
             >
               <option value="fast">빠른 모델</option>
@@ -186,14 +186,14 @@ export function GeminiChat({ layout = "default" }: GeminiChatProps) {
           <div className="flex flex-wrap items-center justify-end gap-2">
             <button
               type="button"
-              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-zinc-700/80 bg-zinc-800/40 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200"
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-night-850 text-muted-foreground transition-colors hover:bg-accent hover:text-neon-cyan"
               aria-label="음성 입력 (준비 중)"
             >
               <Mic className="h-4 w-4" aria-hidden="true" />
             </button>
             <button
               type="button"
-              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-zinc-700/80 bg-zinc-800/40 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200"
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-night-850 text-muted-foreground transition-colors hover:bg-accent hover:text-neon-cyan"
               aria-label="추가 (준비 중)"
             >
               <Plus className="h-4 w-4" aria-hidden="true" />
@@ -202,11 +202,11 @@ export function GeminiChat({ layout = "default" }: GeminiChatProps) {
               type="button"
               onClick={() => void send()}
               disabled={loading || !input.trim()}
-              className="inline-flex items-center gap-2 rounded-full bg-zinc-800 px-4 py-2 text-sm font-medium text-zinc-200 transition-colors hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-35"
+              className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground glow-button transition-colors disabled:cursor-not-allowed disabled:opacity-35"
             >
               실행
-              <span className="hidden items-center gap-0.5 text-[11px] font-normal text-zinc-500 sm:inline-flex">
-                <kbd className="rounded border border-zinc-600 bg-zinc-900/80 px-1 py-px font-sans">
+              <span className="hidden items-center gap-0.5 text-[11px] font-normal text-primary-foreground sm:inline-flex">
+                <kbd className="rounded border border-primary-foreground/40 bg-night-950/30 px-1 py-px font-sans">
                   Enter
                 </kbd>
               </span>
@@ -216,13 +216,13 @@ export function GeminiChat({ layout = "default" }: GeminiChatProps) {
       </div>
 
       {error && (
-        <p className="mt-3 text-sm text-zinc-300" role="status">
+        <p className="mt-3 text-sm text-foreground" role="status">
           {error}
         </p>
       )}
 
       <p
-        className={`max-w-3xl text-xs leading-relaxed text-zinc-600 ${
+        className={`max-w-3xl text-xs leading-relaxed text-muted-foreground ${
           isSidebar ? "mt-2" : "mt-4"
         }`}
       >

@@ -35,8 +35,8 @@ export default function MyPage() {
 
   if (!hydrated || !user) {
     return (
-      <main className="min-h-[calc(100vh-4rem)] bg-white px-4 py-10">
-        <p className="text-sm text-zinc-500">로그인 정보를 확인하는 중…</p>
+      <main className="min-h-[calc(100vh-4rem)] px-4 py-10">
+        <p className="text-sm text-muted-foreground">로그인 정보를 확인하는 중…</p>
       </main>
     )
   }
@@ -44,29 +44,29 @@ export default function MyPage() {
   const displayName = getUserDisplayName(user)
 
   return (
-    <main className="min-h-[calc(100vh-4rem)] bg-white px-4 py-10 text-zinc-950">
-      <div className="mx-auto w-full max-w-lg">
+    <main className="min-h-[calc(100vh-4rem)] px-4 py-10 text-foreground">
+      <div className="mx-auto w-full max-w-lg animate-in fade-in slide-in-from-bottom-6 duration-700 fill-mode-both">
         <PageBackButton href="/" label="홈으로" />
         <div className="mt-6 flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-zinc-200 bg-zinc-100">
-            <UserRound className="h-5 w-5 text-zinc-900" aria-hidden="true" />
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-neon-pink/50 bg-night-900 shadow-[0_0_16px_-4px_#ff2e97]">
+            <UserRound className="h-5 w-5 text-neon-pink" aria-hidden="true" />
           </div>
-          <h1 className="text-3xl font-semibold tracking-tight">마이페이지</h1>
+          <h1 className="neon-text font-display text-3xl text-white">마이페이지</h1>
         </div>
-        <p className="mt-3 text-sm text-zinc-600">
-          안녕하세요, <span className="font-semibold text-zinc-950">{displayName}</span>님
+        <p className="mt-3 text-sm text-muted-foreground">
+          안녕하세요, <span className="font-semibold text-neon-cyan">{displayName}</span>님
         </p>
 
-        <section className="mt-8 rounded-2xl border border-zinc-200 bg-zinc-50 p-6">
+        <section className="mt-8 rounded-2xl border border-border bg-night-850/90 p-6 shadow-[0_0_60px_-24px_#ff2e97] backdrop-blur">
           <dl className="grid gap-4 text-sm">
             <div>
-              <dt className="font-medium text-zinc-500">아이디</dt>
-              <dd className="mt-1 font-semibold text-zinc-950">{user.username}</dd>
+              <dt className="font-orbitron text-xs font-medium tracking-[0.15em] text-muted-foreground">아이디</dt>
+              <dd className="mt-1 font-semibold text-white">{user.username}</dd>
             </div>
             {user.nickname?.trim() ? (
               <div>
-                <dt className="font-medium text-zinc-500">닉네임</dt>
-                <dd className="mt-1 font-semibold text-zinc-950">{user.nickname}</dd>
+                <dt className="font-orbitron text-xs font-medium tracking-[0.15em] text-muted-foreground">닉네임</dt>
+                <dd className="mt-1 font-semibold text-white">{user.nickname}</dd>
               </div>
             ) : null}
           </dl>
@@ -76,7 +76,7 @@ export default function MyPage() {
           <button
             type="button"
             onClick={handleLogout}
-            className={`${navLinkClass} border-zinc-900 bg-zinc-900 text-white hover:bg-zinc-800`}
+            className={`${navLinkClass} glow-button border-primary bg-primary text-primary-foreground`}
           >
             로그아웃
           </button>

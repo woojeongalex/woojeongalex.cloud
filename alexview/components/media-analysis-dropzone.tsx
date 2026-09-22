@@ -189,10 +189,10 @@ export function MediaAnalysisDropzone({
           }}
           className={`block rounded-2xl border-2 border-dashed p-8 text-center transition-colors ${
             disabled
-              ? "cursor-not-allowed border-zinc-200 bg-zinc-100 opacity-60"
+              ? "cursor-not-allowed border-border bg-muted opacity-60"
               : drop.phase === "dragover"
-                ? "cursor-copy border-zinc-950 bg-zinc-100"
-                : "cursor-pointer border-zinc-300 bg-white hover:border-zinc-400 hover:bg-zinc-50"
+                ? "cursor-copy border-neon-pink bg-neon-pink/10 shadow-[0_0_24px_rgba(255,46,151,0.35)]"
+                : "cursor-pointer border-neon-cyan/50 bg-card hover:border-neon-cyan hover:bg-accent"
           }`}
         >
           <input
@@ -208,32 +208,32 @@ export function MediaAnalysisDropzone({
               e.target.value = ""
             }}
           />
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-zinc-100">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-neon-cyan/50 bg-neon-cyan/10">
             {drop.phase === "analyzing" ? (
-              <Loader2 className="h-6 w-6 animate-spin text-zinc-700" aria-hidden="true" />
+              <Loader2 className="h-6 w-6 animate-spin text-neon-cyan" aria-hidden="true" />
             ) : (
-              <Upload className="h-6 w-6 text-zinc-700" aria-hidden="true" />
+              <Upload className="h-6 w-6 text-neon-cyan" aria-hidden="true" />
             )}
           </div>
-          <p className="mt-4 text-sm font-medium text-zinc-950">{copy.dropTitle}</p>
-          <p className="mt-2 text-sm text-zinc-500">{copy.dropHint}</p>
+          <p className="mt-4 text-sm font-medium text-foreground">{copy.dropTitle}</p>
+          <p className="mt-2 text-sm text-muted-foreground">{copy.dropHint}</p>
         </label>
       </div>
 
       {drop.errorMessage && (
-        <p className="text-sm text-red-600" role="status">
+        <p className="text-sm text-destructive" role="status">
           {drop.errorMessage}
         </p>
       )}
 
       {drop.file && drop.previewUrl && (
-        <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
+        <div className="rounded-2xl border border-border bg-card p-4">
           <div className="flex items-start justify-between gap-3">
             <div className="flex min-w-0 items-center gap-2">
-              <FileVideo className="h-5 w-5 shrink-0 text-zinc-700" aria-hidden="true" />
+              <FileVideo className="h-5 w-5 shrink-0 text-neon-cyan" aria-hidden="true" />
               <div className="min-w-0 text-left">
-                <p className="truncate text-sm font-medium text-zinc-950">{drop.file.name}</p>
-                <p className="text-xs text-zinc-500">
+                <p className="truncate text-sm font-medium text-foreground">{drop.file.name}</p>
+                <p className="text-xs text-muted-foreground">
                   {(drop.file.size / (1024 * 1024)).toFixed(1)} MB
                 </p>
               </div>
@@ -245,7 +245,7 @@ export function MediaAnalysisDropzone({
                 reset()
               }}
               disabled={drop.phase === "analyzing"}
-              className="rounded-lg p-1 text-zinc-500 transition-colors hover:bg-zinc-200 hover:text-zinc-950 disabled:opacity-40"
+              className="rounded-lg p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-40"
               aria-label="파일 제거"
             >
               <X className="h-4 w-4" />
@@ -256,7 +256,7 @@ export function MediaAnalysisDropzone({
             <video
               src={drop.previewUrl}
               controls
-              className="mt-4 aspect-video w-full rounded-xl bg-black object-contain"
+              className="mt-4 aspect-video w-full rounded-xl bg-night-950 object-contain"
               playsInline
             />
           ) : (
@@ -268,7 +268,7 @@ export function MediaAnalysisDropzone({
               type="button"
               onClick={runAnalysis}
               disabled={disabled || drop.phase === "analyzing"}
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-zinc-950 px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-300"
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground glow-button transition-colors disabled:cursor-not-allowed disabled:opacity-50"
             >
               {drop.phase === "analyzing" ? (
                 <>

@@ -5,6 +5,7 @@ import Link from "next/link"
 import { History, Mic2, Music4, Plus, Sparkles } from "lucide-react"
 import { EyebrowBadge, SectionHeading } from "@/components/common/section-heading"
 import { LoadingBlock, StatusNote } from "@/components/common/status-note"
+import { SynthBackdrop } from "@/components/common/synth-backdrop"
 import { ChallengeCard } from "@/components/music/challenge-card"
 import { useUserSession } from "@/hooks/use-user-session"
 import {
@@ -80,33 +81,43 @@ export default function MusicChallengePage() {
 
   return (
     <main className="min-h-[calc(100vh-4rem)] min-w-0 overflow-x-hidden bg-background text-foreground">
-      {/* HERO */}
-      <section className="border-b border-border">
-        <div className="mx-auto max-w-6xl px-4 py-12 md:py-16">
-          <EyebrowBadge>AI MUSIC CHALLENGE</EyebrowBadge>
-          <h1 className="mt-5 max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl">
+      {/* HERO — 석양과 격자 바닥 위에 챌린지 소개 */}
+      <section className="relative overflow-hidden border-b border-border">
+        <SynthBackdrop sunSize={300} horizon={0.5} />
+        <div className="relative mx-auto flex min-h-[380px] max-w-6xl flex-col items-center px-4 pb-12 pt-12 text-center md:pt-16">
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <EyebrowBadge>AI MUSIC CHALLENGE</EyebrowBadge>
+          </div>
+          <h1
+            className="neon-text mt-5 max-w-3xl font-display text-4xl leading-[1.1] text-white animate-in fade-in slide-in-from-bottom-6 duration-700 fill-mode-both sm:text-5xl"
+            style={{ animationDelay: "120ms" }}
+          >
             AI가 만든 음악에 도전하고,
             <br />
             AI에게 채점받으세요.
           </h1>
-          <p className="mt-6 max-w-2xl text-base leading-8 text-muted-foreground">
+          <p
+            className="mt-6 max-w-2xl text-base leading-8 text-foreground/85 animate-in fade-in slide-in-from-bottom-6 duration-700 fill-mode-both"
+            style={{ animationDelay: "240ms" }}
+          >
             원하는 챌린지를 골라 노래하거나 연주한 영상·음성을 올리면, AI가 점수와
             피드백을 남기고 다음에 도전할 챌린지를 추천합니다.
           </p>
 
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {STEPS.map((step) => (
+          <div className="mt-24 grid w-full gap-5 text-left md:mt-32 md:grid-cols-3">
+            {STEPS.map((step, i) => (
               <article
                 key={step.n}
-                className="relative rounded-3xl border border-border bg-card p-6"
+                className="relative rounded-3xl border border-border bg-card/85 p-6 backdrop-blur animate-in fade-in slide-in-from-bottom-6 duration-700 fill-mode-both"
+                style={{ animationDelay: `${360 + i * 120}ms` }}
               >
-                <span className="absolute right-6 top-6 font-mono text-xs text-muted-foreground/50">
+                <span className="absolute right-6 top-6 font-orbitron text-xs font-bold text-neon-cyan">
                   {step.n}
                 </span>
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-muted">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-neon-pink/40 bg-neon-pink/10 text-neon-pink">
                   <step.icon className="h-5 w-5" aria-hidden="true" />
                 </div>
-                <h2 className="mt-5 text-xl font-semibold">{step.title}</h2>
+                <h2 className="mt-5 font-display text-xl text-white">{step.title}</h2>
                 <p className="mt-3 text-sm leading-6 text-muted-foreground">
                   {step.description}
                 </p>
@@ -124,14 +135,14 @@ export default function MusicChallengePage() {
           action={
             <>
               {!loading && !error && (
-                <p className="font-mono text-sm text-muted-foreground">
+                <p className="font-orbitron text-sm text-muted-foreground">
                   총 {challenges.length}개
                 </p>
               )}
               {user && (
                 <Link
                   href="/music-challenge/me"
-                  className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-neon-cyan/60 px-4 py-2 text-sm font-medium text-neon-cyan transition-colors hover:bg-neon-cyan/10"
                 >
                   <History className="h-4 w-4" aria-hidden="true" />
                   내 기록
@@ -140,7 +151,7 @@ export default function MusicChallengePage() {
               {user?.role === "admin" && (
                 <Link
                   href="/music-challenge/new"
-                  className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-neon-cyan/60 px-4 py-2 text-sm font-medium text-neon-cyan transition-colors hover:bg-neon-cyan/10"
                 >
                   <Plus className="h-4 w-4" aria-hidden="true" />
                   챌린지 등록

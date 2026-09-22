@@ -82,14 +82,14 @@ export function StemsPanel({ challengeId, chart, currentTime, onChartChange }: S
     <section className="rounded-3xl border border-border bg-card p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-medium text-muted-foreground">1단계</p>
-          <h2 className="mt-1 text-xl font-semibold">스템 올리기 · 정답 멜로디</h2>
+          <p className="font-orbitron text-xs font-bold tracking-[0.25em] text-neon-cyan">1단계</p>
+          <h2 className="mt-2 font-display text-xl text-white">스템 올리기 · 정답 멜로디</h2>
         </div>
         <span
           role="status"
           className={cn(
             "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium",
-            chart.status === "ready" && "border-foreground/30 text-foreground",
+            chart.status === "ready" && "border-neon-green/50 bg-neon-green/10 text-neon-green",
             chart.status === "failed" && "border-destructive/40 text-destructive",
             (chart.status === "empty" || chart.status === "processing") &&
               "border-border text-muted-foreground"
@@ -104,7 +104,7 @@ export function StemsPanel({ challengeId, chart, currentTime, onChartChange }: S
 
       <fieldset className="mt-5" disabled={busy}>
         <legend className="text-sm font-medium">이 곡은</legend>
-        <div className="mt-2 inline-flex rounded-full border border-border bg-muted/40 p-1">
+        <div className="mt-2 inline-flex rounded-full border border-border bg-night-950 p-1">
           {MELODY_SOURCES.map((s) => (
             <button
               key={s}
@@ -114,7 +114,7 @@ export function StemsPanel({ challengeId, chart, currentTime, onChartChange }: S
               className={cn(
                 "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
                 source === s
-                  ? "bg-background text-foreground shadow-sm"
+                  ? "bg-primary text-primary-foreground shadow-[0_0_14px_-4px_#ff2e97]"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -128,7 +128,7 @@ export function StemsPanel({ challengeId, chart, currentTime, onChartChange }: S
             <select
               value={instrument}
               onChange={(e) => setInstrument(e.target.value as InstrumentKind)}
-              className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm"
+              className="rounded-lg border border-border bg-night-950 px-3 py-1.5 text-sm"
             >
               {INSTRUMENTS.map((k) => (
                 <option key={k} value={k}>
@@ -153,7 +153,7 @@ export function StemsPanel({ challengeId, chart, currentTime, onChartChange }: S
             accept="audio/*"
             required
             disabled={busy}
-            className="rounded-xl border border-border bg-background px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-muted file:px-3 file:py-1 file:text-sm"
+            className="rounded-xl border border-border bg-night-950 px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-neon-cyan/15 file:px-3 file:py-1 file:text-sm file:text-neon-cyan"
           />
         </label>
         <label className="grid gap-2 text-sm">
@@ -165,14 +165,14 @@ export function StemsPanel({ challengeId, chart, currentTime, onChartChange }: S
             type="file"
             accept="audio/*"
             disabled={busy}
-            className="rounded-xl border border-border bg-background px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-muted file:px-3 file:py-1 file:text-sm"
+            className="rounded-xl border border-border bg-night-950 px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-neon-cyan/15 file:px-3 file:py-1 file:text-sm file:text-neon-cyan"
           />
         </label>
         <div className="sm:col-span-2">
           <button
             type="submit"
             disabled={busy}
-            className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-80 disabled:opacity-50"
+            className="inline-flex items-center gap-2 glow-button rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground disabled:opacity-50"
           >
             {busy ? (
               <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
@@ -213,15 +213,15 @@ export function StemsPanel({ challengeId, chart, currentTime, onChartChange }: S
             </div>
             <div>
               <dt className="text-muted-foreground">음표</dt>
-              <dd className="font-mono font-semibold">{chart.notes.length}개</dd>
+              <dd className="font-orbitron font-bold text-neon-cyan">{chart.notes.length}개</dd>
             </div>
             <div>
               <dt className="text-muted-foreground">곡 길이</dt>
-              <dd className="font-mono font-semibold">{formatSeconds(chart.duration)}</dd>
+              <dd className="font-orbitron font-bold text-neon-cyan">{formatSeconds(chart.duration)}</dd>
             </div>
             <div>
               <dt className="text-muted-foreground">음역</dt>
-              <dd className="font-mono font-semibold">
+              <dd className="font-orbitron font-bold text-neon-cyan">
                 {midiToName(Math.min(...midis))} – {midiToName(Math.max(...midis))}
               </dd>
             </div>

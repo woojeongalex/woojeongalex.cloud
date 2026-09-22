@@ -4,11 +4,13 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from "react"
 
+import { SynthBackdrop } from "@/components/common/synth-backdrop"
 import { CrawlerScraperBanner } from "@/components/crawler-scraper-banner"
 import { useAsyncAction } from "@/hooks/use-async-action"
 import { setUploadedFileName, uploadTitanicCsv } from "@/lib/titanic-api"
 
-const ACCENT = "#FFFFFF"
+// 신스웨이브 테마 — 네온 시안 강조색
+const ACCENT = "#2ee6ff"
 
 type ChatMessage = { role: "user" | "assistant"; text: string }
 
@@ -77,47 +79,49 @@ export default function TitanicHomePage() {
   return (
     <main
       className="min-h-[calc(100vh-4rem)] px-4 py-10"
-      style={{ background: "#0A0A0A", color: "#e5e7eb" }}
+      style={{ background: "#0d0619", color: "#f1e6ff" }}
     >
       <div className="mx-auto w-full max-w-4xl space-y-8">
         {/* HERO */}
-        <section className="text-center">
-          <p className="text-xs font-mono tracking-widest uppercase" style={{ color: ACCENT }}>
-            // Titanic AI
-          </p>
-          <h1 className="mt-3 text-4xl font-semibold text-white sm:text-5xl">타이타닉 홈</h1>
-          <p className="mt-3 text-sm sm:text-base" style={{ color: "#9ca3af" }}>
-            Titanic CSV를 업로드한 뒤 DB에 저장된 데이터를 상세 페이지에서 확인합니다.
-          </p>
+        <section className="relative overflow-hidden rounded-3xl border border-border px-4 py-12 text-center">
+          <SynthBackdrop sunSize={220} horizon={0.72} />
+          <div className="relative animate-in fade-in slide-in-from-bottom-6 duration-700 fill-mode-both">
+            <p className="font-orbitron text-xs uppercase tracking-[0.25em] text-neon-cyan">
+              // Titanic AI
+            </p>
+            <h1 className="mt-3 font-display text-4xl text-white neon-text sm:text-5xl">타이타닉 홈</h1>
+            {/* 석양 위에 겹쳐도 읽히도록 밝은 글자 + 그림자 */}
+            <p className="mt-3 text-sm text-foreground [text-shadow:0_2px_10px_#0d0619] sm:text-base">
+              Titanic CSV를 업로드한 뒤 DB에 저장된 데이터를 상세 페이지에서 확인합니다.
+            </p>
+          </div>
         </section>
 
         {/* 업로드 섹션 */}
         <section className="grid gap-6 md:grid-cols-2">
-          <article className="rounded-2xl border p-6" style={{ borderColor: "#1f1f1f", background: "#111111" }}>
-            <h2 className="text-xl font-semibold text-white">파일 선택</h2>
-            <p className="mt-2 text-sm" style={{ color: "#9ca3af" }}>로컬 CSV 파일을 선택해 업로드합니다.</p>
+          <article className="glow-card rounded-2xl border p-6" style={{ borderColor: "#3b1d66", background: "#160a2b" }}>
+            <h2 className="font-display text-xl text-white">파일 선택</h2>
+            <p className="mt-2 text-sm" style={{ color: "#a995cc" }}>로컬 CSV 파일을 선택해 업로드합니다.</p>
             <input ref={inputRef} type="file" accept=".csv,text/csv" className="hidden" onChange={handleInputChange} />
             <button
               type="button"
               disabled={loading}
               onClick={() => inputRef.current?.click()}
-              className="mt-5 rounded-xl px-5 py-3 text-sm font-medium transition-opacity hover:opacity-80 disabled:opacity-40"
-              style={{ background: ACCENT, color: "#0A0A0A" }}
+              className="mt-5 rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground glow-button transition-opacity hover:opacity-90 disabled:opacity-40"
             >
               {loading ? "업로드 중…" : "Titanic CSV 선택하기"}
             </button>
           </article>
 
-          <article className="rounded-2xl border p-6" style={{ borderColor: "#1f1f1f", background: "#111111" }}>
-            <h2 className="text-xl font-semibold text-white">LangChain LLM과 대화하기</h2>
-            <p className="mt-2 text-sm" style={{ color: "#9ca3af" }}>
+          <article className="glow-card rounded-2xl border p-6" style={{ borderColor: "#3b1d66", background: "#160a2b" }}>
+            <h2 className="font-display text-xl text-white">LangChain LLM과 대화하기</h2>
+            <p className="mt-2 text-sm" style={{ color: "#a995cc" }}>
               레트로 메신저 감성의 채팅창에서 LangChain 기반 LLM과 대화해보세요.
             </p>
             <button
               type="button"
               onClick={() => router.push("/titanic/langchain-chat")}
-              className="mt-5 rounded-xl px-5 py-3 text-sm font-medium transition-opacity hover:opacity-80"
-              style={{ background: ACCENT, color: "#0A0A0A" }}
+              className="mt-5 rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground glow-button transition-opacity hover:opacity-90"
             >
               채팅 시작하기
             </button>
@@ -127,7 +131,7 @@ export default function TitanicHomePage() {
         {error && (
           <section
             className="rounded-xl border px-4 py-3 text-sm"
-            style={{ borderColor: "#ef444433", background: "#1a0a0a", color: "#f87171" }}
+            style={{ borderColor: "#ff4d6d66", background: "#2a0a1e", color: "#ff8fa3" }}
           >
             {error}
           </section>
@@ -135,7 +139,7 @@ export default function TitanicHomePage() {
 
         <section className="grid gap-6 md:grid-cols-2">
           {/* 타이타닉 데이터 배너 */}
-          <article className="rounded-2xl border p-6" style={{ borderColor: "#1f1f1f", background: "#111111" }}>
+          <article className="glow-card rounded-2xl border p-6" style={{ borderColor: "#3b1d66", background: "#160a2b" }}>
             <div className="flex justify-center">
               <Image
                 src="/titanic-illustration.svg"
@@ -147,15 +151,14 @@ export default function TitanicHomePage() {
               />
             </div>
             <div className="mt-4 flex flex-col items-center gap-3">
-              <p className="text-sm font-mono" style={{ color: uploadedFileName ? ACCENT : "#6b7280" }}>
+              <p className="text-sm font-mono" style={{ color: uploadedFileName ? ACCENT : "#a995cc" }}>
                 {uploadedFileName ? `✓ 업로드 완료: ${uploadedFileName}` : "CSV 업로드 후 상세 페이지로 이동할 수 있습니다."}
               </p>
               <button
                 type="button"
                 onClick={() => router.push("/titanic/detail")}
                 disabled={!uploadedFileName || loading}
-                className="rounded-xl px-5 py-3 text-sm font-medium transition-opacity hover:opacity-80 disabled:opacity-30"
-                style={{ background: ACCENT, color: "#0A0A0A" }}
+                className="rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground glow-button transition-opacity hover:opacity-90 disabled:opacity-30"
               >
                 상세페이지 이동하기
               </button>
@@ -165,19 +168,19 @@ export default function TitanicHomePage() {
           {/* 스미스 선장 채팅 */}
           <article
             className="flex flex-col rounded-2xl border overflow-hidden"
-            style={{ borderColor: "#1f1f1f", background: "#111111" }}
+            style={{ borderColor: "#3b1d66", background: "#160a2b" }}
           >
             {!chatOpen ? (
               <div className="flex flex-1 flex-col items-center justify-center p-6 gap-3">
                 <div className="flex h-[180px] w-full items-center justify-center">
                   <svg viewBox="0 0 680 340" xmlns="http://www.w3.org/2000/svg" className="h-full w-auto">
                     <style>{`
-                      .sea{fill:#1a3a5c}.wave{fill:none;stroke:#2e6ea6;stroke-width:2;opacity:.5}
+                      .sea{fill:#1d0f38}.wave{fill:none;stroke:#2ee6ff;stroke-width:2;opacity:.5}
                       .hull{fill:#1c1c2e}.stripe{fill:#c8a96e}.coat{fill:#1e3a5f}.coat-dark{fill:#162d4a}
                       .gold{fill:#c8a96e}.face{fill:#f0d0a8}.beard{fill:#e8e0d5}.hair{fill:#d0c8c0}
                       .hat{fill:#1c1c2e}.hat-band{fill:#c8a96e}.eye{fill:#4a3728}.shadow{fill:#d4a880}
                       .anchor{fill:none;stroke:#c8a96e;stroke-width:2;stroke-linecap:round}
-                      .bg{fill:#0d2137}.star{fill:#c8d8e8;opacity:.6}
+                      .bg{fill:#0d0619}.star{fill:#f1e6ff;opacity:.6}
                     `}</style>
                     <rect width="680" height="340" className="bg"/>
                     <circle cx="80" cy="30" r="1.5" className="star"/><circle cx="160" cy="18" r="1" className="star"/>
@@ -238,13 +241,12 @@ export default function TitanicHomePage() {
                     <line x1="317" y1="168" x2="317" y2="165" stroke="#c8a96e" strokeWidth="1.5"/>
                   </svg>
                 </div>
-                <h2 className="text-lg font-semibold text-white">스미스 선장과의 대화</h2>
-                <p className="text-center text-sm" style={{ color: "#9ca3af" }}>타이타닉의 선장 에드워드 스미스와 대화해보세요.</p>
+                <h2 className="font-display text-lg text-white">스미스 선장과의 대화</h2>
+                <p className="text-center text-sm" style={{ color: "#a995cc" }}>타이타닉의 선장 에드워드 스미스와 대화해보세요.</p>
                 <button
                   type="button"
                   onClick={() => setChatOpen(true)}
-                  className="rounded-xl px-5 py-3 text-sm font-medium transition-opacity hover:opacity-80"
-                  style={{ background: ACCENT, color: "#0A0A0A" }}
+                  className="rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground glow-button transition-opacity hover:opacity-90"
                 >
                   대화 시작하기
                 </button>
@@ -253,14 +255,14 @@ export default function TitanicHomePage() {
               <div className="flex flex-col h-full">
                 <div
                   className="flex items-center justify-between border-b px-4 py-3"
-                  style={{ borderColor: "#1f1f1f", background: "#0d0d0d" }}
+                  style={{ borderColor: "#3b1d66", background: "#0d0619" }}
                 >
                   <span className="text-sm font-semibold" style={{ color: ACCENT }}>⚓ 스미스 선장과의 대화</span>
                   <button
                     type="button"
                     onClick={() => setChatOpen(false)}
                     className="text-xs transition-colors"
-                    style={{ color: "#6b7280" }}
+                    style={{ color: "#a995cc" }}
                   >
                     닫기
                   </button>
@@ -272,8 +274,8 @@ export default function TitanicHomePage() {
                         className="max-w-[85%] rounded-2xl px-3 py-2 text-sm leading-relaxed"
                         style={
                           msg.role === "user"
-                            ? { background: ACCENT, color: "#0A0A0A", borderRadius: "1rem 1rem 0.25rem 1rem" }
-                            : { background: "#1a1a1a", border: "1px solid #2a2a2a", color: "#d1d5db", borderRadius: "1rem 1rem 1rem 0.25rem" }
+                            ? { background: ACCENT, color: "#0d0619", borderRadius: "1rem 1rem 0.25rem 1rem" }
+                            : { background: "#1d0f38", border: "1px solid #3b1d66", color: "#f1e6ff", borderRadius: "1rem 1rem 1rem 0.25rem" }
                         }
                       >
                         {msg.text}
@@ -284,7 +286,7 @@ export default function TitanicHomePage() {
                     <div className="flex justify-start">
                       <div
                         className="rounded-2xl px-3 py-2 text-sm font-mono"
-                        style={{ background: "#1a1a1a", color: ACCENT }}
+                        style={{ background: "#1d0f38", color: ACCENT }}
                       >
                         ▋
                       </div>
@@ -292,7 +294,7 @@ export default function TitanicHomePage() {
                   )}
                   <div ref={chatEndRef} />
                 </div>
-                <div className="border-t p-3 flex gap-2" style={{ borderColor: "#1f1f1f" }}>
+                <div className="border-t p-3 flex gap-2" style={{ borderColor: "#3b1d66" }}>
                   <input
                     type="text"
                     value={input}
@@ -301,14 +303,13 @@ export default function TitanicHomePage() {
                     placeholder="선장에게 질문하세요…"
                     disabled={chatLoading}
                     className="flex-1 rounded-lg border px-3 py-2 text-sm outline-none"
-                    style={{ background: "#0d0d0d", borderColor: "#2a2a2a", color: "#e5e7eb" }}
+                    style={{ background: "#0d0619", borderColor: "#3b1d66", color: "#f1e6ff" }}
                   />
                   <button
                     type="button"
                     onClick={sendMessage}
                     disabled={chatLoading || !input.trim()}
-                    className="rounded-lg px-3 py-2 text-sm font-medium transition-opacity hover:opacity-80 disabled:opacity-40"
-                    style={{ background: ACCENT, color: "#0A0A0A" }}
+                    className="rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground glow-button transition-opacity hover:opacity-90 disabled:opacity-40"
                   >
                     전송
                   </button>
@@ -320,8 +321,8 @@ export default function TitanicHomePage() {
 
         {/* 웹 크롤러 / 스크래퍼 */}
         <section>
-          <h2 className="text-xl font-semibold text-white">웹 크롤러 · 스크래퍼</h2>
-          <p className="mt-2 text-sm" style={{ color: "#9ca3af" }}>
+          <h2 className="font-display text-xl text-white">웹 크롤러 · 스크래퍼</h2>
+          <p className="mt-2 text-sm" style={{ color: "#a995cc" }}>
             사이트 주소와 자연어 명령으로 원하는 데이터를 수집해보세요. 탭을 눌러 크롤러와
             스크래퍼를 전환할 수 있습니다.
           </p>

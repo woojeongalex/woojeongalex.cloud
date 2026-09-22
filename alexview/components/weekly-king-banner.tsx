@@ -16,32 +16,32 @@ function RankRow({ entry }: RankRowProps) {
       <Link
         href={`/music-challenge/${entry.challenge_id}#ranking`}
         className={cn(
-          "flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-xs transition-colors hover:border-zinc-500 sm:gap-3 sm:px-3 sm:py-2 sm:text-sm",
-          entry.rank <= 3 ? "border-zinc-500/40 bg-zinc-700/30" : "border-zinc-800 bg-zinc-900/50"
+          "flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-xs transition-colors hover:border-neon-cyan/60 sm:gap-3 sm:px-3 sm:py-2 sm:text-sm",
+          entry.rank <= 3 ? "border-neon-pink/40 bg-night-800" : "border-border bg-night-900/70"
         )}
       >
         <span
           className={cn(
-            "flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[11px] font-bold tabular-nums sm:h-7 sm:w-7",
+            "flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[11px] font-orbitron font-bold tabular-nums sm:h-7 sm:w-7",
             entry.rank === 1
-              ? "bg-white text-zinc-950"
+              ? "bg-neon-yellow text-night-950 shadow-[0_0_12px_rgba(255,230,0,0.5)]"
               : entry.rank <= 3
-                ? "bg-zinc-200 text-zinc-950"
-                : "bg-zinc-800 text-zinc-300"
+                ? "bg-neon-pink text-night-950"
+                : "bg-night-700 text-foreground"
           )}
         >
           {entry.rank}
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block truncate font-medium text-zinc-100">{entry.nickname}</span>
-          <span className="block truncate text-[11px] text-zinc-500">{entry.challenge_title}</span>
+          <span className="block truncate font-medium text-foreground">{entry.nickname}</span>
+          <span className="block truncate text-[11px] text-muted-foreground">{entry.challenge_title}</span>
         </span>
-        <span className="hidden shrink-0 tabular-nums text-zinc-400 sm:inline">
+        <span className="hidden shrink-0 tabular-nums text-muted-foreground sm:inline">
           음정 {entry.pitch_accuracy ?? "—"}% · 박자 {entry.timing_accuracy ?? "—"}%
         </span>
-        <span className="shrink-0 font-semibold tabular-nums text-white">{entry.score}점</span>
+        <span className="shrink-0 font-orbitron font-semibold tabular-nums text-neon-cyan">{entry.score}점</span>
         {entry.rank === 1 && (
-          <Crown className="h-3.5 w-3.5 shrink-0 text-white sm:h-4 sm:w-4" aria-hidden />
+          <Crown className="h-3.5 w-3.5 shrink-0 text-neon-yellow sm:h-4 sm:w-4" aria-hidden />
         )}
       </Link>
     </li>
@@ -75,38 +75,38 @@ export function WeeklyKingBanner() {
 
   return (
     <div
-      className="h-full w-full rounded-3xl border border-zinc-200 bg-zinc-950 px-5 py-5 text-white shadow-[0_20px_60px_rgba(0,0,0,0.12)] sm:px-6 sm:py-6 dark:border-zinc-800"
+      className="h-full w-full rounded-3xl border border-border bg-night-950 px-5 py-5 text-white shadow-[0_0_40px_rgba(255,46,151,0.15)] sm:px-6 sm:py-6"
       aria-label="이번 주 스타"
     >
       <div className="flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">
-          <Trophy className="h-5 w-5 shrink-0 text-white" aria-hidden />
-          <p className="text-sm font-bold text-white sm:text-base">이번 주 스타</p>
+          <Trophy className="h-5 w-5 shrink-0 text-neon-yellow" aria-hidden />
+          <p className="font-display text-base text-white sm:text-lg">이번 주 스타</p>
         </div>
-        <p className="shrink-0 text-[10px] text-zinc-500">노래방·연주 최고 기록 TOP 10</p>
+        <p className="shrink-0 font-orbitron text-[10px] tracking-[0.15em] text-neon-cyan">노래방·연주 최고 기록 TOP 10</p>
       </div>
 
       {entries === null && !failed && (
         <div className="mt-4 space-y-1.5" role="status">
           <span className="sr-only">이번 주 랭킹을 불러오는 중입니다.</span>
           {[0, 1, 2].map((i) => (
-            <div key={i} className="h-9 animate-pulse rounded-lg bg-zinc-900" />
+            <div key={i} className="h-9 animate-pulse rounded-lg bg-night-800" />
           ))}
         </div>
       )}
 
       {failed && (
-        <p role="status" className="mt-4 text-sm text-zinc-400">
+        <p role="status" className="mt-4 text-sm text-muted-foreground">
           랭킹을 불러오지 못했습니다. 잠시 후 다시 확인해 주세요.
         </p>
       )}
 
       {entries && entries.length === 0 && (
-        <div className="mt-4 rounded-2xl border border-zinc-800 px-4 py-6 text-center">
-          <p className="text-sm text-zinc-300">이번 주 첫 기록의 주인공이 되어 보세요.</p>
+        <div className="mt-4 rounded-2xl border border-border px-4 py-6 text-center">
+          <p className="text-sm text-foreground">이번 주 첫 기록의 주인공이 되어 보세요.</p>
           <Link
             href="/music-challenge"
-            className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-sky-400 hover:text-sky-300"
+            className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-neon-pink hover:text-neon-cyan"
           >
             노래방 모드로 도전하기
             <ArrowRight className="h-4 w-4" aria-hidden />
@@ -122,7 +122,7 @@ export function WeeklyKingBanner() {
         </ol>
       )}
 
-      <p className="mt-3 text-[10px] text-zinc-500">
+      <p className="mt-3 text-[10px] text-muted-foreground">
         서버가 녹음을 원곡의 정답 음표와 맞춰 본 점수 기준 · 한 사람당 최고 기록 하나
       </p>
     </div>

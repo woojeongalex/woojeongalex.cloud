@@ -107,17 +107,17 @@ function GuideStepCard({
           "flex w-full flex-col items-center rounded-2xl border px-2 py-4 sm:px-3 sm:py-5",
           slideId === "instrument"
             ? isWhiteKey
-              ? "border-zinc-600 bg-zinc-900 text-white"
-              : "border-zinc-300 bg-white text-zinc-950"
+              ? "border-neon-cyan/50 bg-night-900 text-white"
+              : "border-neon-pink/50 bg-night-800 text-white"
             : isWhiteKey
-              ? "border-zinc-300 bg-white text-zinc-950"
-              : "border-zinc-600 bg-zinc-900 text-white"
+              ? "border-neon-pink/50 bg-night-800 text-white"
+              : "border-neon-cyan/50 bg-night-900 text-white"
         )}
       >
         <div
           className={cn(
             "flex h-12 w-12 items-center justify-center rounded-xl border sm:h-14 sm:w-14",
-            isWhiteKey ? "border-zinc-200 bg-zinc-50" : "border-zinc-500 bg-zinc-800"
+            isWhiteKey ? "border-neon-pink/40 bg-neon-pink/10" : "border-neon-cyan/40 bg-neon-cyan/10"
           )}
           aria-hidden
         >
@@ -125,7 +125,7 @@ function GuideStepCard({
             <StepIcon
               className={cn(
                 SecondaryIcon ? "h-5 w-5 sm:h-6 sm:w-6" : "h-6 w-6 sm:h-7 sm:w-7",
-                isWhiteKey ? "text-zinc-900" : "text-white"
+                isWhiteKey ? "text-neon-pink" : "text-neon-cyan"
               )}
               strokeWidth={1.75}
             />
@@ -133,7 +133,7 @@ function GuideStepCard({
               <SecondaryIcon
                 className={cn(
                   "h-5 w-5 sm:h-6 sm:w-6",
-                  isWhiteKey ? "text-zinc-700" : "text-zinc-300"
+                  isWhiteKey ? "text-neon-violet" : "text-neon-yellow"
                 )}
                 strokeWidth={1.75}
               />
@@ -142,8 +142,8 @@ function GuideStepCard({
         </div>
         <span
           className={cn(
-            "mt-3 text-[10px] font-bold tracking-wider",
-            isWhiteKey ? "text-zinc-500" : "text-zinc-400"
+            "mt-3 font-orbitron text-[10px] font-bold tracking-[0.2em]",
+            isWhiteKey ? "text-neon-pink" : "text-neon-cyan"
           )}
         >
           STEP {item.step}
@@ -154,7 +154,7 @@ function GuideStepCard({
       </div>
       {showArrow && (
         <ChevronRight
-          className="hidden h-4 w-4 shrink-0 text-zinc-600 sm:block"
+          className="hidden h-4 w-4 shrink-0 text-neon-violet sm:block"
           aria-hidden
         />
       )}
@@ -187,14 +187,14 @@ export function IuemGuideCarousel() {
 
   return (
     <div
-      className="relative flex h-full w-full flex-col rounded-3xl border border-zinc-200 bg-zinc-950 px-6 py-7 text-white shadow-[0_20px_60px_rgba(0,0,0,0.12)] sm:px-7 sm:py-8"
+      className="relative flex h-full w-full flex-col rounded-3xl border border-border bg-night-950 px-6 py-7 text-white shadow-[0_0_40px_rgba(46,230,255,0.12)] sm:px-7 sm:py-8"
       aria-roledescription="carousel"
       aria-label="이음 사용 설명서"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2">
-          <BookOpen className="h-5 w-5 shrink-0 text-white" aria-hidden />
-          <p className="text-sm font-bold tracking-wide text-white sm:text-base">
+          <BookOpen className="h-5 w-5 shrink-0 text-neon-cyan" aria-hidden />
+          <p className="font-display text-base text-white sm:text-lg">
             이음 사용 설명서
           </p>
         </div>
@@ -205,7 +205,7 @@ export function IuemGuideCarousel() {
                 key={s.id}
                 className={cn(
                   "h-1.5 w-1.5 rounded-full transition-colors",
-                  i === index ? "bg-white" : "bg-zinc-600"
+                  i === index ? "bg-neon-pink shadow-[0_0_8px_rgba(255,46,151,0.8)]" : "bg-night-600"
                 )}
               />
             ))}
@@ -213,7 +213,7 @@ export function IuemGuideCarousel() {
           <button
             type="button"
             onClick={() => goTo(index - 1)}
-            className="rounded-lg border border-zinc-700 p-1.5 text-zinc-400 hover:border-zinc-500 hover:text-white"
+            className="rounded-lg border border-neon-cyan/60 p-1.5 text-neon-cyan hover:bg-neon-cyan/10"
             aria-label="이전 설명"
           >
             <ChevronLeft className="h-4 w-4" aria-hidden />
@@ -221,7 +221,7 @@ export function IuemGuideCarousel() {
           <button
             type="button"
             onClick={() => goTo(index + 1)}
-            className="rounded-lg border border-zinc-700 p-1.5 text-zinc-400 hover:border-zinc-500 hover:text-white"
+            className="rounded-lg border border-neon-cyan/60 p-1.5 text-neon-cyan hover:bg-neon-cyan/10"
             aria-label="다음 설명"
           >
             <ChevronRight className="h-4 w-4" aria-hidden />
@@ -240,21 +240,21 @@ export function IuemGuideCarousel() {
               className={cn(
                 "inline-block rounded-full border px-2.5 py-0.5 text-[11px] font-semibold",
                 accentWhite
-                  ? "border-zinc-300 bg-white text-zinc-900"
-                  : "border-zinc-600 bg-zinc-900 text-zinc-200"
+                  ? "border-neon-pink/60 bg-neon-pink/15 text-neon-pink"
+                  : "border-neon-cyan/60 bg-neon-cyan/10 text-neon-cyan"
               )}
             >
               {slide.badge}
             </span>
-            <h2 className="mt-3 text-2xl font-semibold leading-tight sm:text-[1.65rem]">
+            <h2 className="mt-3 font-display text-2xl leading-tight text-white sm:text-[1.65rem]">
               {slide.title}
             </h2>
-            <p className="mt-2 text-sm leading-6 text-zinc-400">{slide.intro}</p>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">{slide.intro}</p>
           </div>
           <div
             className={cn(
               "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border sm:h-14 sm:w-14",
-              accentWhite ? "border-white bg-white text-zinc-950" : "border-zinc-600 bg-zinc-800"
+              accentWhite ? "border-neon-pink/60 bg-neon-pink/15 text-neon-pink" : "border-neon-cyan/60 bg-neon-cyan/10 text-neon-cyan"
             )}
           >
             <Icon className="h-6 w-6 sm:h-7 sm:w-7" aria-hidden />

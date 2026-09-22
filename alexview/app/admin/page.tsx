@@ -48,27 +48,29 @@ interface IntentLogsRes { data: IntentLogItem[]; total: number }
 type NavItem = 'dashboard' | 'intent-logs' | 'passengers'
 
 // ── 색상 토큰 ─────────────────────────────────────────────────────────────────
-// Grayscale-only tokens. Roles that used to be conveyed by hue (success/danger/
-// category) are now conveyed by lightness: darker = higher emphasis/positive,
-// lighter = lower emphasis/negative. See ConfidenceBadge / survived badge for
-// the clearest examples of this convention.
+// 신스웨이브 토큰 — globals.css 의 밤하늘/네온 팔레트와 같은 값.
+// black 은 '본문 글자색'(밝은 라벤더), white 는 사이드바 위 흰 글자, surface 는 카드 바탕이다.
+// 의미 색(성공·위험·분류)은 네온 색으로 구분하고, 배지 바탕은 같은 색을 옅게 깐다.
 const C = {
-  black:    '#000000',
+  black:    '#F1E6FF',
   white:    '#FFFFFF',
-  bg:       '#F8F8F8',
-  border:   '#E4E4E4',
-  muted:    '#737373',
-  dark:     '#0F1117',
-  green:    '#18181B',
-  greenBg:  '#F4F4F5',
-  red:      '#A1A1AA',
-  redBg:    '#F4F4F5',
-  blue:     '#27272A',
-  blueBg:   '#F4F4F5',
-  amber:    '#71717A',
-  amberBg:  '#F4F4F5',
-  purple:   '#52525B',
-  purpleBg: '#F4F4F5',
+  surface:  '#160A2B',
+  surface2: '#1A0B33',
+  bg:       '#0D0619',
+  border:   '#3B1D66',
+  muted:    '#A995CC',
+  dark:     '#12072A',
+  pink:     '#FF2E97',
+  green:    '#3DDC97',
+  greenBg:  'rgba(61,220,151,0.14)',
+  red:      '#FF4FA8',
+  redBg:    'rgba(255,46,151,0.16)',
+  blue:     '#2EE6FF',
+  blueBg:   'rgba(46,230,255,0.14)',
+  amber:    '#FFD23F',
+  amberBg:  'rgba(255,210,63,0.14)',
+  purple:   '#C77DFF',
+  purpleBg: 'rgba(180,76,255,0.18)',
 } as const
 
 const API = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:4000'
@@ -108,13 +110,13 @@ function Sparkline({ color, up }: { color: string; up: boolean }) {
 
 function IntentBadge({ intent }: { intent: string }) {
   const map: Record<string, { bg: string; color: string }> = {
-    count:      { bg: '#F4F4F5', color: '#27272A' },
-    personal:   { bg: '#F4F4F5', color: '#52525B' },
-    importance: { bg: '#F4F4F5', color: '#71717A' },
-    death:      { bg: '#F4F4F5', color: '#A1A1AA' },
-    general:    { bg: '#F8F8F8', color: '#737373' },
+    count:      { bg: C.blueBg,   color: C.blue   },
+    personal:   { bg: C.purpleBg, color: C.purple },
+    importance: { bg: C.amberBg,  color: C.amber  },
+    death:      { bg: C.redBg,    color: C.red    },
+    general:    { bg: C.surface2, color: C.muted  },
   }
-  const s = map[intent] ?? { bg: '#F8F8F8', color: '#737373' }
+  const s = map[intent] ?? { bg: C.surface2, color: C.muted }
   return (
     <span style={{
       display: 'inline-block', padding: '3px 10px', fontSize: 11,
@@ -142,7 +144,7 @@ function TH({ children }: { children: React.ReactNode }) {
     <th style={{
       padding: '10px 16px', textAlign: 'left', fontSize: 11, fontWeight: 700,
       color: C.muted, letterSpacing: '0.08em', textTransform: 'uppercase',
-      borderBottom: `1px solid ${C.border}`, background: '#FAFAFA',
+      borderBottom: `1px solid ${C.border}`, background: C.surface2,
       whiteSpace: 'nowrap',
     }}>
       {children}
@@ -242,17 +244,17 @@ export default function AdminPage() {
 
       {/* ── 사이드바 (데스크탑) / 상단 헤더 (모바일) ── */}
       {isMobile ? (
-        <header style={{ background: C.dark, color: C.white, flexShrink: 0 }}>
+        <header style={{ background: C.dark, color: C.white, flexShrink: 0, borderBottom: `1px solid ${C.border}` }}>
           {/* 모바일 타이틀 바 */}
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)',
+            padding: '12px 16px', borderBottom: `1px solid ${C.border}`,
           }}>
             <div>
-              <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase' }}>Woojeong</div>
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.08em' }}>Admin Console</div>
+              <div className="font-orbitron neon-text-cyan" style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: C.blue }}>Woojeong</div>
+              <div style={{ fontSize: 10, color: C.muted, letterSpacing: '0.08em' }}>Admin Console</div>
             </div>
-            <Link href="/" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>← 메인</Link>
+            <Link href="/" style={{ fontSize: 12, color: C.muted, textDecoration: 'none' }}>← 메인</Link>
           </div>
           {/* 모바일 탭 */}
           <nav style={{ display: 'flex' }}>
@@ -263,10 +265,10 @@ export default function AdminPage() {
                 style={{
                   flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
                   gap: 3, padding: '10px 4px', fontSize: 10, fontWeight: active === key ? 700 : 400,
-                  background: active === key ? 'rgba(255,255,255,0.12)' : 'transparent',
-                  color: active === key ? C.white : 'rgba(255,255,255,0.4)',
+                  background: active === key ? C.redBg : 'transparent',
+                  color: active === key ? C.white : C.muted,
                   border: 'none', cursor: 'pointer',
-                  borderTop: active === key ? `2px solid ${C.white}` : '2px solid transparent',
+                  borderTop: active === key ? `2px solid ${C.pink}` : '2px solid transparent',
                 }}
               >
                 <span style={{ fontSize: 16 }}>{icon}</span>
@@ -276,13 +278,13 @@ export default function AdminPage() {
           </nav>
         </header>
       ) : (
-        <aside style={{ width: 220, background: C.dark, color: C.white, display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
-          <div style={{ padding: '28px 24px 22px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase' }}>Woojeong</div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 3, letterSpacing: '0.1em' }}>Admin Console</div>
+        <aside style={{ width: 220, background: C.dark, color: C.white, borderRight: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+          <div style={{ padding: '28px 24px 22px', borderBottom: `1px solid ${C.border}` }}>
+            <div className="font-orbitron neon-text-cyan" style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: C.blue }}>Woojeong</div>
+            <div style={{ fontSize: 11, color: C.muted, marginTop: 3, letterSpacing: '0.1em' }}>Admin Console</div>
           </div>
           <nav style={{ padding: '20px 0', flex: 1 }}>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', padding: '0 24px 12px', letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700 }}>
+            <div style={{ fontSize: 10, color: C.muted, padding: '0 24px 12px', letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700 }}>
               Menu
             </div>
             {navItems.map(({ key, label, icon }) => (
@@ -293,10 +295,10 @@ export default function AdminPage() {
                   display: 'flex', alignItems: 'center', gap: 10, width: '100%',
                   padding: '11px 24px', fontSize: 13,
                   fontWeight: active === key ? 600 : 400,
-                  background: active === key ? 'rgba(255,255,255,0.1)' : 'transparent',
-                  color: active === key ? C.white : 'rgba(255,255,255,0.45)',
+                  background: active === key ? C.redBg : 'transparent',
+                  color: active === key ? C.white : C.muted,
                   border: 'none', cursor: 'pointer', textAlign: 'left',
-                  borderLeft: active === key ? `2px solid ${C.white}` : '2px solid transparent',
+                  borderLeft: active === key ? `2px solid ${C.pink}` : '2px solid transparent',
                 }}
               >
                 <span style={{ fontSize: 14 }}>{icon}</span>
@@ -304,8 +306,8 @@ export default function AdminPage() {
               </button>
             ))}
           </nav>
-          <div style={{ padding: '16px 24px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-            <Link href="/" style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}>← 메인으로</Link>
+          <div style={{ padding: '16px 24px', borderTop: `1px solid ${C.border}` }}>
+            <Link href="/" style={{ fontSize: 12, color: C.muted, textDecoration: 'none' }}>← 메인으로</Link>
           </div>
         </aside>
       )}
@@ -315,7 +317,7 @@ export default function AdminPage() {
 
         {/* Top bar */}
         <div style={{
-          background: C.white, borderBottom: `1px solid ${C.border}`,
+          background: C.surface, borderBottom: `1px solid ${C.border}`,
           padding: `0 ${px}px`, height: 52,
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0,
         }}>
@@ -341,7 +343,7 @@ export default function AdminPage() {
 
           {error && (
             <div style={{
-              background: C.bg, border: `1px solid ${C.border}`, borderLeft: `3px solid ${C.black}`,
+              background: C.bg, border: `1px solid ${C.border}`, borderLeft: `3px solid ${C.pink}`,
               padding: '12px 16px', color: C.black, fontSize: 13, marginBottom: 20, borderRadius: 4,
             }}>
               ⚠ {error}
@@ -360,7 +362,7 @@ export default function AdminPage() {
               }}>
                 {kpiCards.map((kpi) => (
                   <div key={kpi.label} style={{
-                    background: C.white, border: `1px solid ${C.border}`,
+                    background: C.surface, border: `1px solid ${C.border}`,
                     borderTop: `3px solid ${kpi.color}`, padding: isMobile ? '14px 14px 10px' : '18px 18px 14px',
                   }}>
                     <div style={{ fontSize: 10, color: C.muted, letterSpacing: '0.06em', textTransform: 'uppercase', fontWeight: 700, lineHeight: 1.3 }}>
@@ -385,7 +387,7 @@ export default function AdminPage() {
                 gap: isMobile ? 14 : 14,
               }}>
                 {/* 서비스 처리율 */}
-                <div style={{ background: C.white, border: `1px solid ${C.border}`, padding: '22px 24px' }}>
+                <div style={{ background: C.surface, border: `1px solid ${C.border}`, padding: '22px 24px' }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: C.black, marginBottom: 20 }}>서비스 처리율</div>
                   {isLoading ? (
                     <div style={{ fontSize: 13, color: C.muted }}>불러오는 중...</div>
@@ -407,30 +409,30 @@ export default function AdminPage() {
                 </div>
 
                 {/* 실시간 인텐트 분포 */}
-                <div style={{ background: C.dark, padding: '22px 24px', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ background: C.dark, border: `1px solid ${C.border}`, boxShadow: '0 0 60px -24px #2EE6FF', padding: '22px 24px', display: 'flex', flexDirection: 'column' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 18 }}>
                     <span style={{ width: 6, height: 6, borderRadius: '50%', background: C.green, display: 'inline-block', flexShrink: 0 }} />
-                    <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 700 }}>
+                    <span style={{ fontSize: 10, color: C.muted, letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 700 }}>
                       실시간 인텐트 분포
                     </span>
                   </div>
                   <div style={{ fontSize: isMobile ? 28 : 36, fontWeight: 800, color: C.white, letterSpacing: '-1.5px', lineHeight: 1 }}>
                     {isLoading ? '—' : num(stats?.intentLogCount).toLocaleString()}
                   </div>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 22, marginTop: 4 }}>오늘 분석 건수</div>
+                  <div style={{ fontSize: 12, color: C.muted, marginBottom: 22, marginTop: 4 }}>오늘 분석 건수</div>
                   {intentDist.length === 0 ? (
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', flex: 1, display: 'flex', alignItems: 'center' }}>
+                    <div style={{ fontSize: 12, color: C.muted, flex: 1, display: 'flex', alignItems: 'center' }}>
                       데이터 없음
                     </div>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flex: 1 }}>
                       {intentDist.map((row) => (
                         <div key={row.label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', width: 66 }}>{row.label}</span>
+                          <span style={{ fontSize: 11, color: C.muted, width: 66 }}>{row.label}</span>
                           <div style={{ flex: 1, height: 3, background: 'rgba(255,255,255,0.08)', borderRadius: 2 }}>
-                            <div style={{ height: 3, width: `${row.value}%`, background: 'rgba(255,255,255,0.65)', borderRadius: 2 }} />
+                            <div style={{ height: 3, width: `${row.value}%`, background: C.blue, borderRadius: 2, boxShadow: `0 0 8px ${C.blue}` }} />
                           </div>
-                          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', width: 30, textAlign: 'right' }}>{row.value}%</span>
+                          <span style={{ fontSize: 11, color: C.muted, width: 30, textAlign: 'right' }}>{row.value}%</span>
                         </div>
                       ))}
                     </div>
@@ -442,7 +444,7 @@ export default function AdminPage() {
 
           {/* ── 인텐트 로그 ── */}
           {active === 'intent-logs' && (
-            <div style={{ background: C.white, border: `1px solid ${C.border}` }}>
+            <div style={{ background: C.surface, border: `1px solid ${C.border}` }}>
               <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: 13, fontWeight: 700, color: C.black }}>인텐트 분석 로그</span>
                 <span style={{ fontSize: 11, color: C.muted, background: C.bg, padding: '3px 10px', border: `1px solid ${C.border}`, borderRadius: 4 }}>
@@ -465,7 +467,7 @@ export default function AdminPage() {
                           key={log.id}
                           onMouseEnter={() => setHoveredRow(log.id)}
                           onMouseLeave={() => setHoveredRow(null)}
-                          style={{ background: hoveredRow === log.id ? C.bg : C.white, borderBottom: `1px solid ${C.border}` }}
+                          style={{ background: hoveredRow === log.id ? C.surface2 : C.surface, borderBottom: `1px solid ${C.border}` }}
                         >
                           <td style={{ padding: '12px 16px', color: C.muted, fontFamily: 'monospace', fontSize: 12 }}>{log.id}</td>
                           <td style={{ padding: '12px 16px', color: C.muted, whiteSpace: 'nowrap', fontFamily: 'monospace', fontSize: 12 }}>{log.timestamp}</td>
@@ -483,7 +485,7 @@ export default function AdminPage() {
 
           {/* ── 탑승객 ── */}
           {active === 'passengers' && (
-            <div style={{ background: C.white, border: `1px solid ${C.border}` }}>
+            <div style={{ background: C.surface, border: `1px solid ${C.border}` }}>
               <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
                 <span style={{ fontSize: 13, fontWeight: 700, color: C.black }}>타이타닉 탑승객 데이터</span>
                 <span style={{ fontSize: 11, color: C.muted, background: C.bg, padding: '3px 10px', border: `1px solid ${C.border}`, borderRadius: 4, whiteSpace: 'nowrap' }}>
@@ -506,7 +508,7 @@ export default function AdminPage() {
                           key={p.id}
                           onMouseEnter={() => setHoveredRow(p.id)}
                           onMouseLeave={() => setHoveredRow(null)}
-                          style={{ background: hoveredRow === p.id ? C.bg : C.white, borderBottom: `1px solid ${C.border}` }}
+                          style={{ background: hoveredRow === p.id ? C.surface2 : C.surface, borderBottom: `1px solid ${C.border}` }}
                         >
                           <td style={{ padding: '12px 16px', color: C.muted, fontFamily: 'monospace', fontSize: 12 }}>{p.passengerId}</td>
                           <td style={{ padding: '12px 16px' }}>

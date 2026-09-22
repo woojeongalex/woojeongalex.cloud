@@ -43,12 +43,12 @@ export function ChallengeRankingSection({ challengeId }: ChallengeRankingSection
     <section id="ranking" className="mt-6 scroll-mt-24 rounded-3xl border border-border bg-card p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <Trophy className="h-5 w-5 text-sky-500" aria-hidden="true" />
-          <h2 className="text-xl font-semibold">이 곡 랭킹</h2>
+          <Trophy className="h-5 w-5 text-neon-yellow" aria-hidden="true" />
+          <h2 className="font-display text-xl text-white">이 곡 랭킹</h2>
         </div>
         {me && (
           <p className="text-sm">
-            내 순위 <strong className="font-mono">{me.rank}위</strong>
+            내 순위 <strong className="font-orbitron text-neon-pink">{me.rank}위</strong>
             <span className="text-muted-foreground"> · 최고 {me.best_score}점</span>
           </p>
         )}
@@ -74,16 +74,16 @@ export function ChallengeRankingSection({ challengeId }: ChallengeRankingSection
                 key={`${entry.rank}-${entry.nickname}-${i}`}
                 className={cn(
                   "flex items-center gap-3 rounded-xl border px-3 py-2 text-sm",
-                  isMe ? "border-sky-500/50 bg-sky-500/10" : "border-border"
+                  isMe ? "border-neon-pink/60 bg-neon-pink/10 shadow-[0_0_16px_-6px_#ff2e97]" : "border-border bg-night-950/60"
                 )}
               >
                 <span
                   className={cn(
-                    "flex h-7 w-7 shrink-0 items-center justify-center rounded-md font-mono text-xs font-bold tabular-nums",
+                    "flex h-7 w-7 shrink-0 items-center justify-center rounded-md font-orbitron text-xs font-bold tabular-nums",
                     entry.rank === 1
-                      ? "bg-foreground text-background"
+                      ? "bg-neon-yellow text-night-950 shadow-[0_0_12px_-2px_#ffd23f]"
                       : entry.rank <= 3
-                        ? "bg-muted text-foreground"
+                        ? "border border-neon-cyan/50 text-neon-cyan"
                         : "text-muted-foreground"
                   )}
                 >
@@ -91,15 +91,15 @@ export function ChallengeRankingSection({ challengeId }: ChallengeRankingSection
                 </span>
                 <span className="min-w-0 flex-1 truncate font-medium">
                   {entry.nickname}
-                  {isMe && <span className="ml-1.5 text-xs text-sky-500">나</span>}
+                  {isMe && <span className="ml-1.5 text-xs text-neon-pink">나</span>}
                 </span>
-                <span className="hidden shrink-0 font-mono text-xs text-muted-foreground sm:inline">
+                <span className="hidden shrink-0 font-orbitron text-xs text-muted-foreground sm:inline">
                   음정 {entry.pitch_accuracy ?? "—"}% · 박자 {entry.timing_accuracy ?? "—"}%
                 </span>
-                <span className="w-12 shrink-0 text-right font-mono font-semibold tabular-nums">
+                <span className="w-12 shrink-0 text-right font-orbitron font-bold tabular-nums text-white">
                   {entry.score}
                 </span>
-                {entry.rank === 1 && <Crown className="h-4 w-4 shrink-0" aria-hidden="true" />}
+                {entry.rank === 1 && <Crown className="h-4 w-4 shrink-0 text-neon-yellow" aria-hidden="true" />}
               </li>
             )
           })}
@@ -108,7 +108,7 @@ export function ChallengeRankingSection({ challengeId }: ChallengeRankingSection
 
       {!user && (
         <p className="mt-4 text-xs text-muted-foreground">
-          <Link href="/auth" className="underline underline-offset-2">
+          <Link href="/auth" className="text-neon-cyan underline underline-offset-2">
             로그인
           </Link>
           하고 노래방 모드로 도전하면 랭킹에 이름이 올라갑니다.

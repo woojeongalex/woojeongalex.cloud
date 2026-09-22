@@ -88,37 +88,37 @@ export default function TitanicDetailPage() {
   }, [currentPage, totalPages])
 
   return (
-    <main className="min-h-[calc(100vh-4rem)] bg-white px-4 py-10 text-zinc-900">
+    <main className="min-h-[calc(100vh-4rem)] bg-background px-4 py-10 text-foreground">
       <div className="mx-auto w-full max-w-7xl">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold sm:text-4xl">타이타닉 CSV 상세</h1>
-            <p className="mt-2 text-sm text-zinc-600">
+            <h1 className="font-display text-3xl text-white sm:text-4xl">타이타닉 CSV 상세</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
               {fileName ? `파일: ${fileName}` : "업로드된 CSV 파일이 없습니다."}
             </p>
           </div>
           <Link
             href="/titanic"
-            className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-900 transition-colors hover:bg-zinc-50"
+            className="rounded-lg border border-neon-cyan/60 px-4 py-2 text-sm font-medium text-neon-cyan transition-colors hover:bg-neon-cyan/10"
           >
             업로드 페이지로 돌아가기
           </Link>
         </div>
 
         {error ? (
-          <section className="rounded-2xl border border-zinc-200 bg-zinc-50 p-6 text-sm text-zinc-600">
+          <section className="rounded-2xl border border-border bg-card p-6 text-sm text-muted-foreground">
             {error}
           </section>
         ) : (
-          <section className="overflow-hidden rounded-2xl border border-zinc-200 shadow-sm">
+          <section className="overflow-hidden rounded-2xl border border-border shadow-[0_0_32px_rgba(255,46,151,0.1)]">
             <div className="max-h-[70vh] overflow-auto">
               <table className="min-w-full border-collapse text-sm">
-                <thead className="sticky top-0 z-10 bg-zinc-100">
+                <thead className="sticky top-0 z-10 bg-night-800">
                   <tr>
                     {TABLE_COLUMNS.map((column) => (
                       <th
                         key={column.key}
-                        className="whitespace-nowrap border-b border-zinc-200 px-3 py-2 text-left font-semibold text-zinc-700"
+                        className="whitespace-nowrap border-b border-border px-3 py-2 text-left font-orbitron text-xs font-semibold tracking-wider text-neon-cyan"
                       >
                         {column.label}
                       </th>
@@ -127,11 +127,11 @@ export default function TitanicDetailPage() {
                 </thead>
                 <tbody>
                   {rows.map((row) => (
-                    <tr key={`${row.id}-${row.passenger_id}`} className="odd:bg-white even:bg-zinc-50">
+                    <tr key={`${row.id}-${row.passenger_id}`} className="odd:bg-night-900 even:bg-night-850 hover:bg-accent">
                       {TABLE_COLUMNS.map((column) => (
                         <td
                           key={`${row.id}-${column.key}`}
-                          className="whitespace-nowrap border-b border-zinc-100 px-3 py-2 text-zinc-800"
+                          className="whitespace-nowrap border-b border-border/60 px-3 py-2 text-foreground"
                         >
                           {row[column.key] ?? ""}
                         </td>
@@ -141,8 +141,8 @@ export default function TitanicDetailPage() {
                 </tbody>
               </table>
             </div>
-            <div className="relative flex items-center justify-between border-t border-zinc-200 bg-zinc-50 px-4 py-3">
-              <p className="text-sm text-zinc-600">
+            <div className="relative flex items-center justify-between border-t border-border bg-night-900 px-4 py-3">
+              <p className="text-sm text-muted-foreground">
                 {loading
                   ? "데이터 로딩 중..."
                   : `페이지 ${currentPage} / ${totalPages} (페이지당 ${ROWS_PER_PAGE}명, 총 ${total}명)`}
@@ -154,7 +154,7 @@ export default function TitanicDetailPage() {
                     setCurrentPage((prev) => Math.max(1, Math.floor((prev - 1) / 10) * 10))
                   }
                   disabled={pageNumbers[0] === 1}
-                  className="rounded-md border border-zinc-300 bg-white px-2.5 py-1.5 text-sm font-medium text-zinc-800 transition-colors hover:bg-zinc-100 disabled:cursor-not-allowed disabled:border-zinc-200 disabled:bg-zinc-100 disabled:text-zinc-400"
+                  className="rounded-md border border-border bg-card px-2.5 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   이전
                 </button>
@@ -165,8 +165,8 @@ export default function TitanicDetailPage() {
                     onClick={() => setCurrentPage(page)}
                     className={`rounded-md border px-2.5 py-1.5 text-sm font-medium transition-colors ${
                       page === currentPage
-                        ? "border-zinc-900 bg-zinc-900 text-white"
-                        : "border-zinc-300 bg-white text-zinc-800 hover:bg-zinc-100"
+                        ? "border-primary bg-primary text-primary-foreground shadow-[0_0_12px_rgba(255,46,151,0.5)]"
+                        : "border-border bg-card text-foreground hover:bg-accent"
                     }`}
                   >
                     {page}
@@ -180,7 +180,7 @@ export default function TitanicDetailPage() {
                     )
                   }
                   disabled={pageNumbers[pageNumbers.length - 1] === totalPages}
-                  className="rounded-md border border-zinc-300 bg-white px-2.5 py-1.5 text-sm font-medium text-zinc-800 transition-colors hover:bg-zinc-100 disabled:cursor-not-allowed disabled:border-zinc-200 disabled:bg-zinc-100 disabled:text-zinc-400"
+                  className="rounded-md border border-border bg-card px-2.5 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   다음
                 </button>

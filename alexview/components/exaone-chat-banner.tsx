@@ -42,20 +42,20 @@ export function ExaoneChatBanner() {
   }
 
   return (
-    <div className="w-full min-w-0 rounded-3xl border border-border bg-card p-6 sm:p-8">
+    <div className="w-full min-w-0 rounded-3xl border border-border bg-card p-6 shadow-[0_0_40px_rgba(46,230,255,0.08)] sm:p-8">
       <div className="flex items-center gap-2">
-        <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
-          <Cpu className="h-4.5 w-4.5 text-foreground" aria-hidden="true" />
+        <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-neon-cyan/50 bg-night-900">
+          <Cpu className="h-4.5 w-4.5 text-neon-cyan" aria-hidden="true" />
         </span>
         <div>
-          <p className="text-xs font-mono tracking-widest uppercase text-muted-foreground">
+          <p className="font-orbitron text-xs uppercase tracking-[0.25em] text-neon-cyan">
             Local AI · EXAONE
           </p>
           <p className="text-sm text-muted-foreground">리처드 헨드릭스와 대화하기</p>
         </div>
       </div>
 
-      <h2 className="mt-4 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+      <h2 className="mt-4 font-display text-2xl text-white sm:text-3xl">
         자체 서버에서 돌아가는 로컬 AI에게 곡을 추천받아 보세요.
       </h2>
       <p className="mt-2 text-sm leading-6 text-muted-foreground">
@@ -63,7 +63,7 @@ export function ExaoneChatBanner() {
         검색해 참고하기 때문에 첫 응답까지 다소 시간이 걸릴 수 있습니다.
       </p>
 
-      <div className="mt-6 flex flex-col overflow-hidden rounded-2xl border border-border bg-background">
+      <div className="mt-6 flex flex-col overflow-hidden rounded-2xl border border-border bg-night-950">
         {(messages.length > 0 || loading) && (
           <div
             ref={scrollRef}
@@ -77,8 +77,8 @@ export function ExaoneChatBanner() {
                 <p
                   className={`max-w-[92%] rounded-lg px-3 py-2 leading-relaxed ${
                     m.role === "user"
-                      ? "bg-secondary text-secondary-foreground"
-                      : "bg-muted text-foreground"
+                      ? "bg-neon-cyan text-night-950"
+                      : "border border-border bg-night-850 text-foreground"
                   }`}
                 >
                   {m.content}
@@ -116,7 +116,7 @@ export function ExaoneChatBanner() {
             type="button"
             onClick={() => void send()}
             disabled={loading || !input.trim()}
-            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-35"
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground glow-button transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-35"
             aria-label="보내기"
           >
             <Send className="h-4 w-4" aria-hidden="true" />

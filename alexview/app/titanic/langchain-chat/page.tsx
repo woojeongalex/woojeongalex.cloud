@@ -54,7 +54,7 @@ export default function LangchainRetroChatPage() {
   return (
     <main
       className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-10"
-      style={{ background: "#0A0A0A" }}
+      style={{ background: "radial-gradient(ellipse at 50% 30%, #2a0f4d 0%, #0d0619 70%)" }}
     >
       <div
         className="w-full max-w-md select-none"
@@ -63,7 +63,7 @@ export default function LangchainRetroChatPage() {
         {/* 타이틀바 */}
         <div
           className="flex items-center justify-between px-2 py-1"
-          style={{ background: "linear-gradient(90deg, #0a5bd1, #3f9eff)" }}
+          style={{ background: "linear-gradient(90deg, #b44cff, #ff2e97)" }}
         >
           <span className="flex items-center gap-1 text-xs font-bold text-white">💬 대화하기</span>
           <div className="flex items-center gap-1">

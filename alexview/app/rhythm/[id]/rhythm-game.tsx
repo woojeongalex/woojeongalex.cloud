@@ -475,14 +475,14 @@ export function RhythmGame({ challengeId }: RhythmGameProps) {
     <Shell>
       <div className="mt-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-sm font-medium text-muted-foreground">
+          <p className="font-orbitron text-xs font-bold tracking-[0.25em] text-neon-cyan">
             리듬 게임
             {chart.bpm ? ` · BPM ${Math.round(chart.bpm)}` : ""}
             {sheet && phase !== "setup"
               ? ` · ${sheet.keys}키 ${RHYTHM_DIFFICULTY_LABEL[sheet.difficulty]} Lv.${sheet.level}`
               : ""}
           </p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight">{challenge.title}</h1>
+          <h1 className="mt-2 font-display text-3xl text-white sm:text-4xl">{challenge.title}</h1>
         </div>
       </div>
 
@@ -490,22 +490,22 @@ export function RhythmGame({ challengeId }: RhythmGameProps) {
 
       {/* 게임 중에는 무대가 화면 전체를 쓴다 — 판정선과 키 자리가 화면 밖으로 밀리지 않게. */}
       {(inGame || phase === "loading") && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-zinc-950 text-white">
+        <div className="fixed inset-0 z-50 flex flex-col bg-night-950 text-white">
           <div className="mx-auto flex w-full max-w-3xl items-center gap-4 px-4 pt-4">
             <div className="min-w-0 flex-1">
-              <p className="truncate text-xs text-white/50">
+              <p className="truncate text-xs text-muted-foreground">
                 {challenge.title}
                 {sheet ? ` · ${sheet.keys}키 ${RHYTHM_DIFFICULTY_LABEL[sheet.difficulty]} Lv.${sheet.level}` : ""}
               </p>
-              <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/10">
-                <div className="h-full bg-sky-400" style={{ width: `${progress * 100}%` }} />
+              <div className="mt-2 h-1 overflow-hidden rounded-full bg-night-700">
+                <div className="h-full bg-neon-pink shadow-[0_0_10px_#ff2e97]" style={{ width: `${progress * 100}%` }} />
               </div>
             </div>
-            <div className="text-right font-mono">
-              <p className="text-2xl font-semibold leading-none tabular-nums">
+            <div className="text-right font-orbitron">
+              <p className="neon-text-cyan text-2xl font-bold leading-none tabular-nums text-neon-cyan">
                 {(live?.score ?? 0).toLocaleString()}
               </p>
-              <p className="mt-1 text-xs text-white/50">
+              <p className="mt-1 text-xs text-muted-foreground">
                 {live ? `${live.accuracy.toFixed(2)}%` : "0.00%"}
               </p>
             </div>
@@ -513,11 +513,11 @@ export function RhythmGame({ challengeId }: RhythmGameProps) {
               type="button"
               onClick={finish}
               disabled={!inGame}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/20 px-3 py-2 text-xs font-medium transition-colors hover:bg-white/10"
+              className="inline-flex items-center gap-1.5 rounded-full border border-neon-cyan/60 px-3 py-2 text-xs font-medium text-neon-cyan transition-colors hover:bg-neon-cyan/10"
             >
               <Square className="h-3.5 w-3.5" aria-hidden="true" />
               그만하기
-              <span className="hidden text-white/50 sm:inline">(Esc)</span>
+              <span className="hidden text-neon-cyan/70 sm:inline">(Esc)</span>
             </button>
           </div>
           <canvas
@@ -529,8 +529,8 @@ export function RhythmGame({ challengeId }: RhythmGameProps) {
             aria-label="노트가 떨어지는 무대. 판정선에 닿을 때 해당 키를 누르세요."
           />
           {phase === "loading" && (
-            <div className="absolute inset-0 flex items-center justify-center bg-zinc-950/80">
-              <Loader2 className="h-8 w-8 animate-spin text-sky-400" aria-hidden="true" />
+            <div className="absolute inset-0 flex items-center justify-center bg-night-950/80">
+              <Loader2 className="h-8 w-8 animate-spin text-neon-pink" aria-hidden="true" />
             </div>
           )}
         </div>
@@ -551,7 +551,7 @@ export function RhythmGame({ challengeId }: RhythmGameProps) {
                   className={cn(
                     "rounded-full border px-5 py-2 text-sm font-semibold transition-colors",
                     prefs.keys === k
-                      ? "border-sky-500 bg-sky-500 text-white"
+                      ? "glow-button border-neon-pink bg-primary text-primary-foreground"
                       : "border-border bg-background hover:bg-accent"
                   )}
                 >
@@ -575,12 +575,12 @@ export function RhythmGame({ challengeId }: RhythmGameProps) {
                     className={cn(
                       "rounded-2xl border px-4 py-3 text-left transition-colors disabled:opacity-40",
                       prefs.difficulty === d
-                        ? "border-sky-500 bg-sky-500/10"
+                        ? "border-neon-pink bg-neon-pink/10 shadow-[0_0_18px_-6px_#ff2e97]"
                         : "border-border bg-background hover:bg-accent"
                     )}
                   >
                     <span className="block text-sm font-semibold">{RHYTHM_DIFFICULTY_LABEL[d]}</span>
-                    <span className="mt-1 block font-mono text-xs text-muted-foreground">
+                    <span className="mt-1 block font-orbitron text-xs text-muted-foreground">
                       {info ? `Lv.${info.level} · 노트 ${info.note_count}` : "없음"}
                     </span>
                   </button>
@@ -591,7 +591,7 @@ export function RhythmGame({ challengeId }: RhythmGameProps) {
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
               <label className="block text-sm">
                 <span className="font-medium">노트 속도</span>
-                <span className="ml-2 font-mono text-muted-foreground">x{prefs.speed.toFixed(1)}</span>
+                <span className="ml-2 font-orbitron text-neon-cyan">x{prefs.speed.toFixed(1)}</span>
                 <input
                   type="range"
                   min={1}
@@ -599,12 +599,12 @@ export function RhythmGame({ challengeId }: RhythmGameProps) {
                   step={0.5}
                   value={prefs.speed}
                   onChange={(e) => updatePrefs({ speed: Number(e.target.value) })}
-                  className="mt-2 block w-full"
+                  className="mt-2 block w-full accent-neon-pink"
                 />
               </label>
               <label className="block text-sm">
                 <span className="font-medium">싱크 보정</span>
-                <span className="ml-2 font-mono text-muted-foreground">
+                <span className="ml-2 font-orbitron text-neon-cyan">
                   {prefs.offsetMs > 0 ? "+" : ""}
                   {prefs.offsetMs}ms
                 </span>
@@ -615,7 +615,7 @@ export function RhythmGame({ challengeId }: RhythmGameProps) {
                   step={5}
                   value={prefs.offsetMs}
                   onChange={(e) => updatePrefs({ offsetMs: Number(e.target.value) })}
-                  className="mt-2 block w-full"
+                  className="mt-2 block w-full accent-neon-pink"
                 />
                 <span className="mt-1 block text-xs text-muted-foreground">
                   소리에 맞춰 쳤는데 늘 늦게(GOOD·BAD) 나오면 + 쪽으로 옮기세요.
@@ -629,7 +629,7 @@ export function RhythmGame({ challengeId }: RhythmGameProps) {
               {RHYTHM_KEY_LABELS[prefs.keys].map((label, i) => (
                 <kbd
                   key={i}
-                  className="rounded-md border border-border bg-muted px-2 py-0.5 font-mono text-xs text-foreground"
+                  className="rounded-md border border-neon-cyan/40 bg-night-900 px-2 py-0.5 font-mono text-xs text-neon-cyan"
                 >
                   {label === "␣" ? "Space" : label}
                 </kbd>
@@ -647,7 +647,7 @@ export function RhythmGame({ challengeId }: RhythmGameProps) {
               type="button"
               onClick={() => void start()}
               disabled={!selected}
-              className="mt-5 inline-flex items-center gap-2 rounded-full bg-sky-500 px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+              className="glow-button mt-5 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground disabled:opacity-50"
             >
               <Play className="h-4 w-4" aria-hidden="true" />
               시작하기

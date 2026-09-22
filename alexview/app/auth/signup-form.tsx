@@ -38,10 +38,10 @@ function TermsItem({
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        className="h-4 w-4 shrink-0 cursor-pointer accent-zinc-950"
+        className="h-4 w-4 shrink-0 cursor-pointer accent-neon-pink"
       />
-      <span className="flex flex-1 items-center gap-1.5 text-sm text-zinc-700">
-        <span className={`text-xs font-semibold ${required ? "text-zinc-950" : "text-zinc-400"}`}>
+      <span className="flex flex-1 items-center gap-1.5 text-sm text-foreground/90">
+        <span className={`text-xs font-semibold ${required ? "text-neon-pink" : "text-muted-foreground"}`}>
           [{required ? "필수" : "선택"}]
         </span>
         {label}
@@ -51,7 +51,7 @@ function TermsItem({
           href={href}
           target="_blank"
           rel="noopener noreferrer"
-          className="shrink-0 text-zinc-400 hover:text-zinc-600"
+          className="shrink-0 text-muted-foreground transition-colors hover:text-neon-cyan"
           aria-label={`${label} 보기`}
         >
           <ChevronRight className="h-4 w-4" />
@@ -78,17 +78,17 @@ function TermsSection({
   }
 
   return (
-    <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 space-y-3">
+    <div className="rounded-xl border border-border bg-night-900 p-4 space-y-3">
       <label className="flex cursor-pointer items-center gap-2">
         <input
           type="checkbox"
           checked={allChecked}
           onChange={(e) => setAll(e.target.checked)}
-          className="h-4 w-4 shrink-0 cursor-pointer accent-zinc-950"
+          className="h-4 w-4 shrink-0 cursor-pointer accent-neon-pink"
         />
-        <span className="text-sm font-semibold text-zinc-950">전체 동의하기</span>
+        <span className="text-sm font-semibold text-white">전체 동의하기</span>
       </label>
-      <div className="border-t border-zinc-200" />
+      <div className="border-t border-border" />
       <TermsItem
         label="서비스 이용약관 동의"
         required

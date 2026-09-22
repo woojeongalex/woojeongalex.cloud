@@ -55,14 +55,14 @@ export function RhythmRankingList({
     <section className="rounded-3xl border border-border bg-card p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <Trophy className="h-5 w-5 text-sky-500" aria-hidden="true" />
-          <h2 className="text-lg font-semibold">
+          <Trophy className="h-5 w-5 text-neon-yellow" aria-hidden="true" />
+          <h2 className="font-display text-lg text-white">
             랭킹 · {keys}키 {RHYTHM_DIFFICULTY_LABEL[difficulty]}
           </h2>
         </div>
         {me && (
           <p className="text-sm">
-            내 순위 <strong className="font-mono">{me.rank}위</strong>
+            내 순위 <strong className="font-orbitron text-neon-pink">{me.rank}위</strong>
             <span className="text-muted-foreground">
               {" "}
               · 최고 {me.best_score.toLocaleString()}점
@@ -85,15 +85,26 @@ export function RhythmRankingList({
                 key={`${entry.rank}-${entry.nickname}-${i}`}
                 className={cn(
                   "flex items-center gap-3 rounded-xl border px-3 py-2 text-sm",
-                  isMe ? "border-sky-500/50 bg-sky-500/10" : "border-border"
+                  isMe ? "border-neon-pink/60 bg-neon-pink/10 shadow-[0_0_16px_-6px_#ff2e97]" : "border-border bg-night-950/60"
                 )}
               >
-                <span className="w-8 text-center font-mono font-semibold">{entry.rank}</span>
+                <span
+                  className={cn(
+                    "w-8 text-center font-orbitron font-bold",
+                    entry.rank === 1
+                      ? "text-neon-yellow"
+                      : entry.rank <= 3
+                        ? "text-neon-cyan"
+                        : "text-muted-foreground"
+                  )}
+                >
+                  {entry.rank}
+                </span>
                 <span className="min-w-0 flex-1 truncate">{entry.nickname}</span>
-                <span className="hidden font-mono text-xs text-muted-foreground sm:inline">
+                <span className="hidden font-orbitron text-xs text-muted-foreground sm:inline">
                   {entry.accuracy.toFixed(2)}% · {entry.max_combo} COMBO
                 </span>
-                <span className="font-mono font-semibold tabular-nums">
+                <span className="font-orbitron font-bold tabular-nums text-white">
                   {entry.score.toLocaleString()}
                 </span>
               </li>

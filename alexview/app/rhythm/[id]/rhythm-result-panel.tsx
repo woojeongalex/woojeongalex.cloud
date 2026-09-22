@@ -19,10 +19,10 @@ import { cn } from "@/lib/utils"
 const JUDGEMENTS: RhythmJudgement[] = ["cool", "good", "bad", "miss"]
 
 const JUDGEMENT_TEXT: Record<RhythmJudgement, string> = {
-  cool: "text-sky-500",
-  good: "text-green-500",
-  bad: "text-amber-500",
-  miss: "text-red-500",
+  cool: "text-neon-pink",
+  good: "text-neon-green",
+  bad: "text-neon-yellow",
+  miss: "text-neon-orange",
 }
 
 type RhythmResultPanelProps = {
@@ -60,17 +60,17 @@ export function RhythmResultPanel({
   const fullCombo = counts.bad === 0 && counts.miss === 0
 
   return (
-    <section className="rounded-3xl border border-border bg-card p-6">
+    <section className="rounded-3xl border border-border bg-card p-6 shadow-[0_0_40px_-18px_#ff2e97]">
       <div className="flex flex-wrap items-end justify-between gap-6">
         <div className="flex items-end gap-5">
-          <span className="font-mono text-7xl font-black leading-none text-sky-500">
+          <span className="neon-text font-orbitron text-7xl font-black leading-none text-neon-pink animate-in zoom-in-50 fade-in duration-500">
             {rhythmGrade(accuracy)}
           </span>
           <div>
             <p className="text-sm font-medium text-muted-foreground">
               {keys}키 {RHYTHM_DIFFICULTY_LABEL[difficulty]} · {server ? "서버 채점" : "이번 점수"}
             </p>
-            <p className="mt-1 font-mono text-5xl font-semibold tabular-nums">
+            <p className="mt-1 font-orbitron text-5xl font-bold tabular-nums text-white">
               {score.toLocaleString()}
             </p>
           </div>
@@ -78,26 +78,26 @@ export function RhythmResultPanel({
         <dl className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <dt className="text-muted-foreground">정확도</dt>
-            <dd className="font-mono text-xl font-semibold">{accuracy.toFixed(2)}%</dd>
+            <dd className="font-orbitron text-xl font-bold text-neon-cyan">{accuracy.toFixed(2)}%</dd>
           </div>
           <div>
             <dt className="text-muted-foreground">최대 콤보</dt>
-            <dd className="font-mono text-xl font-semibold">{maxCombo}</dd>
+            <dd className="font-orbitron text-xl font-bold text-neon-cyan">{maxCombo}</dd>
           </div>
         </dl>
       </div>
 
       {fullCombo && counts.cool + counts.good > 0 && (
-        <p className="mt-4 font-mono text-sm font-semibold text-sky-500">FULL COMBO!</p>
+        <p className="neon-text animate-neon-flicker mt-4 font-orbitron text-sm font-bold tracking-[0.25em] text-neon-yellow">FULL COMBO!</p>
       )}
 
-      <ul className="mt-5 grid grid-cols-4 gap-2 font-mono text-sm">
+      <ul className="mt-5 grid grid-cols-4 gap-2 font-orbitron text-sm">
         {JUDGEMENTS.map((j) => (
-          <li key={j} className="rounded-2xl border border-border px-3 py-2 text-center">
+          <li key={j} className="rounded-2xl border border-border bg-night-950 px-3 py-2 text-center">
             <span className={cn("block text-xs font-semibold", JUDGEMENT_TEXT[j])}>
               {RHYTHM_JUDGEMENT_LABEL[j]}
             </span>
-            <span className="text-lg font-semibold tabular-nums">{counts[j]}</span>
+            <span className="text-lg font-bold tabular-nums text-white">{counts[j]}</span>
           </li>
         ))}
       </ul>
@@ -111,8 +111,8 @@ export function RhythmResultPanel({
         )}
         {server && server.rank !== null && (
           <p className="inline-flex items-center gap-2">
-            <Trophy className="h-4 w-4 text-sky-500" aria-hidden="true" />
-            랭킹 <strong className="font-mono">{server.rank}위</strong>
+            <Trophy className="h-4 w-4 text-neon-pink" aria-hidden="true" />
+            랭킹 <strong className="font-orbitron text-neon-yellow">{server.rank}위</strong>
             {server.is_personal_best
               ? " · 개인 최고 기록!"
               : ` · 내 최고 ${server.best_score?.toLocaleString()}점`}
@@ -137,7 +137,7 @@ export function RhythmResultPanel({
         <button
           type="button"
           onClick={onRetry}
-          className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-80"
+          className="inline-flex items-center gap-2 glow-button rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground"
         >
           <RotateCcw className="h-4 w-4" aria-hidden="true" />
           다시 하기
@@ -145,7 +145,7 @@ export function RhythmResultPanel({
         <button
           type="button"
           onClick={onChangeSheet}
-          className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-3 text-sm font-medium transition-colors hover:bg-accent"
+          className="inline-flex items-center gap-2 rounded-full border border-neon-cyan/60 px-5 py-3 text-sm font-medium text-neon-cyan transition-colors hover:bg-neon-cyan/10"
         >
           <Settings2 className="h-4 w-4" aria-hidden="true" />
           난이도·설정 바꾸기

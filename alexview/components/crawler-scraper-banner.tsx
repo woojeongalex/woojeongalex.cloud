@@ -6,7 +6,8 @@ import { useAsyncAction } from "@/hooks/use-async-action"
 import { commandCrawl, commandScrape } from "@/lib/star-craft-api"
 import { UI_ERRORS } from "@/lib/user-facing-error"
 
-const ACCENT = "#FFFFFF"
+// 신스웨이브 테마 — 네온 시안을 강조색으로 쓴다
+const ACCENT = "#2ee6ff"
 
 type PanelMode = "crawler" | "scraper"
 type LogMessage = { id: string; role: "user" | "assistant"; content: string }
@@ -68,7 +69,7 @@ function CrawlerScraperPanel({
 
   return (
     <div className="p-4">
-      <p className="text-sm" style={{ color: "#9ca3af" }}>
+      <p className="text-sm" style={{ color: "#a995cc" }}>
         {description}
       </p>
 
@@ -76,7 +77,7 @@ function CrawlerScraperPanel({
         <div
           ref={scrollRef}
           className="mt-3 min-h-40 max-h-64 space-y-2 overflow-y-auto rounded-lg border p-3 text-sm"
-          style={{ borderColor: "#1f1f1f", background: "#0d0d0d" }}
+          style={{ borderColor: "#3b1d66", background: "#0d0619" }}
         >
           {messages.map((m) => (
             <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
@@ -84,8 +85,8 @@ function CrawlerScraperPanel({
                 className="max-w-[92%] whitespace-pre-wrap rounded-lg px-3 py-2 leading-relaxed"
                 style={
                   m.role === "user"
-                    ? { background: ACCENT, color: "#0A0A0A" }
-                    : { background: "#1a1a1a", border: "1px solid #2a2a2a", color: "#d1d5db" }
+                    ? { background: ACCENT, color: "#0d0619" }
+                    : { background: "#1d0f38", border: "1px solid #3b1d66", color: "#f1e6ff" }
                 }
               >
                 {m.content}
@@ -93,7 +94,7 @@ function CrawlerScraperPanel({
             </div>
           ))}
           {loading && (
-            <p style={{ color: "#6b7280" }}>
+            <p style={{ color: "#a995cc" }}>
               명령을 이해하고 처리하는 중… (사이트 크기에 따라 시간이 걸릴 수 있어요)
             </p>
           )}
@@ -118,7 +119,7 @@ function CrawlerScraperPanel({
           placeholder="URL 입력 또는 링크를 여기로 드래그"
           disabled={loading}
           className="rounded-lg border bg-transparent px-3 py-2 text-sm outline-none transition-colors"
-          style={{ borderColor: isDragging ? ACCENT : "#2a2a2a", color: "#e5e7eb" }}
+          style={{ borderColor: isDragging ? ACCENT : "#3b1d66", color: "#f1e6ff" }}
         />
         <div className="flex items-center gap-2">
           <label htmlFor={`${mode}-command`} className="sr-only">
@@ -138,14 +139,14 @@ function CrawlerScraperPanel({
             placeholder="예: 재즈 관련 내용 찾아줘"
             disabled={loading}
             className="flex-1 rounded-lg border bg-transparent px-3 py-2 text-sm outline-none"
-            style={{ borderColor: "#2a2a2a", color: "#e5e7eb" }}
+            style={{ borderColor: "#3b1d66", color: "#f1e6ff" }}
           />
           <button
             type="button"
             onClick={() => void handleSubmit()}
             disabled={loading || !website.trim() || !command.trim()}
             className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-35"
-            style={{ background: ACCENT, color: "#0A0A0A" }}
+            style={{ background: ACCENT, color: "#0d0619" }}
             aria-label="실행"
           >
             <Send className="h-4 w-4" aria-hidden="true" />
@@ -154,7 +155,7 @@ function CrawlerScraperPanel({
       </div>
 
       {error && (
-        <p className="mt-2 text-xs" style={{ color: "#6b7280" }} role="status">
+        <p className="mt-2 text-xs" style={{ color: "#a995cc" }} role="status">
           {error}
         </p>
       )}
@@ -166,8 +167,8 @@ export function CrawlerScraperBanner() {
   const [activeTab, setActiveTab] = useState<PanelMode>("crawler")
 
   return (
-    <div className="overflow-hidden rounded-2xl border" style={{ borderColor: "#1f1f1f", background: "#111111" }}>
-      <div className="flex border-b" style={{ borderColor: "#1f1f1f" }}>
+    <div className="overflow-hidden rounded-2xl border" style={{ borderColor: "#3b1d66", background: "#160a2b" }}>
+      <div className="flex border-b" style={{ borderColor: "#3b1d66" }}>
         {(["crawler", "scraper"] as const).map((tab) => (
           <button
             key={tab}
@@ -176,8 +177,8 @@ export function CrawlerScraperBanner() {
             className="flex-1 px-4 py-3 text-sm font-medium transition-colors"
             style={
               activeTab === tab
-                ? { color: ACCENT, borderBottom: `2px solid ${ACCENT}`, background: "#0d0d0d" }
-                : { color: "#6b7280", borderBottom: "2px solid transparent" }
+                ? { color: ACCENT, borderBottom: `2px solid ${ACCENT}`, background: "#0d0619" }
+                : { color: "#a995cc", borderBottom: "2px solid transparent" }
             }
           >
             {tab === "crawler" ? "링크 크롤러" : "본문 스크래퍼"}

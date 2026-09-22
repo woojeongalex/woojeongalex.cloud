@@ -153,8 +153,8 @@ export function LyricsSyncPanel({
   return (
     <section className="rounded-3xl border border-border bg-card p-6">
       <div>
-        <p className="text-sm font-medium text-muted-foreground">2단계</p>
-        <h2 className="mt-1 text-xl font-semibold">가사 · 줄별 타이밍</h2>
+        <p className="font-orbitron text-xs font-bold tracking-[0.25em] text-neon-cyan">2단계</p>
+        <h2 className="mt-2 font-display text-xl text-white">가사 · 줄별 타이밍</h2>
       </div>
 
       <label className="mt-5 grid gap-2 text-sm">
@@ -164,7 +164,7 @@ export function LyricsSyncPanel({
           onChange={(e) => setDraft(e.target.value)}
           rows={8}
           placeholder={"[Verse 1]\n첫 번째 줄\n두 번째 줄\n\n[Chorus]\n…"}
-          className="rounded-xl border border-border bg-background px-3 py-2 font-mono text-sm leading-6"
+          className="rounded-xl border border-border bg-night-950 px-3 py-2 font-mono text-sm leading-6"
         />
         <span className="text-xs text-muted-foreground">
           Suno 가사를 그대로 붙여넣어도 됩니다. [Verse], [Chorus] 같은 구간 표시 줄과 빈 줄은
@@ -174,20 +174,20 @@ export function LyricsSyncPanel({
       <button
         type="button"
         onClick={applyDraft}
-        className="mt-3 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent"
+        className="mt-3 rounded-full border border-neon-cyan/60 px-4 py-2 text-sm font-medium text-neon-cyan transition-colors hover:bg-neon-cyan/10"
       >
         가사 적용
       </button>
 
       {lines.length > 0 && (
         <>
-          <div className="mt-6 rounded-2xl border border-border bg-muted/40 p-4 text-sm leading-6">
+          <div className="mt-6 rounded-2xl border border-neon-cyan/30 bg-neon-cyan/5 p-4 text-sm leading-6">
             <p className="font-medium">타이밍 찍는 법</p>
             <p className="mt-1 text-muted-foreground">
               아래 플레이어로 원곡을 틀고, 각 줄을 <strong className="text-foreground">부르기 시작하는
-              순간</strong>에 <kbd className="rounded border border-border bg-background px-1.5 font-mono text-xs">Space</kbd>를
+              순간</strong>에 <kbd className="rounded border border-neon-cyan/40 bg-night-900 px-1.5 font-mono text-xs text-neon-cyan">Space</kbd>를
               누르세요. 잘못 찍었으면{" "}
-              <kbd className="rounded border border-border bg-background px-1.5 font-mono text-xs">Backspace</kbd>로
+              <kbd className="rounded border border-neon-cyan/40 bg-night-900 px-1.5 font-mono text-xs text-neon-cyan">Backspace</kbd>로
               한 줄 되돌립니다. 줄을 누르면 그 줄부터 다시 찍을 수 있습니다.
             </p>
           </div>
@@ -197,7 +197,7 @@ export function LyricsSyncPanel({
               type="button"
               onClick={stamp}
               disabled={cursor >= lines.length}
-              className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-80 disabled:opacity-40"
+              className="glow-button rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground disabled:opacity-40"
             >
               지금 탭 (Space)
             </button>
@@ -205,7 +205,7 @@ export function LyricsSyncPanel({
               type="button"
               onClick={undo}
               disabled={cursor === 0}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent disabled:opacity-40"
+              className="inline-flex items-center gap-1.5 rounded-full border border-neon-cyan/60 px-4 py-2 text-sm font-medium text-neon-cyan transition-colors hover:bg-neon-cyan/10 disabled:opacity-40"
             >
               <Undo2 className="h-4 w-4" aria-hidden="true" />
               되돌리기
@@ -213,26 +213,26 @@ export function LyricsSyncPanel({
             <button
               type="button"
               onClick={() => nudgeAll(-NUDGE_SEC)}
-              className="rounded-full border border-border bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent"
+              className="rounded-full border border-neon-cyan/60 px-4 py-2 text-sm font-medium text-neon-cyan transition-colors hover:bg-neon-cyan/10"
             >
               전체 0.1초 앞당기기
             </button>
             <button
               type="button"
               onClick={() => nudgeAll(NUDGE_SEC)}
-              className="rounded-full border border-border bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent"
+              className="rounded-full border border-neon-cyan/60 px-4 py-2 text-sm font-medium text-neon-cyan transition-colors hover:bg-neon-cyan/10"
             >
               전체 0.1초 늦추기
             </button>
             <button
               type="button"
               onClick={resetTimings}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             >
               <RotateCcw className="h-4 w-4" aria-hidden="true" />
               처음부터
             </button>
-            <span className="ml-auto font-mono text-sm text-muted-foreground" role="status">
+            <span className="ml-auto font-orbitron text-sm text-neon-cyan" role="status">
               {stampedCount}/{lines.length}줄
             </span>
           </div>
@@ -243,16 +243,16 @@ export function LyricsSyncPanel({
             </p>
           )}
 
-          <ol className="mt-4 max-h-96 space-y-1 overflow-y-auto rounded-2xl border border-border p-2">
+          <ol className="mt-4 max-h-96 space-y-1 overflow-y-auto rounded-2xl border border-border bg-night-950 p-2">
             {lines.map((line, i) => (
               <li key={i}>
                 <button
                   type="button"
                   onClick={() => selectLine(i)}
                   className={cn(
-                    "flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm transition-colors hover:bg-muted/60",
-                    i === cursor && "ring-2 ring-foreground/60",
-                    i === playingIndex && "bg-muted"
+                    "flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm transition-colors hover:bg-accent",
+                    i === cursor && "ring-2 ring-neon-pink/70",
+                    i === playingIndex && "bg-neon-pink/15"
                   )}
                 >
                   <span className="w-14 shrink-0 font-mono text-xs text-muted-foreground">
@@ -262,7 +262,7 @@ export function LyricsSyncPanel({
                     {line.text}
                   </span>
                   {i === cursor && (
-                    <span className="ml-auto shrink-0 text-xs font-medium">다음 탭</span>
+                    <span className="ml-auto shrink-0 text-xs font-medium text-neon-pink">다음 탭</span>
                   )}
                 </button>
               </li>
@@ -276,7 +276,7 @@ export function LyricsSyncPanel({
           type="button"
           onClick={handleSave}
           disabled={loading || !dirty}
-          className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-80 disabled:opacity-40"
+          className="inline-flex items-center gap-2 glow-button rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground disabled:opacity-40"
         >
           {loading ? (
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />

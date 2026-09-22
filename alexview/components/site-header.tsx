@@ -1,8 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { BarChart2, ChevronDown, Gamepad2, History, Moon, Music4, Sun } from "lucide-react"
-import { useTheme } from "next-themes"
+import { usePathname } from "next/navigation"
+import { BarChart2, ChevronDown, Gamepad2, History, Music4 } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,21 +11,21 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useUserSession } from "@/hooks/use-user-session"
 import { getUserDisplayName } from "@/lib/auth-session"
+import { cn } from "@/lib/utils"
 
 const navLinkClass =
-  "inline-flex shrink-0 items-center justify-center rounded-lg border px-3 py-2 text-xs font-medium transition-colors sm:px-4 sm:text-sm"
+  "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-medium transition-all sm:px-4 sm:text-sm"
 
-/** MENU 드롭다운 — 흰 건반 / 검은 건반 */
-const pianoMenuKeyWhite =
-  "rounded-none bg-white px-4 py-3 font-medium text-zinc-900 focus:bg-zinc-100 focus:text-zinc-900 data-[highlighted]:bg-zinc-100 data-[highlighted]:text-zinc-900"
-const pianoMenuKeyBlack =
-  "rounded-none border-t border-zinc-300 bg-zinc-900 px-4 py-3 font-medium text-white focus:bg-zinc-800 focus:text-white data-[highlighted]:bg-zinc-800 data-[highlighted]:text-white"
+const idleLink = "text-foreground/75 hover:bg-white/5 hover:text-foreground"
+// 지금 보고 있는 메뉴 — 핑크 네온 테두리
+const activeLink =
+  "border border-neon-pink text-white shadow-[0_0_16px_-2px_#ff2e97,inset_0_0_12px_-4px_#ff2e97]"
 
 /**
- * 챌린지 외의 화면들.
+ * 챌린지·리듬 게임 외의 화면들.
  *
  * 챌린지가 이 서비스의 본류인데 드롭다운 안에 다른 메뉴들과 섞여 있어서
- * 처음 온 사람은 열어보기 전까지 존재조차 알 수 없었다. 챌린지를 밖으로
+ * 처음 온 사람은 열어보기 전까지 존재조차 알 수 없었다. 주요 메뉴를 밖으로
  * 꺼내고 나머지를 여기에 모은다.
  */
 const SECONDARY_LINKS = [
@@ -35,80 +35,60 @@ const SECONDARY_LINKS = [
   { href: "/titanic", label: "LESSON" },
 ]
 
-function ThemeToggle() {
-  const { theme, setTheme } = useTheme()
-  return (
-    <button
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className={`${navLinkClass} border-border bg-background text-foreground hover:bg-accent`}
-      aria-label="테마 전환"
-    >
-      <Sun className="size-3.5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-      <Moon className="absolute size-3.5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-    </button>
-  )
-}
-
 export function SiteHeader() {
   const user = useUserSession()
+  const pathname = usePathname() ?? "/"
+  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`)
+  const inChallenge = isActive("/music-challenge") && !isActive("/music-challenge/me")
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-night-600/60 bg-night-950/80 backdrop-blur-md">
       <nav className="mx-auto flex w-full max-w-6xl min-w-0 flex-col gap-3 px-3 py-3 sm:px-6 md:flex-row md:items-center md:justify-between md:gap-4 md:py-2.5">
-        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+        <div className="flex min-w-0 items-center gap-3">
           <Link
             href="/"
-            className={`${navLinkClass} border-border bg-background text-foreground hover:bg-accent`}
+            className="neon-text animate-neon-flicker font-orbitron text-xl font-extrabold tracking-[0.25em] text-white"
           >
             IUEM
           </Link>
-          <span className="hidden min-w-0 truncate text-xs font-semibold tracking-[0.14em] text-muted-foreground sm:inline sm:text-sm">
+          <span className="hidden min-w-0 truncate text-xs tracking-[0.14em] text-muted-foreground sm:inline sm:text-sm">
             오늘, 새로운 나와 이음
           </span>
         </div>
 
         <div className="flex min-w-0 flex-col gap-2 md:items-end">
-          <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <ThemeToggle />
-            <Link
-              href="/music-challenge"
-              className={`${navLinkClass} gap-1.5 border-zinc-900 bg-zinc-900 text-white hover:bg-zinc-800 dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200`}
-            >
+          <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+            <Link href="/music-challenge" className={cn(navLinkClass, inChallenge ? activeLink : idleLink)}>
               <Music4 className="size-3.5" aria-hidden />
               챌린지
             </Link>
-            <Link
-              href="/rhythm"
-              className={`${navLinkClass} gap-1.5 border-sky-500 bg-sky-500 text-white hover:bg-sky-600`}
-            >
+            <Link href="/rhythm" className={cn(navLinkClass, isActive("/rhythm") ? activeLink : idleLink)}>
               <Gamepad2 className="size-3.5" aria-hidden />
               리듬 게임
             </Link>
             {user && (
               <Link
                 href="/music-challenge/me"
-                className={`${navLinkClass} gap-1.5 border-border bg-background text-muted-foreground hover:bg-accent hover:text-foreground`}
+                className={cn(navLinkClass, isActive("/music-challenge/me") ? activeLink : idleLink)}
               >
                 <History className="size-3.5" aria-hidden />
                 내 기록
               </Link>
             )}
             <DropdownMenu>
-              <DropdownMenuTrigger
-                className={`${navLinkClass} gap-1 border-border bg-background text-foreground hover:bg-accent data-[state=open]:bg-accent`}
-              >
+              <DropdownMenuTrigger className={cn(navLinkClass, idleLink, "gap-1 data-[state=open]:bg-white/5")}>
                 MENU
                 <ChevronDown className="size-3.5 opacity-80" aria-hidden />
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
-                className="min-w-[9.5rem] overflow-hidden rounded-lg border border-zinc-900 bg-white p-0 shadow-md dark:border-zinc-100 dark:bg-zinc-900"
+                className="min-w-[10rem] overflow-hidden rounded-xl border border-night-600 bg-night-800 p-1 shadow-[0_12px_40px_-12px_#ff2e97]"
               >
-                {SECONDARY_LINKS.map((link, i) => (
+                {SECONDARY_LINKS.map((link) => (
                   <DropdownMenuItem
                     key={link.href}
                     asChild
-                    className={i % 2 === 0 ? pianoMenuKeyWhite : pianoMenuKeyBlack}
+                    className="rounded-lg px-3 py-2.5 font-medium text-foreground focus:bg-night-600 focus:text-white data-[highlighted]:bg-night-600 data-[highlighted]:text-white"
                   >
                     <Link href={link.href} className="flex w-full cursor-pointer">
                       {link.label}
@@ -118,10 +98,7 @@ export function SiteHeader() {
               </DropdownMenuContent>
             </DropdownMenu>
             {user?.role === "admin" && (
-              <Link
-                href="/admin"
-                className={`${navLinkClass} gap-1.5 border-border bg-background text-muted-foreground hover:bg-accent hover:text-foreground`}
-              >
+              <Link href="/admin" className={cn(navLinkClass, isActive("/admin") ? activeLink : idleLink)}>
                 <BarChart2 className="size-3.5" aria-hidden />
                 Admin
               </Link>
@@ -129,18 +106,18 @@ export function SiteHeader() {
             {!user && (
               <Link
                 href="/auth"
-                className={`${navLinkClass} border-zinc-900 bg-zinc-900 text-white hover:bg-zinc-800 dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200`}
+                className={cn(navLinkClass, "glow-button bg-primary font-semibold text-primary-foreground")}
               >
                 로그인
               </Link>
             )}
           </div>
           {user && (
-            <p className="min-w-0 truncate pl-0.5 text-sm font-bold text-foreground sm:text-base md:text-right">
+            <p className="min-w-0 truncate pl-0.5 text-sm text-muted-foreground md:text-right">
               안녕하세요,{" "}
               <Link
                 href="/mypage"
-                className="underline decoration-muted-foreground underline-offset-2 hover:text-muted-foreground"
+                className="font-semibold text-foreground underline decoration-neon-pink/60 underline-offset-4 hover:text-neon-pink"
               >
                 {getUserDisplayName(user)}
               </Link>

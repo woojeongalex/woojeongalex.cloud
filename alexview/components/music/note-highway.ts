@@ -29,21 +29,21 @@ const FUTURE_SEC = 4
 const PLAYHEAD_RATIO = PAST_SEC / (PAST_SEC + FUTURE_SEC)
 
 const COLOR = {
-  stage: "#09090b", // zinc-950
-  laneDark: "rgba(255,255,255,0.035)",
+  stage: "#0d0619", // night-950
+  laneDark: "rgba(180,76,255,0.06)",
   gridLabel: "rgba(255,255,255,0.35)",
   upcoming: "rgba(255,255,255,0.28)",
   active: "rgba(255,255,255,0.9)",
-  hitFill: "#0ea5e9", // sky-500
-  playhead: "rgba(14,165,233,0.9)",
-  trail: "#38bdf8", // sky-400
+  hitFill: "#ff2e97", // neon-pink
+  playhead: "rgba(255,46,151,0.9)",
+  trail: "#2ee6ff", // neon-cyan
 }
 
 const JUDGED: Record<Judgement, string> = {
-  perfect: "rgba(14,165,233,0.85)",
-  great: "rgba(34,197,94,0.75)",
-  good: "rgba(234,179,8,0.65)",
-  miss: "rgba(239,68,68,0.35)",
+  perfect: "rgba(255,46,151,0.85)",
+  great: "rgba(46,230,255,0.75)",
+  good: "rgba(255,210,63,0.65)",
+  miss: "rgba(255,77,109,0.35)",
 }
 
 export function drawHighway(canvas: HTMLCanvasElement, frame: HighwayFrame) {

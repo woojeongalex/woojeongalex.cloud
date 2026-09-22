@@ -12,6 +12,7 @@ import {
   StopCircle,
   Waves,
 } from "lucide-react"
+import { SynthBackdrop } from "@/components/common/synth-backdrop"
 import { VOCAL_DROPZONE_COPY } from "@/components/media-analysis-dropzone"
 import { PageBackButton } from "@/components/page-back-button"
 import { VocalVideoDropzone } from "@/components/vocal-video-dropzone"
@@ -193,32 +194,36 @@ export default function AnalyzePage() {
         <PageBackButton />
 
         {/* HERO */}
-        <section className="rounded-2xl border border-border bg-card px-4 py-8 sm:rounded-[2rem] sm:px-6 sm:py-10 md:px-10">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-3 py-1 text-[11px] font-semibold tracking-wide text-muted-foreground">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-foreground" />
-            ANALYZE SESSION
-          </span>
-          <h1 className="mt-4 text-2xl font-semibold leading-snug tracking-tight text-foreground sm:text-4xl lg:text-5xl">
-            <span className="block">노래 찾기(MR), 마이크·영상 입력,</span>
-            <span className="block">분석 결과를 하나의 화면에서 연결합니다.</span>
-          </h1>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-muted-foreground sm:text-base">
-            노래 제목으로 MR을 찾아 고르고, 마이크로 부르거나 연습 영상·음원을 올려 AI가 음정과
-            박자를 분석한 뒤 코칭 피드백을 받을 수 있습니다.
-          </p>
+        <section className="relative overflow-hidden rounded-2xl border border-border bg-card px-4 py-8 sm:rounded-[2rem] sm:px-6 sm:py-10 md:px-10">
+          <SynthBackdrop sunSize={260} horizon={0.82} className="opacity-60" />
+          <div className="relative animate-in fade-in slide-in-from-bottom-6 duration-700 fill-mode-both">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-neon-cyan/50 bg-neon-cyan/10 px-3 py-1 font-orbitron text-[11px] font-semibold tracking-[0.2em] text-neon-cyan">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-neon-pink" />
+              ANALYZE SESSION
+            </span>
+            <h1 className="mt-4 font-display text-2xl leading-snug text-white sm:text-4xl lg:text-5xl">
+              <span className="block">노래 찾기(MR), 마이크·영상 입력,</span>
+              <span className="block">분석 결과를 하나의 화면에서 연결합니다.</span>
+            </h1>
+            {/* 석양 위에 겹쳐도 읽히도록 그림자를 준다 */}
+            <p className="mt-4 max-w-3xl text-sm leading-7 text-foreground [text-shadow:0_2px_10px_#0d0619] sm:text-base">
+              노래 제목으로 MR을 찾아 고르고, 마이크로 부르거나 연습 영상·음원을 올려 AI가 음정과
+              박자를 분석한 뒤 코칭 피드백을 받을 수 있습니다.
+            </p>
+          </div>
         </section>
 
         <section className="grid min-w-0 gap-6 lg:grid-cols-2 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
           <div className="space-y-6">
             {/* STEP 1 */}
-            <article className="rounded-3xl border border-border bg-secondary p-6">
+            <article className="rounded-3xl border border-border bg-night-900 p-6">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-muted">
-                  <Music4 className="h-5 w-5 text-foreground" aria-hidden="true" />
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-neon-cyan/50 bg-neon-cyan/10">
+                  <Music4 className="h-5 w-5 text-neon-cyan" aria-hidden="true" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">1단계</p>
-                  <h2 className="text-2xl font-semibold text-foreground">노래 찾기</h2>
+                  <p className="font-orbitron text-xs tracking-[0.25em] text-neon-pink">1단계</p>
+                  <h2 className="font-display text-2xl text-white">노래 찾기</h2>
                 </div>
               </div>
 
@@ -231,13 +236,13 @@ export default function AnalyzePage() {
                     type="search"
                     placeholder="예: 봄날, 밤편지, Defying Gravity"
                     autoComplete="off"
-                    className="w-full rounded-2xl border border-border bg-card px-4 py-3 text-sm text-foreground outline-none"
+                    className="w-full rounded-2xl border border-border bg-night-950 px-4 py-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-neon-cyan"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={searchLoading}
-                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-80 disabled:opacity-50"
+                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground glow-button transition-opacity hover:opacity-90 disabled:opacity-50"
                 >
                   <Search className="h-4 w-4" aria-hidden="true" />
                   {searchLoading ? "검색 중…" : "MR 검색"}
@@ -265,8 +270,8 @@ export default function AnalyzePage() {
                         onClick={() => pickSong(song)}
                         className={`rounded-2xl border p-4 text-left transition-colors ${
                           active
-                            ? "border-foreground bg-muted"
-                            : "border-border bg-card hover:border-foreground/40"
+                            ? "border-neon-pink bg-neon-pink/10 shadow-[0_0_20px_rgba(255,46,151,0.35)]"
+                            : "glow-card border-border bg-card"
                         }`}
                       >
                         <p className="text-base font-semibold text-foreground">{song.title}</p>
@@ -275,7 +280,7 @@ export default function AnalyzePage() {
                           <p>BPM {song.bpm}</p>
                           <p>{song.song_key}</p>
                           <p>{song.range_label}</p>
-                          <p className={`pt-2 text-xs font-medium ${active ? "text-foreground" : "text-muted-foreground"}`}>
+                          <p className={`pt-2 text-xs font-medium ${active ? "text-neon-pink" : "text-muted-foreground"}`}>
                             MR · {song.mr_track_name}
                           </p>
                           <p>{song.mr_description}</p>
@@ -288,14 +293,14 @@ export default function AnalyzePage() {
             </article>
 
             {/* STEP 2 */}
-            <article className="rounded-3xl border border-border bg-secondary p-6">
+            <article className="rounded-3xl border border-border bg-night-900 p-6">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-muted">
-                  <Mic className="h-5 w-5 text-foreground" aria-hidden="true" />
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-neon-cyan/50 bg-neon-cyan/10">
+                  <Mic className="h-5 w-5 text-neon-cyan" aria-hidden="true" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">2단계</p>
-                  <h2 className="text-2xl font-semibold text-foreground">마이크 또는 영상·음원</h2>
+                  <p className="font-orbitron text-xs tracking-[0.25em] text-neon-pink">2단계</p>
+                  <h2 className="font-display text-2xl text-white">마이크 또는 영상·음원</h2>
                 </div>
               </div>
 
@@ -311,7 +316,7 @@ export default function AnalyzePage() {
                       recordingState === "recording" ||
                       (inputSource === "video" && recordingState === "done")
                     }
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-80 disabled:opacity-40"
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground glow-button transition-opacity hover:opacity-90 disabled:opacity-40"
                   >
                     <Radio className="h-4 w-4" aria-hidden="true" />
                     녹음 시작
@@ -320,7 +325,7 @@ export default function AnalyzePage() {
                     type="button"
                     onClick={stopRecording}
                     disabled={recordingState !== "recording"}
-                    className="inline-flex items-center justify-center gap-2 rounded-full border border-border px-5 py-3 text-sm font-medium text-muted-foreground transition-colors disabled:opacity-40"
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-neon-cyan/60 px-5 py-3 text-sm font-medium text-neon-cyan transition-colors hover:bg-neon-cyan/10 disabled:opacity-40"
                   >
                     <StopCircle className="h-4 w-4" aria-hidden="true" />
                     녹음 정지
@@ -330,7 +335,7 @@ export default function AnalyzePage() {
 
               <div className="mt-6 rounded-2xl border border-border p-5">
                 <div className="flex items-center gap-2">
-                  <FileVideo className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                  <FileVideo className="h-4 w-4 text-neon-cyan" aria-hidden="true" />
                   <p className="text-sm font-medium text-foreground">영상·음원 드래그 앤 드롭</p>
                 </div>
                 <p className="mt-2 text-sm text-muted-foreground">
@@ -347,14 +352,14 @@ export default function AnalyzePage() {
             </article>
 
             {/* STEP 3 */}
-            <article className="rounded-3xl border border-border bg-secondary p-6">
+            <article className="rounded-3xl border border-border bg-night-900 p-6">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-muted">
-                  <Sparkles className="h-5 w-5 text-foreground" aria-hidden="true" />
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-neon-cyan/50 bg-neon-cyan/10">
+                  <Sparkles className="h-5 w-5 text-neon-cyan" aria-hidden="true" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">3단계</p>
-                  <h2 className="text-2xl font-semibold text-foreground">분석 결과</h2>
+                  <p className="font-orbitron text-xs tracking-[0.25em] text-neon-pink">3단계</p>
+                  <h2 className="font-display text-2xl text-white">분석 결과</h2>
                 </div>
               </div>
 
@@ -370,7 +375,7 @@ export default function AnalyzePage() {
 
               <div className="mt-6 rounded-2xl border border-border bg-card p-5">
                 <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-                  <Waves className="h-4 w-4" aria-hidden="true" />
+                  <Waves className="h-4 w-4 text-neon-cyan" aria-hidden="true" />
                   선택된 곡 기준 분석 준비
                 </div>
                 <p className="mt-3 text-sm leading-6 text-muted-foreground">
@@ -388,14 +393,14 @@ export default function AnalyzePage() {
 
           <aside className="space-y-6">
             {/* 선택된 곡 */}
-            <article className="rounded-3xl border border-border bg-secondary p-6">
-              <p className="text-sm font-medium text-muted-foreground">현재 선택</p>
+            <article className="rounded-3xl border border-border bg-night-900 p-6">
+              <p className="font-orbitron text-xs tracking-[0.25em] text-neon-cyan">현재 선택</p>
               {selectedSong ? (
                 <>
-                  <h2 className="mt-2 text-2xl font-semibold text-foreground">{selectedSong.title}</h2>
+                  <h2 className="mt-2 font-display text-2xl text-white">{selectedSong.title}</h2>
                   <p className="mt-1 text-sm text-muted-foreground">{selectedSong.artist}</p>
                   <div className="mt-6 rounded-2xl border border-border bg-card px-4 py-3">
-                    <p className="text-xs font-mono uppercase tracking-wide text-muted-foreground">MR</p>
+                    <p className="font-orbitron text-xs uppercase tracking-[0.2em] text-neon-cyan">MR</p>
                     <p className="mt-2 text-sm font-semibold text-foreground">{selectedSong.mr_track_name}</p>
                     <p className="mt-1 text-sm leading-6 text-muted-foreground">{selectedSong.mr_description}</p>
                   </div>
@@ -421,9 +426,9 @@ export default function AnalyzePage() {
             </article>
 
             {/* API 연결 배너 */}
-            <article className="rounded-3xl border-2 border-foreground/15 bg-secondary p-6">
+            <article className="rounded-3xl border-2 border-neon-pink/40 bg-night-900 p-6 shadow-[0_0_32px_rgba(255,46,151,0.15)]">
               <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-                <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                <CheckCircle2 className="h-4 w-4 text-neon-green" aria-hidden="true" />
                 백엔드 API 연결 배너
               </div>
               <h2 className="mt-3 text-xl font-semibold text-foreground">
@@ -441,9 +446,9 @@ export default function AnalyzePage() {
             </article>
 
             {/* 추천 배너 */}
-            <article className="rounded-3xl border border-border bg-secondary p-6">
+            <article className="rounded-3xl border border-border bg-night-900 p-6">
               <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-                <Sparkles className="h-4 w-4" aria-hidden="true" />
+                <Sparkles className="h-4 w-4 text-neon-yellow" aria-hidden="true" />
                 추천 배너
               </div>
               <h2 className="mt-3 text-xl font-semibold text-foreground">
@@ -458,7 +463,7 @@ export default function AnalyzePage() {
                   { label: "추천 곡", value: "밤편지, Defying Gravity" },
                 ].map(({ label, value }) => (
                   <div key={label} className="rounded-2xl border border-border bg-card p-4">
-                    <p className="text-xs font-mono uppercase tracking-wide text-muted-foreground">Recommendation</p>
+                    <p className="font-orbitron text-xs uppercase tracking-[0.2em] text-neon-cyan">Recommendation</p>
                     <p className="mt-2 text-sm font-semibold text-foreground">{label}</p>
                     <p className="mt-1 text-sm text-muted-foreground">{value}</p>
                   </div>
@@ -476,7 +481,7 @@ function ResultCard({ title, value, description }: { title: string; value: strin
   return (
     <div className="rounded-2xl border border-border bg-card p-5">
       <p className="text-sm text-muted-foreground">{title}</p>
-      <p className="mt-3 break-words text-3xl font-semibold text-foreground">{value}</p>
+      <p className="mt-3 break-words font-orbitron text-3xl font-semibold text-neon-cyan">{value}</p>
       <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
     </div>
   )
@@ -484,8 +489,8 @@ function ResultCard({ title, value, description }: { title: string; value: strin
 
 function ApiRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-border bg-background p-3">
-      <p className="text-xs font-mono uppercase tracking-wide text-muted-foreground">{label}</p>
+    <div className="rounded-xl border border-border bg-night-950 p-3">
+      <p className="font-orbitron text-xs uppercase tracking-[0.2em] text-neon-cyan">{label}</p>
       <p className="mt-1 break-all font-mono text-xs font-medium text-foreground">{value}</p>
     </div>
   )

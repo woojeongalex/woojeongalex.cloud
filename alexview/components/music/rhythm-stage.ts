@@ -32,9 +32,9 @@ export function stageLayout(cssW: number, cssH: number, keys: number) {
   return { laneW, width, left, lineY }
 }
 
-const WHITE = "#e4e4e7" // zinc-200
-const BLUE = "#38bdf8" // sky-400
-const YELLOW = "#facc15" // yellow-400
+const WHITE = "#f1e6ff" // 밤하늘 위 흰 노트
+const BLUE = "#2ee6ff" // neon-cyan
+const YELLOW = "#ff2e97" // neon-pink — 7키 가운데(Space)
 
 function laneColor(keys: number, lane: number): string {
   if (keys === 4) return lane === 1 || lane === 2 ? BLUE : WHITE
@@ -43,10 +43,10 @@ function laneColor(keys: number, lane: number): string {
 }
 
 const JUDGEMENT_COLOR: Record<RhythmJudgement, string> = {
-  cool: "#7dd3fc", // sky-300
-  good: "#4ade80", // green-400
-  bad: "#fbbf24", // amber-400
-  miss: "#f87171", // red-400
+  cool: "#2ee6ff", // neon-cyan
+  good: "#3ddc97", // neon-green
+  bad: "#ffd23f", // neon-yellow
+  miss: "#ff4d6d",
 }
 
 const LABEL: Record<RhythmJudgement, string> = {
@@ -61,6 +61,17 @@ const MAX_LONG_SEC = 5
 const NOTE_H = 14
 const HIT_FLASH_SEC = 0.22
 const JUDGEMENT_SHOW_SEC = 0.6
+
+let cachedFont: string | null = null
+
+/** next/font 가 붙인 Orbitron 글꼴 이름. 캔버스는 CSS 변수를 못 읽어 한 번 꺼내 둔다. */
+function displayFont(): string {
+  if (cachedFont === null) {
+    const v = getComputedStyle(document.documentElement).getPropertyValue("--font-orbitron-face").trim()
+    cachedFont = v ? `${v}, ui-sans-serif, sans-serif` : "ui-sans-serif, system-ui, sans-serif"
+  }
+  return cachedFont
+}
 
 function lowerBound(arr: number[], x: number): number {
   let lo = 0
@@ -95,9 +106,9 @@ export function drawRhythmStage(canvas: HTMLCanvasElement, frame: RhythmFrame) {
   const { laneW, width, left, lineY } = stageLayout(cssW, cssH, keys)
 
   // 바탕과 레인
-  g.fillStyle = "#09090b"
+  g.fillStyle = "#0d0619"
   g.fillRect(0, 0, cssW, cssH)
-  g.fillStyle = "#000000"
+  g.fillStyle = "#07030f"
   g.fillRect(left, 0, width, cssH)
   for (let lane = 0; lane < keys; lane++) {
     const x = left + lane * laneW
@@ -108,7 +119,7 @@ export function drawRhythmStage(canvas: HTMLCanvasElement, frame: RhythmFrame) {
       g.fillStyle = beam
       g.fillRect(x, lineY - 260, laneW, 260)
     }
-    g.fillStyle = "rgba(255,255,255,0.07)"
+    g.fillStyle = "rgba(180,76,255,0.22)"
     g.fillRect(x, 0, 1, cssH)
   }
   g.fillRect(left + width, 0, 1, cssH)
@@ -136,13 +147,22 @@ export function drawRhythmStage(canvas: HTMLCanvasElement, frame: RhythmFrame) {
       if (state === "held") continue
     }
     if (headY < -NOTE_H || headY > cssH) continue
+    // 노트마다 은은한 네온 빛. 화면에 수십 개뿐이라 그리기 부담은 작다.
+    g.save()
+    g.shadowColor = color
+    g.shadowBlur = 10
     g.fillStyle = color
     roundRect(g, x + 3, headY - NOTE_H / 2, laneW - 6, NOTE_H, 4)
+    g.restore()
   }
 
   // 판정선
-  g.fillStyle = "rgba(56,189,248,0.9)"
+  g.save()
+  g.shadowColor = "#ff2e97"
+  g.shadowBlur = 18
+  g.fillStyle = "#ff2e97"
   g.fillRect(left, lineY - 1.5, width, 3)
+  g.restore()
 
   // 친 순간의 빛
   const hits: LiveHit[] = judge.hits
@@ -167,9 +187,9 @@ export function drawRhythmStage(canvas: HTMLCanvasElement, frame: RhythmFrame) {
   for (let lane = 0; lane < keys; lane++) {
     const x = left + lane * laneW
     const on = frame.pressed[lane]
-    g.fillStyle = on ? laneColor(keys, lane) : "rgba(255,255,255,0.08)"
+    g.fillStyle = on ? laneColor(keys, lane) : "rgba(180,76,255,0.14)"
     roundRect(g, x + 4, lineY + 14, laneW - 8, 56, 8)
-    g.fillStyle = on ? "#09090b" : "rgba(255,255,255,0.6)"
+    g.fillStyle = on ? "#0d0619" : "rgba(241,230,255,0.6)"
     g.fillText(frame.keyLabels[lane] ?? "", x + laneW / 2, lineY + 42)
   }
 
@@ -183,7 +203,9 @@ export function drawRhythmStage(canvas: HTMLCanvasElement, frame: RhythmFrame) {
     g.translate(cx, cy)
     g.scale(pop, pop)
     g.fillStyle = JUDGEMENT_COLOR[last.judgement]
-    g.font = "800 34px ui-sans-serif, system-ui, sans-serif"
+    g.font = `800 34px ${displayFont()}`
+    g.shadowColor = JUDGEMENT_COLOR[last.judgement]
+    g.shadowBlur = 16
     g.fillText(LABEL[last.judgement], 0, 0)
     if (frame.combo >= 2) {
       g.fillStyle = "rgba(255,255,255,0.9)"

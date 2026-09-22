@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { SynthBackdrop } from "@/components/common/synth-backdrop"
 import { LoginForm } from "./login-form"
 import { SignupForm } from "./signup-form"
 
@@ -77,17 +78,23 @@ function SocialButtons() {
   )
 }
 
+// 오른쪽 카드 — 반투명 밤하늘 위에 은은한 핑크 글로우
+const cardClass =
+  "rounded-[2rem] border border-border bg-night-850/90 p-6 shadow-[0_0_60px_-20px_#ff2e97] backdrop-blur sm:p-8"
+
 function EmailSection({ mode, setView }: { mode: EmailMode; setView: (v: View) => void }) {
   return (
-    <div className="rounded-[2rem] border border-zinc-200 bg-white p-6 shadow-sm sm:p-8">
-      <div className="flex rounded-2xl border border-zinc-200 bg-zinc-50 p-1">
+    <div className={cardClass}>
+      <div className="flex rounded-2xl border border-border bg-night-900 p-1">
         {(["login", "signup"] as const).map((tab) => (
           <button
             key={tab}
             type="button"
             onClick={() => setView(tab)}
             className={`flex-1 rounded-xl px-4 py-3 text-sm font-medium transition-colors ${
-              mode === tab ? "bg-zinc-950 text-white" : "text-zinc-600 hover:bg-zinc-100"
+              mode === tab
+                ? "bg-primary text-primary-foreground shadow-[0_0_18px_-4px_#ff2e97]"
+                : "text-muted-foreground hover:bg-accent hover:text-foreground"
             }`}
           >
             {tab === "login" ? "로그인" : "회원가입"}
@@ -98,7 +105,7 @@ function EmailSection({ mode, setView }: { mode: EmailMode; setView: (v: View) =
       <button
         type="button"
         onClick={() => setView("social")}
-        className="mt-4 w-full text-center text-sm text-zinc-400 hover:text-zinc-600"
+        className="mt-4 w-full text-center text-sm text-muted-foreground transition-colors hover:text-neon-cyan"
       >
         ← 소셜 로그인으로 돌아가기
       </button>
@@ -110,62 +117,77 @@ export default function AuthPage() {
   const [view, setView] = useState<View>("social")
 
   return (
-    <main className="min-h-[calc(100vh-4rem)] bg-white px-4 py-10 text-zinc-950">
+    <main className="min-h-[calc(100vh-4rem)] px-4 py-10 text-foreground">
       <div className="mx-auto grid w-full max-w-6xl gap-8 lg:grid-cols-[1fr_0.95fr]">
-        {/* 왼쪽 브랜딩 */}
-        <section className="rounded-[2rem] border border-zinc-200 bg-zinc-950 px-6 py-10 text-white shadow-[0_24px_60px_rgba(0,0,0,0.12)] sm:px-10">
-          <p className="text-sm font-medium tracking-[0.18em] text-zinc-400 uppercase">
-            Account
-          </p>
-          <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
-            로그인하고 나만의
-            <br />
-            분석 기록을 이어가세요.
-          </h1>
-          <p className="mt-5 max-w-2xl text-sm leading-7 text-zinc-300 sm:text-base">
-            소셜 계정 또는 이메일로 빠르게 시작하세요.
-          </p>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border border-zinc-800 bg-white/5 p-5">
-              <p className="text-sm font-medium text-zinc-400">로그인 후 가능</p>
-              <p className="mt-3 text-2xl font-semibold">분석 기록 저장</p>
-            </div>
-            <div className="rounded-2xl border border-zinc-800 bg-white/5 p-5">
-              <p className="text-sm font-medium text-zinc-400">회원가입 후 가능</p>
-              <p className="mt-3 text-2xl font-semibold">맞춤 피드백 축적</p>
+        {/* 왼쪽 브랜딩 — 석양과 격자 바닥 위에 네온 타이틀 */}
+        <section className="relative overflow-hidden rounded-[2rem] border border-border bg-night-950 text-white shadow-[0_0_60px_-24px_#b44cff]">
+          <SynthBackdrop sunSize={260} horizon={0.7} />
+          <div className="relative flex h-full flex-col px-6 py-10 sm:px-10">
+            <p className="font-orbitron text-xs font-semibold tracking-[0.3em] text-neon-cyan uppercase animate-in fade-in slide-in-from-bottom-4 duration-700">
+              Account
+            </p>
+            <h1
+              className="neon-text mt-4 font-display text-4xl leading-[1.15] text-white animate-in fade-in slide-in-from-bottom-6 duration-700 fill-mode-both sm:text-5xl"
+              style={{ animationDelay: "120ms" }}
+            >
+              로그인하고 나만의
+              <br />
+              분석 기록을 이어가세요.
+            </h1>
+            <p
+              className="mt-5 max-w-2xl text-sm leading-7 text-foreground/85 animate-in fade-in slide-in-from-bottom-6 duration-700 fill-mode-both sm:text-base"
+              style={{ animationDelay: "240ms" }}
+            >
+              소셜 계정 또는 이메일로 빠르게 시작하세요.
+            </p>
+            <div
+              className="mt-8 grid gap-4 pb-24 animate-in fade-in slide-in-from-bottom-6 duration-700 fill-mode-both sm:grid-cols-2 lg:pb-40"
+              style={{ animationDelay: "360ms" }}
+            >
+              <div className="rounded-2xl border border-neon-pink/40 bg-night-900/80 p-5 backdrop-blur">
+                <p className="text-sm font-medium text-muted-foreground">로그인 후 가능</p>
+                <p className="mt-3 text-2xl font-semibold text-white">분석 기록 저장</p>
+              </div>
+              <div className="rounded-2xl border border-neon-cyan/40 bg-night-900/80 p-5 backdrop-blur">
+                <p className="text-sm font-medium text-muted-foreground">회원가입 후 가능</p>
+                <p className="mt-3 text-2xl font-semibold text-white">맞춤 피드백 축적</p>
+              </div>
             </div>
           </div>
         </section>
 
         {/* 오른쪽: 소셜 로그인 or 이메일 폼 */}
-        <section>
+        <section
+          className="animate-in fade-in slide-in-from-bottom-6 duration-700 fill-mode-both"
+          style={{ animationDelay: "200ms" }}
+        >
           {view === "social" ? (
-            <div className="rounded-[2rem] border border-zinc-200 bg-white p-6 shadow-sm sm:p-8">
-              <p className="mb-6 text-sm font-medium text-zinc-500">계속하려면 로그인 방법을 선택하세요</p>
+            <div className={cardClass}>
+              <p className="mb-6 text-sm font-medium text-muted-foreground">계속하려면 로그인 방법을 선택하세요</p>
               <SocialButtons />
               <div className="mt-6 flex items-center gap-3">
-                <div className="h-px flex-1 bg-zinc-200" />
-                <span className="text-xs text-zinc-400">또는</span>
-                <div className="h-px flex-1 bg-zinc-200" />
+                <div className="h-px flex-1 bg-border" />
+                <span className="text-xs text-muted-foreground">또는</span>
+                <div className="h-px flex-1 bg-border" />
               </div>
-              <div className="mt-4 flex items-center justify-center gap-4 text-sm text-zinc-500">
+              <div className="mt-4 flex items-center justify-center gap-4 text-sm text-muted-foreground">
                 <button
                   type="button"
                   onClick={() => setView("login")}
-                  className="hover:text-zinc-900"
+                  className="transition-colors hover:text-neon-cyan"
                 >
                   이메일로 로그인
                 </button>
-                <span className="text-zinc-300">|</span>
+                <span className="text-night-500">|</span>
                 <button
                   type="button"
                   onClick={() => setView("signup")}
-                  className="hover:text-zinc-900"
+                  className="transition-colors hover:text-neon-cyan"
                 >
                   이메일로 가입
                 </button>
-                <span className="text-zinc-300">|</span>
-                <Link href="/" className="hover:text-zinc-900">
+                <span className="text-night-500">|</span>
+                <Link href="/" className="transition-colors hover:text-neon-cyan">
                   둘러보기
                 </Link>
               </div>

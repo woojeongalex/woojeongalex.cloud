@@ -35,7 +35,8 @@ export function ScoreTrend({ scores, className = "mt-3 h-14 w-full" }: ScoreTren
       <polyline
         points={points}
         fill="none"
-        stroke="currentColor"
+        stroke="#ff2e97"
+        className="drop-shadow-[0_0_4px_#ff2e97]"
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"

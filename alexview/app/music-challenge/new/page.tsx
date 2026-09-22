@@ -130,7 +130,7 @@ export default function NewChallengePage() {
                     onClick={() => setChallengeType(type)}
                     className={`rounded-full border px-4 py-2 text-sm transition-colors ${
                       challengeType === type
-                        ? "border-foreground bg-foreground text-background"
+                        ? "border-neon-pink bg-neon-pink/15 text-white shadow-[0_0_16px_-4px_#ff2e97]"
                         : "border-border bg-background text-muted-foreground hover:bg-accent"
                     }`}
                   >
@@ -150,7 +150,7 @@ export default function NewChallengePage() {
                 type="file"
                 required
                 accept="audio/*"
-                className="mt-3 block w-full cursor-pointer rounded-xl border border-border bg-background px-4 py-3 text-sm text-muted-foreground file:mr-4 file:rounded-full file:border-0 file:bg-foreground file:px-4 file:py-2 file:text-sm file:font-medium file:text-background"
+                className="mt-3 block w-full cursor-pointer rounded-xl border border-border bg-background px-4 py-3 text-sm text-muted-foreground file:mr-4 file:rounded-full file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-medium file:text-primary-foreground"
               />
             </div>
 

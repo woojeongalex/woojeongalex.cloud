@@ -47,41 +47,41 @@ export function ResultPanel({ challengeId, final, recording, startOffset, onRetr
   const shownScore = karaoke?.score ?? final.score
 
   return (
-    <section className="mt-6 rounded-3xl border border-border bg-card p-6">
+    <section className="mt-6 rounded-3xl border border-border bg-card p-6 shadow-[0_0_40px_-18px_#ff2e97] animate-in fade-in slide-in-from-bottom-6 duration-700">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-sm font-medium text-muted-foreground">
+          <p className="font-orbitron text-xs font-bold tracking-[0.2em] text-neon-cyan">
             {karaoke ? "최종 점수 (서버 채점)" : "이번 점수"}
           </p>
-          <p className="mt-1 font-mono text-6xl font-semibold tabular-nums">{shownScore}</p>
+          <p className="neon-text mt-1 font-orbitron text-6xl font-black tabular-nums text-white">{shownScore}</p>
         </div>
         <dl className="grid grid-cols-3 gap-4 text-sm">
           <div>
             <dt className="text-muted-foreground">음정</dt>
-            <dd className="font-mono text-xl font-semibold">
+            <dd className="font-orbitron text-xl font-bold text-neon-cyan">
               {karaoke?.pitch_accuracy ?? final.pitchAccuracy}%
             </dd>
           </div>
           <div>
             <dt className="text-muted-foreground">박자</dt>
-            <dd className="font-mono text-xl font-semibold">
+            <dd className="font-orbitron text-xl font-bold text-neon-cyan">
               {karaoke?.timing_accuracy ?? final.timingAccuracy}%
             </dd>
           </div>
           <div>
             <dt className="text-muted-foreground">최대 콤보</dt>
-            <dd className="font-mono text-xl font-semibold">{final.maxCombo}</dd>
+            <dd className="font-orbitron text-xl font-bold text-neon-cyan">{final.maxCombo}</dd>
           </div>
         </dl>
       </div>
 
-      <ul className="mt-5 flex flex-wrap gap-2 font-mono text-xs">
+      <ul className="mt-5 flex flex-wrap gap-2 font-orbitron text-xs">
         {JUDGEMENTS.map((j) => (
-          <li key={j} className="rounded-full border border-border px-3 py-1">
+          <li key={j} className="rounded-full border border-border bg-night-950 px-3 py-1">
             {JUDGEMENT_LABEL[j]} {final.counts[j]}
           </li>
         ))}
-        <li className="rounded-full border border-border px-3 py-1 text-muted-foreground">
+        <li className="rounded-full border border-border bg-night-950 px-3 py-1 text-muted-foreground">
           음표 {final.noteCount}개
         </li>
       </ul>
@@ -92,7 +92,7 @@ export function ResultPanel({ challengeId, final, recording, startOffset, onRetr
             type="button"
             onClick={() => void submit()}
             disabled={loading || !recording}
-            className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-80 disabled:opacity-50"
+            className="inline-flex items-center gap-2 glow-button rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground disabled:opacity-50"
           >
             {loading ? (
               <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
@@ -105,7 +105,7 @@ export function ResultPanel({ challengeId, final, recording, startOffset, onRetr
             type="button"
             onClick={onRetry}
             disabled={loading}
-            className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-3 text-sm font-medium transition-colors hover:bg-accent"
+            className="inline-flex items-center gap-2 rounded-full border border-neon-cyan/60 px-5 py-3 text-sm font-medium text-neon-cyan transition-colors hover:bg-neon-cyan/10"
           >
             <RotateCcw className="h-4 w-4" aria-hidden="true" />
             다시 도전
@@ -126,29 +126,29 @@ export function ResultPanel({ challengeId, final, recording, startOffset, onRetr
       {evaluation && (
         <div className="mt-6 space-y-5">
           {karaoke && karaoke.rank !== null && (
-            <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-muted/40 px-5 py-4">
-              <Trophy className="h-5 w-5 text-sky-500" aria-hidden="true" />
+            <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-neon-yellow/40 bg-neon-yellow/5 px-5 py-4">
+              <Trophy className="h-5 w-5 text-neon-yellow" aria-hidden="true" />
               <p className="text-sm">
-                이 곡 랭킹 <strong className="font-mono text-lg">{karaoke.rank}위</strong>
+                이 곡 랭킹 <strong className="font-orbitron text-lg text-neon-yellow">{karaoke.rank}위</strong>
                 {karaoke.is_personal_best ? " · 개인 최고 기록!" : ` · 내 최고 ${karaoke.best_score}점`}
               </p>
               <Link
                 href={`/music-challenge/${challengeId}#ranking`}
-                className="ml-auto text-sm font-medium underline underline-offset-4"
+                className="ml-auto text-sm font-medium text-neon-cyan underline underline-offset-4"
               >
                 랭킹 보기
               </Link>
             </div>
           )}
           <div>
-            <p className="text-sm font-medium text-muted-foreground">AI 코칭</p>
-            <p className="mt-2 whitespace-pre-line text-sm leading-7">{evaluation.feedback}</p>
+            <p className="font-orbitron text-xs font-bold tracking-[0.25em] text-neon-cyan">AI 코칭</p>
+            <p className="mt-2 whitespace-pre-line text-sm leading-7 text-foreground/90">{evaluation.feedback}</p>
           </div>
           <div className="flex flex-wrap gap-3">
             <button
               type="button"
               onClick={onRetry}
-              className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-3 text-sm font-medium transition-colors hover:bg-accent"
+              className="inline-flex items-center gap-2 rounded-full border border-neon-cyan/60 px-5 py-3 text-sm font-medium text-neon-cyan transition-colors hover:bg-neon-cyan/10"
             >
               <RotateCcw className="h-4 w-4" aria-hidden="true" />
               다시 도전
@@ -156,7 +156,7 @@ export function ResultPanel({ challengeId, final, recording, startOffset, onRetr
             {evaluation.next_challenge_id && (
               <Link
                 href={`/music-challenge/${evaluation.next_challenge_id}`}
-                className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-80"
+                className="inline-flex items-center gap-2 glow-button rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground"
               >
                 다음 추천곡 도전
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />

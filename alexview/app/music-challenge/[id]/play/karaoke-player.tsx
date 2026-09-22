@@ -313,16 +313,16 @@ export function KaraokePlayer({ challengeId }: KaraokePlayerProps) {
     <Shell challengeId={challengeId}>
       <div className="mt-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-sm font-medium text-muted-foreground">
+          <p className="font-orbitron text-xs font-bold tracking-[0.2em] text-neon-cyan">
             {isInstrument ? "연주 모드" : "노래방 모드"} · {partLabel}
           </p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight">{challenge.title}</h1>
+          <h1 className="mt-2 font-display text-3xl text-white sm:text-4xl">{challenge.title}</h1>
         </div>
         {phase === "playing" && (
           <button
             type="button"
             onClick={() => void finish()}
-            className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent"
+            className="inline-flex items-center gap-2 rounded-full border border-neon-cyan/60 px-4 py-2 text-sm font-medium text-neon-cyan transition-colors hover:bg-neon-cyan/10"
           >
             <Square className="h-4 w-4" aria-hidden="true" />
             그만하고 채점
@@ -333,21 +333,21 @@ export function KaraokePlayer({ challengeId }: KaraokePlayerProps) {
       {/* 반주 — 없으면 원곡을 튼다 */}
       <audio ref={audioRef} src={chart.backing_url ?? challenge.music_url} preload="auto" />
 
-      <div className="relative mt-5 overflow-hidden rounded-3xl bg-zinc-950 text-white">
-        <div className="flex items-center justify-between px-5 pt-4 font-mono text-sm">
-          <span className="text-white/60">SCORE</span>
-          <span className="text-3xl font-semibold tabular-nums">{live?.score ?? 0}</span>
+      <div className="relative mt-5 overflow-hidden rounded-3xl border border-border bg-night-950 text-white shadow-[0_0_40px_-18px_#ff2e97]">
+        <div className="flex items-center justify-between px-5 pt-4 font-orbitron text-sm">
+          <span className="tracking-[0.25em] text-neon-cyan">SCORE</span>
+          <span className="neon-text text-3xl font-bold tabular-nums text-white">{live?.score ?? 0}</span>
         </div>
-        <div className="flex items-center justify-between px-5 pb-2 font-mono text-xs text-white/50">
+        <div className="flex items-center justify-between px-5 pb-2 font-orbitron text-xs text-muted-foreground">
           <span>COMBO {live?.combo ?? 0}</span>
           <span
             key={live?.last?.index ?? -1}
             className={cn(
               "text-base font-semibold transition-opacity",
-              live?.last?.judgement === "perfect" && "text-sky-400",
-              live?.last?.judgement === "great" && "text-green-400",
-              live?.last?.judgement === "good" && "text-yellow-400",
-              live?.last?.judgement === "miss" && "text-red-400"
+              live?.last?.judgement === "perfect" && "text-neon-pink",
+              live?.last?.judgement === "great" && "text-neon-green",
+              live?.last?.judgement === "good" && "text-neon-yellow",
+              live?.last?.judgement === "miss" && "text-neon-orange"
             )}
           >
             {phase === "playing" && live?.last ? JUDGEMENT_LABEL[live.last.judgement] : " "}
@@ -357,22 +357,22 @@ export function KaraokePlayer({ challengeId }: KaraokePlayerProps) {
         <canvas ref={canvasRef} className="block h-64 w-full sm:h-80" aria-label="음표 흐름" />
 
         {hasLyrics && (
-          <div className="border-t border-white/10 py-4">
+          <div className="border-t border-border py-4">
             <LyricsDisplay lines={chart.lyric_lines} time={uiTime} />
           </div>
         )}
 
         {phase === "countdown" && (
-          <div className="absolute inset-0 flex items-center justify-center bg-zinc-950/70">
-            <span className="font-mono text-7xl font-semibold" role="status">
+          <div className="absolute inset-0 flex items-center justify-center bg-night-950/70">
+            <span className="neon-text font-orbitron text-7xl font-black text-white" role="status">
               {countdown}
             </span>
           </div>
         )}
 
         {phase === "setup" && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-zinc-950/85 px-6 text-center">
-            <Headphones className="h-8 w-8 text-sky-400" aria-hidden="true" />
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-night-950/85 px-6 text-center">
+            <Headphones className="h-8 w-8 text-neon-pink" aria-hidden="true" />
             <p className="max-w-md text-sm leading-6 text-white/80">
               <strong className="text-white">이어폰을 끼고 시작하세요.</strong> 스피커로 틀면
               마이크가 {chart.backing_url ? "반주" : "원곡 목소리"}를 같이 들어서 판정이
@@ -393,7 +393,7 @@ export function KaraokePlayer({ challengeId }: KaraokePlayerProps) {
               type="button"
               onClick={() => void start()}
               disabled={micState === "requesting"}
-              className="inline-flex items-center gap-2 rounded-full bg-sky-500 px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+              className="glow-button inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground disabled:opacity-50"
             >
               {micState === "requesting" ? (
                 <Mic className="h-4 w-4 animate-pulse" aria-hidden="true" />
@@ -419,9 +419,9 @@ export function KaraokePlayer({ challengeId }: KaraokePlayerProps) {
             step={10}
             value={offsetMs}
             onChange={(e) => changeOffset(Number(e.target.value))}
-            className="w-48"
+            className="w-48 accent-neon-pink"
           />
-          <span className="w-16 font-mono tabular-nums">
+          <span className="w-16 font-orbitron tabular-nums text-neon-cyan">
             {offsetMs > 0 ? "+" : ""}
             {offsetMs}ms
           </span>

@@ -69,8 +69,8 @@ export function RhythmPanel({ challengeId }: RhythmPanelProps) {
   return (
     <section className="rounded-3xl border border-border bg-card p-6">
       <div className="flex items-center gap-2">
-        <Gamepad2 className="h-5 w-5 text-sky-500" aria-hidden="true" />
-        <h2 className="text-xl font-semibold">리듬 게임 채보</h2>
+        <Gamepad2 className="h-5 w-5 text-neon-pink" aria-hidden="true" />
+        <h2 className="font-display text-xl text-white">리듬 게임 채보</h2>
       </div>
       <p className="mt-2 text-sm leading-6 text-muted-foreground">
         원곡에서 박자와 소리가 시작되는 순간을 찾아 4키·7키 × 쉬움·보통·어려움 채보를
@@ -89,7 +89,7 @@ export function RhythmPanel({ challengeId }: RhythmPanelProps) {
               ))}
             </tr>
           </thead>
-          <tbody className="font-mono">
+          <tbody className="font-orbitron">
             {RHYTHM_KEYS.map((k) => (
               <tr key={k} className="border-t border-border">
                 <td className="py-1.5">{k}키</td>
@@ -123,7 +123,7 @@ export function RhythmPanel({ challengeId }: RhythmPanelProps) {
         type="button"
         onClick={() => void build()}
         disabled={requesting || processing || !chart}
-        className="mt-5 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-80 disabled:opacity-50"
+        className="mt-5 inline-flex items-center gap-2 glow-button rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground disabled:opacity-50"
       >
         {(requesting || processing) && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
         {processing ? "채보를 만드는 중…" : hasSheets ? "채보 다시 만들기" : "채보 만들기"}

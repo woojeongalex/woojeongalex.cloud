@@ -66,10 +66,22 @@ export default function MyHistoryPage() {
           챌린지 목록
         </Link>
 
-        <h1 className="mt-6 text-3xl font-semibold tracking-tight sm:text-4xl">
+        <p
+          aria-hidden="true"
+          className="mt-6 font-orbitron text-xs font-bold tracking-[0.25em] text-neon-cyan animate-in fade-in slide-in-from-bottom-4 duration-700"
+        >
+          MY HISTORY
+        </p>
+        <h1
+          className="neon-text mt-2 font-display text-4xl text-white animate-in fade-in slide-in-from-bottom-6 duration-700 fill-mode-both sm:text-5xl"
+          style={{ animationDelay: "120ms" }}
+        >
           내 도전 기록
         </h1>
-        <p className="mt-4 text-base leading-8 text-muted-foreground">
+        <p
+          className="mt-4 text-base leading-8 text-foreground/85 animate-in fade-in slide-in-from-bottom-6 duration-700 fill-mode-both"
+          style={{ animationDelay: "240ms" }}
+        >
           제출할 때마다 점수가 쌓입니다. 같은 곡을 다시 불러 얼마나 나아졌는지
           확인해 보세요.
         </p>
@@ -94,11 +106,11 @@ export default function MyHistoryPage() {
         )}
 
         {mounted && user && !loading && !error && items.length === 0 && (
-          <div className="mt-8 rounded-3xl border border-border bg-muted/40 px-5 py-8 text-center">
+          <div className="mt-8 rounded-3xl border border-dashed border-neon-pink/40 bg-card px-5 py-8 text-center">
             <p className="text-sm text-muted-foreground">아직 도전 기록이 없습니다.</p>
             <Link
               href="/music-challenge"
-              className="mt-5 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-80"
+              className="mt-5 inline-flex items-center gap-2 glow-button rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground"
             >
               첫 챌린지 시작하기
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -117,9 +129,9 @@ export default function MyHistoryPage() {
             {trend.length >= 2 && (
               <section className="mt-6 rounded-3xl border border-border bg-card p-6">
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4" aria-hidden="true" />
-                  <h2 className="text-sm font-medium">점수 추이</h2>
-                  <span className="ml-auto font-mono text-xs text-muted-foreground">
+                  <TrendingUp className="h-4 w-4 text-neon-pink" aria-hidden="true" />
+                  <h2 className="font-display text-base text-white">점수 추이</h2>
+                  <span className="ml-auto font-orbitron text-xs text-muted-foreground">
                     오래된 순 → 최근
                   </span>
                 </div>
@@ -132,10 +144,10 @@ export default function MyHistoryPage() {
                 <Link
                   key={item.submission_id}
                   href={`/music-challenge/${item.challenge_id}`}
-                  className="flex items-center gap-4 rounded-2xl border border-border bg-card p-4 transition-colors hover:border-foreground/40 hover:bg-muted/40"
+                  className="glow-card flex items-center gap-4 rounded-2xl border border-border bg-card p-4"
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{item.challenge_title}</p>
+                    <p className="truncate text-sm font-medium text-white">{item.challenge_title}</p>
                     <p className="mt-1 text-xs text-muted-foreground">
                       {CHALLENGE_TYPE_LABEL[item.challenge_type] ?? item.challenge_type}
                       {" · "}
@@ -150,7 +162,7 @@ export default function MyHistoryPage() {
                       )}
                     </p>
                   </div>
-                  <span className="shrink-0 font-mono text-xl font-semibold">
+                  <span className="shrink-0 font-orbitron text-xl font-bold text-neon-cyan">
                     {item.score ?? "—"}
                   </span>
                 </Link>

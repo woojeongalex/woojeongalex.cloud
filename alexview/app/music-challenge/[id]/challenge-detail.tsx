@@ -187,34 +187,34 @@ export function ChallengeDetail({ challengeId }: ChallengeDetailProps) {
             {/* 챌린지 정보 */}
             <header className="mt-6">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <span className="rounded-full border border-border bg-muted px-3 py-1 text-xs text-muted-foreground">
+                <span className="rounded-full border border-neon-cyan/50 bg-neon-cyan/10 px-3 py-1 font-orbitron text-xs font-bold tracking-[0.15em] text-neon-cyan">
                   {CHALLENGE_TYPE_LABEL[challenge.challenge_type] ??
                     challenge.challenge_type}
                 </span>
                 {user?.role === "admin" && (
                   <Link
                     href={`/music-challenge/${challengeId}/studio`}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-neon-cyan/60 px-4 py-2 text-sm font-medium text-neon-cyan transition-colors hover:bg-neon-cyan/10"
                   >
                     <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
                     악보 스튜디오
                   </Link>
                 )}
               </div>
-              <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
+              <h1 className="neon-text mt-4 font-display text-4xl leading-tight text-white sm:text-5xl">
                 {challenge.title}
               </h1>
-              <p className="mt-4 text-base leading-8 text-muted-foreground">
+              <p className="mt-4 text-base leading-8 text-foreground/85">
                 {challenge.description}
               </p>
             </header>
 
             {/* AI 음악 재생 */}
             <section className="mt-8 rounded-3xl border border-border bg-card p-6">
-              <h2 className="text-sm font-medium text-muted-foreground">AI 생성 음악</h2>
+              <h2 className="font-orbitron text-xs font-bold tracking-[0.25em] text-neon-cyan">AI 생성 음악</h2>
               {challenge.music_url ? (
                 <audio
-                  className="mt-4 w-full"
+                  className="mt-4 w-full [color-scheme:dark]"
                   controls
                   preload="none"
                   src={challenge.music_url}
@@ -229,15 +229,15 @@ export function ChallengeDetail({ challengeId }: ChallengeDetailProps) {
             </section>
 
             {chart?.status === "ready" && chart.notes.length > 0 && (
-              <section className="mt-6 overflow-hidden rounded-3xl bg-zinc-950 p-6 text-white">
-                <p className="text-sm font-medium text-sky-400">
+              <section className="relative mt-6 overflow-hidden rounded-3xl border border-neon-pink/40 bg-night-900 p-6 text-white shadow-[0_0_40px_-16px_#ff2e97]">
+                <p className="font-orbitron text-xs font-bold tracking-[0.25em] text-neon-pink">
                   {chart.melody_source === "instrument" ? "연주 모드" : "노래방 모드"}
                 </p>
-                <h2 className="mt-1 text-2xl font-semibold">
+                <h2 className="mt-2 font-display text-2xl text-white">
                   음표를 따라 {chart.melody_source === "instrument" ? "연주" : "노래"}하고
                   실시간으로 채점받기
                 </h2>
-                <p className="mt-2 text-sm leading-6 text-white/60">
+                <p className="mt-2 text-sm leading-6 text-foreground/80">
                   반주에 맞춰 흘러오는 음표에 {chart.melody_source === "instrument" ? "음을 맞추면" : "목소리를 맞추면"}
                   음정·박자가 바로 판정되고, 끝나면 랭킹에 올라갑니다.
                   {chart.melody_source === "instrument" && chart.instrument
@@ -246,7 +246,7 @@ export function ChallengeDetail({ challengeId }: ChallengeDetailProps) {
                 </p>
                 <Link
                   href={`/music-challenge/${challengeId}/play`}
-                  className="mt-5 inline-flex items-center gap-2 rounded-full bg-sky-500 px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                  className="mt-5 inline-flex items-center gap-2 glow-button rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground"
                 >
                   <Mic className="h-4 w-4" aria-hidden="true" />
                   {chart.melody_source === "instrument" ? "연주 모드로 도전" : "노래방 모드로 도전"}
@@ -260,7 +260,7 @@ export function ChallengeDetail({ challengeId }: ChallengeDetailProps) {
 
             {/* 제출 폼 */}
             <section className="mt-6 rounded-3xl border border-border bg-card p-6">
-              <h2 className="text-xl font-semibold">내 챌린지 제출</h2>
+              <h2 className="font-display text-xl text-white">내 챌린지 제출</h2>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
                 바로 불러서 녹음하거나, 준비한 파일을 올리면 AI가 채점합니다.
               </p>
@@ -278,7 +278,7 @@ export function ChallengeDetail({ challengeId }: ChallengeDetailProps) {
                     }}
                     className={`rounded-full border px-4 py-2 text-sm transition-colors ${
                       submitMode === mode
-                        ? "border-foreground bg-foreground text-background"
+                        ? "border-neon-pink bg-neon-pink/15 text-neon-pink shadow-[0_0_14px_-4px_#ff2e97]"
                         : "border-border bg-background text-muted-foreground hover:bg-accent"
                     }`}
                   >
@@ -298,17 +298,17 @@ export function ChallengeDetail({ challengeId }: ChallengeDetailProps) {
                     <button
                       type="button"
                       onClick={handleStopRecording}
-                      className="inline-flex items-center gap-2 rounded-full border border-foreground bg-foreground px-6 py-3.5 text-sm font-semibold text-background"
+                      className="inline-flex items-center gap-2 rounded-full border border-neon-pink bg-neon-pink/15 px-6 py-3.5 text-sm font-semibold text-neon-pink shadow-[0_0_18px_-4px_#ff2e97]"
                     >
                       <Square className="h-4 w-4" aria-hidden="true" />
                       녹음 중지
-                      <span className="ml-1 h-2 w-2 animate-pulse rounded-full bg-background/70" />
+                      <span className="ml-1 h-2 w-2 animate-pulse rounded-full bg-neon-pink" />
                     </button>
                   ) : (
                     <button
                       type="button"
                       onClick={handleStartRecording}
-                      className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-6 py-3.5 text-sm font-medium transition-colors hover:bg-accent"
+                      className="inline-flex items-center gap-2 rounded-full border border-neon-cyan/60 px-6 py-3.5 text-sm font-medium text-neon-cyan transition-colors hover:bg-neon-cyan/10"
                     >
                       <Mic className="h-4 w-4" aria-hidden="true" />
                       {mic.recording === "done" ? "다시 녹음하기" : "녹음 시작"}
@@ -322,12 +322,12 @@ export function ChallengeDetail({ challengeId }: ChallengeDetailProps) {
                   )}
 
                   {recordedWav && (
-                    <div className="rounded-2xl border border-border bg-background/60 p-4">
+                    <div className="rounded-2xl border border-border bg-night-950 p-4">
                       <p className="text-sm font-medium">
                         녹음 완료 · {mic.durationSec}초
                       </p>
                       <audio
-                        className="mt-3 w-full"
+                        className="mt-3 w-full [color-scheme:dark]"
                         controls
                         src={recordedUrl ?? undefined}
                       />
@@ -338,7 +338,7 @@ export function ChallengeDetail({ challengeId }: ChallengeDetailProps) {
                     type="button"
                     onClick={handleSubmitRecording}
                     disabled={submitting || !recordedWav}
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="inline-flex items-center justify-center gap-2 glow-button rounded-full bg-primary px-6 py-3.5 text-sm font-bold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <Upload className="h-4 w-4" aria-hidden="true" />
                     {submitting ? "AI가 채점하는 중…" : "제출하고 채점받기"}
@@ -363,7 +363,7 @@ export function ChallengeDetail({ challengeId }: ChallengeDetailProps) {
                           onClick={() => setMediaType(type)}
                           className={`rounded-full border px-4 py-2 text-sm transition-colors ${
                             mediaType === type
-                              ? "border-foreground bg-foreground text-background"
+                              ? "border-neon-pink bg-neon-pink/15 text-neon-pink shadow-[0_0_14px_-4px_#ff2e97]"
                               : "border-border bg-background text-muted-foreground hover:bg-accent"
                           }`}
                         >
@@ -383,14 +383,14 @@ export function ChallengeDetail({ challengeId }: ChallengeDetailProps) {
                       type="file"
                       required
                       accept={ACCEPT[mediaType]}
-                      className="mt-3 block w-full cursor-pointer rounded-xl border border-border bg-background px-4 py-3 text-sm text-muted-foreground file:mr-4 file:rounded-full file:border-0 file:bg-foreground file:px-4 file:py-2 file:text-sm file:font-medium file:text-background"
+                      className="mt-3 block w-full cursor-pointer rounded-xl border border-border bg-background px-4 py-3 text-sm text-muted-foreground file:mr-4 file:rounded-full file:border-0 file:bg-neon-cyan/15 file:px-4 file:py-2 file:text-sm file:font-medium file:text-neon-cyan"
                     />
                   </div>
 
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="inline-flex items-center justify-center gap-2 glow-button rounded-full bg-primary px-6 py-3.5 text-sm font-bold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <Upload className="h-4 w-4" aria-hidden="true" />
                     {submitting ? "AI가 채점하는 중…" : "제출하고 채점받기"}
@@ -408,16 +408,16 @@ export function ChallengeDetail({ challengeId }: ChallengeDetailProps) {
             {/* 평가 결과 */}
             {evaluation && (
               <section
-                className="mt-6 rounded-3xl border-2 border-foreground/15 bg-secondary p-6"
+                className="mt-6 rounded-3xl border border-neon-pink/40 bg-card p-6 shadow-[0_0_40px_-18px_#ff2e97] animate-in fade-in slide-in-from-bottom-6 duration-700"
                 role="status"
               >
                 <div className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5" aria-hidden="true" />
-                  <h2 className="text-xl font-semibold">AI 채점 결과</h2>
+                  <Sparkles className="h-5 w-5 text-neon-yellow" aria-hidden="true" />
+                  <h2 className="font-display text-xl text-white">AI 채점 결과</h2>
                 </div>
 
                 <div className="mt-6 flex items-baseline gap-2">
-                  <span className="font-mono text-5xl font-semibold">
+                  <span className="neon-text font-orbitron text-5xl font-black text-white">
                     {evaluation.score}
                   </span>
                   <span className="text-sm text-muted-foreground">/ 100</span>
@@ -427,7 +427,7 @@ export function ChallengeDetail({ challengeId }: ChallengeDetailProps) {
                   role="presentation"
                 >
                   <div
-                    className="h-full rounded-full bg-foreground transition-all"
+                    className="h-full rounded-full bg-gradient-to-r from-neon-pink to-neon-cyan transition-all"
                     style={{
                       width: `${Math.min(100, Math.max(0, evaluation.score))}%`,
                     }}
@@ -449,19 +449,19 @@ export function ChallengeDetail({ challengeId }: ChallengeDetailProps) {
                 )}
 
                 {evaluation.tempo !== null && evaluation.tempo > 0 && (
-                  <p className="mt-4 font-mono text-xs text-muted-foreground">
+                  <p className="mt-4 font-orbitron text-xs text-neon-cyan">
                     측정 템포 {evaluation.tempo.toFixed(1)} BPM
                   </p>
                 )}
 
-                <p className="mt-6 whitespace-pre-line text-sm leading-7 text-muted-foreground">
+                <p className="mt-6 whitespace-pre-line text-sm leading-7 text-foreground/85">
                   {evaluation.feedback}
                 </p>
 
                 {evaluation.next_challenge_id !== null && (
                   <Link
                     href={`/music-challenge/${evaluation.next_challenge_id}`}
-                    className="mt-6 inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-3 text-sm font-medium transition-colors hover:bg-accent"
+                    className="mt-6 inline-flex items-center gap-2 rounded-full border border-neon-cyan/60 px-5 py-3 text-sm font-medium text-neon-cyan transition-colors hover:bg-neon-cyan/10"
                   >
                     추천받은 다음 챌린지
                     <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -489,14 +489,14 @@ function MetricBar({ label, value }: MetricBarProps) {
   if (value === null) return null
   const clamped = Math.min(100, Math.max(0, value))
   return (
-    <div className="rounded-2xl border border-border bg-background/60 p-4">
+    <div className="rounded-2xl border border-border bg-night-950 p-4">
       <div className="flex items-baseline justify-between">
         <span className="text-sm text-muted-foreground">{label}</span>
-        <span className="font-mono text-lg font-semibold">{clamped}</span>
+        <span className="font-orbitron text-lg font-bold text-neon-cyan">{clamped}</span>
       </div>
       <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted">
         <div
-          className="h-full rounded-full bg-foreground transition-all"
+          className="h-full rounded-full bg-gradient-to-r from-neon-pink to-neon-cyan transition-all"
           style={{ width: `${clamped}%` }}
         />
       </div>

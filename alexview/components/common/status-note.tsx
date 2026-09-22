@@ -36,7 +36,7 @@ export function LoadingBlock({ label, className }: LoadingBlockProps) {
   return (
     <div
       role="status"
-      className={cn("animate-pulse rounded-3xl border border-border bg-muted/40", className)}
+      className={cn("shimmer animate-shimmer rounded-3xl border border-border bg-muted/40", className)}
     >
       <span className="sr-only">{label}</span>
     </div>

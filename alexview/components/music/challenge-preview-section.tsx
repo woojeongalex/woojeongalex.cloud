@@ -52,7 +52,7 @@ export function ChallengePreviewSection() {
           action={
             <Link
               href="/music-challenge"
-              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent"
+              className="inline-flex items-center gap-1.5 rounded-full border border-neon-cyan/60 px-4 py-2 text-sm font-medium text-neon-cyan transition-colors hover:bg-neon-cyan/10"
             >
               {total > 0 ? `전체 ${total}곡 보기` : "챌린지 전체 보기"}
               <ArrowRight className="h-4 w-4" aria-hidden="true" />

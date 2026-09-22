@@ -47,7 +47,7 @@ export function MelodyPreview({ notes, duration, currentTime, className }: Melod
   const y = (midi: number) => (hi - midi) * ROW_PX
 
   return (
-    <div className={cn("flex overflow-hidden rounded-2xl border border-border bg-card", className)}>
+    <div className={cn("flex overflow-hidden rounded-2xl border border-border bg-night-950", className)}>
       {/* 음이름 눈금 — 스크롤해도 왼쪽에 고정 */}
       <div className="relative shrink-0 border-r border-border" style={{ height, width: 36 }}>
         {Array.from({ length: rows }, (_, i) => hi - i)
@@ -66,7 +66,7 @@ export function MelodyPreview({ notes, duration, currentTime, className }: Melod
         <svg width={width} height={height} role="img" aria-label={`정답 멜로디 음표 ${notes.length}개`}>
           {Array.from({ length: rows }, (_, i) => hi - i).map((m) =>
             isBlackKey(m) ? (
-              <rect key={m} x={0} y={y(m)} width={width} height={ROW_PX} className="fill-muted/60" />
+              <rect key={m} x={0} y={y(m)} width={width} height={ROW_PX} className="fill-night-800" />
             ) : null
           )}
           {Array.from({ length: Math.floor(duration / 10) + 1 }, (_, i) => i * 10).map((t) => (
@@ -90,8 +90,8 @@ export function MelodyPreview({ notes, duration, currentTime, className }: Melod
               rx={2}
               className={cn(
                 currentTime !== undefined && currentTime >= n.start && currentTime < n.end
-                  ? "fill-sky-500"
-                  : "fill-foreground"
+                  ? "fill-neon-pink"
+                  : "fill-neon-cyan"
               )}
             />
           ))}
@@ -101,7 +101,7 @@ export function MelodyPreview({ notes, duration, currentTime, className }: Melod
               x2={currentTime * PX_PER_SEC}
               y1={0}
               y2={height}
-              className="stroke-sky-500"
+              className="stroke-neon-pink"
               strokeWidth={2}
             />
           )}

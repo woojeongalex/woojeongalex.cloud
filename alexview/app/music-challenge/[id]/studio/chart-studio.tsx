@@ -84,8 +84,8 @@ export function ChartStudio({ challengeId }: ChartStudioProps) {
           챌린지로 돌아가기
         </Link>
 
-        <p className="mt-6 text-sm font-medium text-muted-foreground">악보 스튜디오</p>
-        <h1 className="mt-1 text-3xl font-semibold tracking-tight sm:text-4xl">
+        <p className="mt-6 font-orbitron text-xs font-bold tracking-[0.25em] text-neon-cyan">악보 스튜디오</p>
+        <h1 className="mt-2 font-display text-3xl text-white sm:text-4xl">
           {challenge?.title ?? "불러오는 중…"}
         </h1>
         <p className="mt-3 text-base leading-7 text-muted-foreground">
@@ -107,14 +107,14 @@ export function ChartStudio({ challengeId }: ChartStudioProps) {
         {mounted && isAdmin && challenge && chart && (
           <div className="mt-8 space-y-6">
             {/* 두 단계가 같은 재생 위치를 쓰므로 플레이어는 위에 하나만 둔다. */}
-            <div className="sticky top-20 z-10 rounded-2xl border border-border bg-background/95 p-3 backdrop-blur">
-              <p className="mb-2 text-xs text-muted-foreground">원곡 플레이어</p>
+            <div className="sticky top-20 z-10 rounded-2xl border border-border bg-night-950/90 p-3 backdrop-blur">
+              <p className="mb-2 font-orbitron text-xs tracking-[0.2em] text-neon-cyan">원곡 플레이어</p>
               <audio
                 ref={audioRef}
                 src={challenge.music_url}
                 controls
                 preload="auto"
-                className="w-full"
+                className="w-full [color-scheme:dark]"
               />
             </div>
 

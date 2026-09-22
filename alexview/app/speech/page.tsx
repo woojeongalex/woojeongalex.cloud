@@ -61,12 +61,12 @@ export default function SpeechPage() {
         <PageBackButton />
 
         {/* HERO */}
-        <section className="mt-6 rounded-2xl border border-border bg-card px-6 py-8">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-3 py-1 text-[11px] font-semibold tracking-wide text-muted-foreground">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-foreground" />
+        <section className="mt-6 animate-in fade-in slide-in-from-bottom-6 duration-700 fill-mode-both rounded-2xl border border-border bg-card px-6 py-8 shadow-[0_0_40px_rgba(255,46,151,0.1)]">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-neon-cyan/50 bg-neon-cyan/10 px-3 py-1 font-orbitron text-[11px] font-semibold tracking-[0.2em] text-neon-cyan">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-neon-pink" />
             SPEECH COACHING
           </span>
-          <h1 className="mt-3 text-3xl font-semibold text-foreground">스피치 코칭</h1>
+          <h1 className="mt-3 font-display text-3xl text-white sm:text-4xl">스피치 코칭</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             발표·면접·일상 대화 연습 후 AI 말하기 피드백을 받습니다.
           </p>
@@ -88,8 +88,8 @@ export default function SpeechPage() {
                 }}
                 className={`rounded-xl border p-4 text-left text-sm transition-colors ${
                   active
-                    ? "border-foreground bg-muted"
-                    : "border-border bg-secondary hover:border-foreground/40"
+                    ? "border-neon-pink bg-neon-pink/10 shadow-[0_0_20px_rgba(255,46,151,0.35)]"
+                    : "glow-card border-border bg-card"
                 }`}
               >
                 <p className="font-semibold text-foreground">{topic.label}</p>
@@ -102,14 +102,14 @@ export default function SpeechPage() {
         </section>
 
         {/* 녹음 컨트롤 */}
-        <section className="mt-6 rounded-2xl border border-border bg-secondary p-5">
-          <p className="mb-4 text-sm font-medium text-foreground">마이크 녹음</p>
+        <section className="mt-6 rounded-2xl border border-border bg-night-900 p-5">
+          <p className="mb-4 font-orbitron text-xs tracking-[0.25em] text-neon-cyan">마이크 녹음</p>
           <div className="flex flex-wrap gap-3">
             <button
               type="button"
               disabled={loading || mic.recording === "recording"}
               onClick={handleStart}
-              className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-80 disabled:opacity-40"
+              className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground glow-button transition-opacity hover:opacity-90 disabled:opacity-40"
             >
               <Mic className="h-4 w-4" aria-hidden />
               녹음 시작
@@ -118,7 +118,7 @@ export default function SpeechPage() {
               type="button"
               disabled={mic.recording !== "recording" || loading}
               onClick={handleStop}
-              className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-3 text-sm font-medium text-muted-foreground transition-colors disabled:opacity-40"
+              className="inline-flex items-center gap-2 rounded-full border border-neon-cyan/60 px-5 py-3 text-sm font-medium text-neon-cyan transition-colors hover:bg-neon-cyan/10 disabled:opacity-40"
             >
               <StopCircle className="h-4 w-4" aria-hidden />
               멈추고 분석
@@ -131,9 +131,9 @@ export default function SpeechPage() {
 
         {/* 결과 */}
         {result && (
-          <section className="mt-6 rounded-2xl border-2 border-foreground/15 bg-secondary p-6">
+          <section className="mt-6 animate-in fade-in slide-in-from-bottom-6 duration-700 fill-mode-both rounded-2xl border-2 border-neon-pink/40 bg-night-900 p-6 shadow-[0_0_32px_rgba(255,46,151,0.15)]">
             <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-              <ListChecks className="h-4 w-4" aria-hidden />
+              <ListChecks className="h-4 w-4 text-neon-pink" aria-hidden />
               AI 피드백
             </div>
             <div className="mt-5 grid grid-cols-3 gap-3 text-center">
@@ -143,7 +143,7 @@ export default function SpeechPage() {
                 { label: "톤", value: result.toneScore },
               ].map(({ label, value }) => (
                 <div key={label} className="rounded-xl border border-border bg-card p-4">
-                  <p className="text-2xl font-semibold text-foreground">{value}</p>
+                  <p className="font-orbitron text-2xl font-semibold text-neon-cyan">{value}</p>
                   <p className="mt-1 text-xs text-muted-foreground">{label}</p>
                 </div>
               ))}
@@ -152,12 +152,12 @@ export default function SpeechPage() {
             <ul className="mt-4 space-y-2">
               {result.feedbackPoints.map((point) => (
                 <li key={point} className="flex items-start gap-2 text-sm text-muted-foreground">
-                  <span className="text-foreground">›</span>
+                  <span className="text-neon-pink">›</span>
                   {point}
                 </li>
               ))}
             </ul>
-            <p className="mt-4 text-xs font-mono text-muted-foreground/60">{mic.durationSec}초 녹음 기준</p>
+            <p className="mt-4 text-xs font-mono text-muted-foreground">{mic.durationSec}초 녹음 기준</p>
           </section>
         )}
       </div>
