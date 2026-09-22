@@ -18,3 +18,10 @@ class S3MediaStorageAdapter(MediaStoragePort):
             None,
             lambda: get_s3_manager().presigned_url(key),
         )
+
+    async def download(self, key: str) -> bytes:
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            lambda: get_s3_manager().get_bytes(key),
+        )

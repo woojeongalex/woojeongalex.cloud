@@ -13,6 +13,7 @@ import {
 } from "@/lib/music-challenge-api"
 import { toUserFacingMessage, UI_ERRORS } from "@/lib/user-facing-error"
 import { LyricsSyncPanel } from "./lyrics-sync-panel"
+import { RhythmPanel } from "./rhythm-panel"
 import { StemsPanel } from "./stems-panel"
 import { useAudioClock } from "./use-audio-clock"
 
@@ -136,6 +137,7 @@ export function ChartStudio({ challengeId }: ChartStudioProps) {
                 연주곡이라 가사 단계는 건너뜁니다. 도전 화면에는 음표만 흘러갑니다.
               </StatusNote>
             )}
+            <RhythmPanel challengeId={challengeId} />
           </div>
         )}
       </div>

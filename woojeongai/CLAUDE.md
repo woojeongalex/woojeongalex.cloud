@@ -19,6 +19,7 @@
 | 로깅·코딩 스타일 | [`_docs/coding-and-logging-rules.md`](_docs/coding-and-logging-rules.md) |
 | Docker·배포 | [`_docs/docker-rules.md`](_docs/docker-rules.md) |
 | Suno 곡을 노래방 챌린지로 준비 | [`_docs/song-prep-pipeline.md`](_docs/song-prep-pipeline.md) |
+| 리듬 게임(떨어지는 노트) 채보·판정 | [`_docs/rhythm-game.md`](_docs/rhythm-game.md) |
 
 ---
 

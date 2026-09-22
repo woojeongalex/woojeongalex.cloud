@@ -19,6 +19,27 @@ from music_challenge.app.ports.input.ranking_use_case import (
 )
 from music_challenge.domain.value_objects.chart_vo import MelodySource
 from music_challenge.app.ports.input.submission_use_case import SubmitChallengeUseCase
+from music_challenge.app.ports.input.rhythm_use_case import (
+    GetRhythmChartUseCase,
+    GetRhythmRankingUseCase,
+    RequestRhythmBuildUseCase,
+    SubmitRhythmPlayUseCase,
+)
+from music_challenge.dependencies.music_challenge_director import (
+    get_build_rhythm_chart_use_case as _build_rhythm_chart,
+)
+from music_challenge.dependencies.music_challenge_director import (
+    get_request_rhythm_build_use_case as _request_rhythm_build,
+)
+from music_challenge.dependencies.music_challenge_director import (
+    get_rhythm_chart_use_case as _rhythm_chart,
+)
+from music_challenge.dependencies.music_challenge_director import (
+    get_rhythm_ranking_use_case as _rhythm_ranking,
+)
+from music_challenge.dependencies.music_challenge_director import (
+    get_submit_rhythm_play_use_case as _submit_rhythm_play,
+)
 from music_challenge.dependencies.music_challenge_director import (
     get_build_chart_use_case as _build_chart,
 )
@@ -122,3 +143,35 @@ def get_weekly_ranking_use_case(
     session: AsyncSession = Depends(get_db),
 ) -> GetWeeklyRankingUseCase:
     return _weekly_ranking(session)
+
+
+def get_rhythm_chart_use_case(
+    session: AsyncSession = Depends(get_db),
+) -> GetRhythmChartUseCase:
+    return _rhythm_chart(session)
+
+
+def get_request_rhythm_build_use_case(
+    session: AsyncSession = Depends(get_db),
+) -> RequestRhythmBuildUseCase:
+    return _request_rhythm_build(session)
+
+
+def get_submit_rhythm_play_use_case(
+    session: AsyncSession = Depends(get_db),
+) -> SubmitRhythmPlayUseCase:
+    return _submit_rhythm_play(session)
+
+
+def get_rhythm_ranking_use_case(
+    session: AsyncSession = Depends(get_db),
+) -> GetRhythmRankingUseCase:
+    return _rhythm_ranking(session)
+
+
+async def run_build_rhythm_chart(
+    challenge_id: int, job_id: str, source_key: str
+) -> None:
+    """BackgroundTasks 용. 요청 세션은 응답과 함께 닫히므로 새 세션을 연다."""
+    async for session in get_db():
+        await _build_rhythm_chart(session).build(challenge_id, job_id, source_key)

@@ -1,5 +1,30 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from music_challenge.adapter.outbound.librosa_rhythm_analyzer_adapter import (
+    LibrosaRhythmAnalyzerAdapter,
+)
+from music_challenge.adapter.outbound.pg.rhythm_pg_repository import (
+    RhythmChartPgRepository,
+    RhythmPlayPgRepository,
+    RhythmRankingPgQuery,
+)
+from music_challenge.app.ports.input.rhythm_use_case import (
+    BuildRhythmChartUseCase,
+    GetRhythmChartUseCase,
+    GetRhythmRankingUseCase,
+    RequestRhythmBuildUseCase,
+    SubmitRhythmPlayUseCase,
+)
+from music_challenge.app.use_cases.rhythm_chart_interactors import (
+    BuildRhythmChartInteractor,
+    GetRhythmChartInteractor,
+    RequestRhythmBuildInteractor,
+)
+from music_challenge.app.use_cases.rhythm_play_interactors import (
+    GetRhythmRankingInteractor,
+    SubmitRhythmPlayInteractor,
+)
+
 from music_challenge.adapter.outbound.gemini_evaluator_adapter import (
     GeminiEvaluatorAdapter,
 )
@@ -159,3 +184,47 @@ def get_challenge_ranking_use_case(session: AsyncSession) -> GetChallengeRanking
 
 def get_weekly_ranking_use_case(session: AsyncSession) -> GetWeeklyRankingUseCase:
     return GetWeeklyRankingInteractor(ranking=RankingPgQuery(session))
+
+
+def get_rhythm_chart_use_case(session: AsyncSession) -> GetRhythmChartUseCase:
+    return GetRhythmChartInteractor(
+        challenge_repo=ChallengePgRepository(session),
+        rhythm_repo=RhythmChartPgRepository(session),
+        storage=S3MediaStorageAdapter(),
+    )
+
+
+def get_request_rhythm_build_use_case(
+    session: AsyncSession,
+) -> RequestRhythmBuildUseCase:
+    return RequestRhythmBuildInteractor(
+        challenge_repo=ChallengePgRepository(session),
+        rhythm_repo=RhythmChartPgRepository(session),
+        storage=S3MediaStorageAdapter(),
+    )
+
+
+def get_build_rhythm_chart_use_case(session: AsyncSession) -> BuildRhythmChartUseCase:
+    return BuildRhythmChartInteractor(
+        rhythm_repo=RhythmChartPgRepository(session),
+        storage=S3MediaStorageAdapter(),
+        analyzer=LibrosaRhythmAnalyzerAdapter(),
+    )
+
+
+def get_submit_rhythm_play_use_case(session: AsyncSession) -> SubmitRhythmPlayUseCase:
+    return SubmitRhythmPlayInteractor(
+        challenge_repo=ChallengePgRepository(session),
+        rhythm_repo=RhythmChartPgRepository(session),
+        play_repo=RhythmPlayPgRepository(session),
+        ranking=RhythmRankingPgQuery(session),
+        user_lookup=UserLookupPgRepository(session),
+    )
+
+
+def get_rhythm_ranking_use_case(session: AsyncSession) -> GetRhythmRankingUseCase:
+    return GetRhythmRankingInteractor(
+        challenge_repo=ChallengePgRepository(session),
+        ranking=RhythmRankingPgQuery(session),
+        user_lookup=UserLookupPgRepository(session),
+    )

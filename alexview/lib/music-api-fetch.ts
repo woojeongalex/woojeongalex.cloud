@@ -125,3 +125,30 @@ export async function putMusicJsonAuthed<TBody, TResponse>(
   }
   return data
 }
+
+/**
+ * JSON POST + 인증. 로그인했으면 토큰이 붙고, 비로그인이면 그대로 나간다.
+ * 리듬 게임 기록 제출(익명 허용)과 관리자 채보 생성에 쓴다.
+ */
+export async function postMusicJsonAuthed<TBody, TResponse>(
+  path: string,
+  body: TBody
+): Promise<TResponse> {
+  const res = await authFetch(path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    cache: "no-store",
+  })
+  const data = (await res.json()) as TResponse & { error?: string; detail?: string }
+  if (!res.ok) {
+    const msg =
+      typeof data.detail === "string"
+        ? data.detail
+        : typeof data.error === "string"
+          ? data.error
+          : undefined
+    throw new UserFacingError(apiErrorOrFallback(msg, UI_ERRORS.requestFailed))
+  }
+  return data
+}

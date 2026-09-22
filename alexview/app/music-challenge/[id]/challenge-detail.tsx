@@ -29,6 +29,7 @@ import {
   type MediaType,
 } from "@/lib/music-challenge-api"
 import { toUserFacingMessage, UI_ERRORS } from "@/lib/user-facing-error"
+import { RhythmCta } from "./rhythm-cta"
 
 const MEDIA_TYPES: MediaType[] = ["audio", "video"]
 
@@ -257,6 +258,8 @@ export function ChallengeDetail({ challengeId }: ChallengeDetailProps) {
             {chart?.status === "ready" && chart.notes.length > 0 && (
               <ChallengeRankingSection challengeId={challengeId} />
             )}
+
+            <RhythmCta challengeId={challengeId} />
 
             {/* 제출 폼 */}
             <section className="mt-6 rounded-3xl border border-border bg-card p-6">

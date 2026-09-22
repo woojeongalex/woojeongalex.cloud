@@ -109,6 +109,13 @@ class S3Manager:
             ExpiresIn=expires_in,
         )
 
+    def get_bytes(self, key: str, bucket: str | None = None) -> bytes:
+        """객체를 메모리로 읽는다. 곡 분석처럼 파일을 거치지 않아도 되는 경우에 쓴다."""
+        obj = self._get_client().get_object(
+            Bucket=self._resolve_bucket(bucket), Key=key
+        )
+        return obj["Body"].read()
+
     def download_file(
         self, key: str, local_path: str, bucket: str | None = None
     ) -> None:

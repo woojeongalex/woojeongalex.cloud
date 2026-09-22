@@ -83,3 +83,43 @@ class ChallengeChartModel(SQLModel, table=True):
     )
     error: str | None = Field(default=None, sa_column=Column(Text, nullable=True))
     updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class RhythmChartModel(SQLModel, table=True):
+    """리듬 게임 채보 묶음 — 곡 하나에 4키·7키 × 쉬움·보통·어려움.
+
+    sheets 는 [{"keys", "difficulty", "level", "notes": [[time, lane, end|null], ...]}].
+    노트가 수천 개라 객체 대신 배열로 줄여 저장한다.
+    """
+
+    __tablename__ = "rhythm_charts"
+    challenge_id: int = Field(foreign_key="music_challenges.id", primary_key=True)
+    # empty | processing | ready | failed
+    status: str = Field(default="empty", max_length=20)
+    job_id: str | None = Field(default=None, max_length=64)
+    bpm: float | None = Field(default=None)
+    duration: float | None = Field(default=None)
+    sheets: list | None = Field(default=None, sa_column=Column(JSON, nullable=True))
+    error: str | None = Field(default=None, sa_column=Column(Text, nullable=True))
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class RhythmPlayModel(SQLModel, table=True):
+    """리듬 게임 한 판. 점수는 서버가 입력 기록으로 다시 계산한 값이다."""
+
+    __tablename__ = "rhythm_plays"
+
+    id: int | None = Field(default=None, primary_key=True)
+    challenge_id: int = Field(foreign_key="music_challenges.id")
+    # 비로그인 플레이도 남기지만 랭킹에는 오르지 않는다. 값은 서버가 JWT 에서 도출한다.
+    user_id: int | None = Field(default=None, foreign_key="users.id", index=True)
+    keys: int
+    difficulty: str = Field(max_length=10)
+    score: int
+    accuracy: float
+    max_combo: int
+    cool: int
+    good: int
+    bad: int
+    miss: int
+    created_at: datetime = Field(default_factory=datetime.utcnow)
