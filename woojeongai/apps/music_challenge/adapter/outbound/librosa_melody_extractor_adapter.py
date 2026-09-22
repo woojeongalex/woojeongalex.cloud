@@ -183,6 +183,106 @@ def _merge(notes: list[Note], merge_gap_sec: float) -> list[Note]:
     return merged
 
 
+# ── 실제 보컬 후처리 ────────────────────────────────────────────────
+# Suno 곡(Still Here In The Dark)을 Demucs 로 분리해 뽑았더니 음표 508 개 중 33% 가
+# 0.15초 미만 조각이었고, 22 곳에서 옥타브 이상 튀었다. 합성음에서는 없던 문제다.
+# - 조각: 음을 끌어올리거나 꺾을 때 지나가는 중간음이 따로 잡힌다.
+# - 튐: 숨 섞인 소리·잔향에서 pyin 이 한 옥타브(또는 한 옥타브 반) 아래를 잡는다.
+
+# 주변 흐름을 볼 때 앞뒤로 이만큼(초)의 음표를 본다.
+_CONTEXT_SEC = 2.5
+# 주변 흐름에서 이만큼(반음) 벗어나면 분석 오류로 의심한다.
+_OUTLIER_SEMITONES = 9
+# 의심 음표가 이보다 짧으면 버리고, 길면 옥타브만 주변에 맞춘다.
+_OUTLIER_DROP_SEC = 0.25
+# 이보다 짧은 조각은 옆 음표에 합칠 후보다.
+_FRAGMENT_SEC = 0.15
+# 옆 음표와 이 이내로 붙어 있고 음 차이가 이 이내일 때만 합친다.
+_FRAGMENT_GAP_SEC = 0.06
+_FRAGMENT_SEMITONES = 2
+
+
+def _local_median(notes: list[Note], i: int) -> float | None:
+    """i 번째 음표를 뺀 주변 음표들의 길이 가중 중앙값."""
+    center = (notes[i].start + notes[i].end) / 2
+    ctx = [
+        n
+        for j, n in enumerate(notes)
+        if j != i and abs((n.start + n.end) / 2 - center) <= _CONTEXT_SEC
+    ]
+    if not ctx:
+        return None
+    ctx.sort(key=lambda n: n.midi)
+    half = sum(n.end - n.start for n in ctx) / 2
+    acc = 0.0
+    for n in ctx:
+        acc += n.end - n.start
+        if acc >= half:
+            return float(n.midi)
+    return float(ctx[-1].midi)
+
+
+def _fix_outliers(notes: list[Note]) -> list[Note]:
+    fixed: list[Note] = []
+    for i, note in enumerate(notes):
+        med = _local_median(notes, i)
+        if med is None or abs(note.midi - med) < _OUTLIER_SEMITONES:
+            fixed.append(note)
+            continue
+        if note.end - note.start < _OUTLIER_DROP_SEC:
+            continue  # 짧게 튄 건 분석 오류로 보고 버린다
+        # 긴 음은 실제로 부른 음일 수 있으니 옥타브만 주변 흐름에 맞춘다.
+        shift = 12 * round((note.midi - med) / 12)
+        fixed.append(Note(start=note.start, end=note.end, midi=note.midi - shift))
+    return fixed
+
+
+def _absorb_fragments(notes: list[Note]) -> list[Note]:
+    """짧은 조각을 붙어 있는 비슷한 음의 옆 음표에 합친다. 옆 음표의 음을 따른다."""
+    notes = list(notes)
+    changed = True
+    while changed:
+        changed = False
+        for i, note in enumerate(notes):
+            if note.end - note.start >= _FRAGMENT_SEC:
+                continue
+            neighbors = []
+            if i > 0:
+                prev = notes[i - 1]
+                if (
+                    note.start - prev.end <= _FRAGMENT_GAP_SEC
+                    and abs(prev.midi - note.midi) <= _FRAGMENT_SEMITONES
+                ):
+                    neighbors.append(i - 1)
+            if i + 1 < len(notes):
+                nxt = notes[i + 1]
+                if (
+                    nxt.start - note.end <= _FRAGMENT_GAP_SEC
+                    and abs(nxt.midi - note.midi) <= _FRAGMENT_SEMITONES
+                ):
+                    neighbors.append(i + 1)
+            if not neighbors:
+                continue
+            j = max(neighbors, key=lambda k: notes[k].end - notes[k].start)
+            host = notes[j]
+            notes[j] = Note(
+                start=min(host.start, note.start),
+                end=max(host.end, note.end),
+                midi=host.midi,
+            )
+            del notes[i]
+            changed = True
+            break
+    return notes
+
+
+def _clean_vocal(notes: list[Note]) -> list[Note]:
+    return _merge(
+        _absorb_fragments(_fix_outliers(notes)),
+        _PROFILES[MelodySource.VOCAL].merge_gap_sec,
+    )
+
+
 def extract_melody(y: np.ndarray, sr: int, source: MelodySource) -> ExtractedMelody:
     """이미 읽어 둔 신호에서 추출한다. 테스트에서 직접 부르기 위해 분리했다."""
     profile = _PROFILES[source]
@@ -191,6 +291,9 @@ def extract_melody(y: np.ndarray, sr: int, source: MelodySource) -> ExtractedMel
     duration = float(len(y) / _SR)
     onsets = _onset_frames(y) if profile.split_on_onsets else set()
     notes = _segment(_frame_pitches(y, profile), onsets, profile.merge_gap_sec)
+    # 악기에는 적용하지 않는다. 1~2반음짜리 짧은 음을 합치면 트릴·빠른 패시지가 뭉개진다.
+    if source == MelodySource.VOCAL:
+        notes = _clean_vocal(notes)
     return ExtractedMelody(notes=notes, duration=round(duration, 3))
 
 
