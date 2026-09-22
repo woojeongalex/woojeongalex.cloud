@@ -18,6 +18,7 @@
 | async/def 선택 고민 | [`_docs/async-def-guide.md`](_docs/async-def-guide.md) |
 | 로깅·코딩 스타일 | [`_docs/coding-and-logging-rules.md`](_docs/coding-and-logging-rules.md) |
 | Docker·배포 | [`_docs/docker-rules.md`](_docs/docker-rules.md) |
+| Suno 곡을 노래방 챌린지로 준비 | [`_docs/song-prep-pipeline.md`](_docs/song-prep-pipeline.md) |
 
 ---
 
