@@ -59,8 +59,9 @@ nav_order: 3
 
 | | 로컬 개발 | 운영 |
 |:--|:--|:--|
-| 프론트 | WSL Ubuntu 에서 `next dev` (포트 3100) | 개발 데스크톱에서 빌드해 배포 |
+| 프론트 | WSL Ubuntu 에서 `next dev` (포트 3100) | Vercel (`woojeongalex.cloud`) |
 | 백엔드 · DB · Redis | Docker Desktop (`docker-compose.local.yml`) | AWS EC2 — Docker Compose, 메모리 1GB + 스왑 2GB |
+| 이 기록 사이트 | Docker 로 `jekyll serve` (포트 4000) | EC2 nginx 정적 파일 (`demo.woojeongalex.cloud`) |
 | 파일 | S3 (같은 버킷) | S3 |
 | 곡 준비 | 관리자 PC 의 Docker (CPU) | — (EC2 메모리 1GB 로는 못 돌린다) |
 

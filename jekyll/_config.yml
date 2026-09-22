@@ -12,6 +12,10 @@ search:
   heading_level: 3
   button: true
 
+# 페이지 주소를 /about/ 형태로 통일한다. 기본값이면 메뉴는 /about.html, 본문 링크는
+# /about/ 로 섞여 서버에서 한쪽이 404 가 난다.
+permalink: pretty
+
 heading_anchors: true
 back_to_top: true
 back_to_top_text: "맨 위로"
