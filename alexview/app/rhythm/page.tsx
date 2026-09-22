@@ -75,7 +75,7 @@ export default function RhythmSongsPage() {
           >
             <li className="inline-flex items-center gap-2">
               <Keyboard className="h-4 w-4 text-neon-cyan" aria-hidden="true" />
-              4키 ← ↓ ↑ → · 7키 A S D Space J K L
+              기본 키 4키 ← ↓ ↑ → · 7키 A S D Space J K L (게임 설정에서 바꿀 수 있어요)
             </li>
             <li className="inline-flex items-center gap-2">
               <Smartphone className="h-4 w-4 text-neon-cyan" aria-hidden="true" />

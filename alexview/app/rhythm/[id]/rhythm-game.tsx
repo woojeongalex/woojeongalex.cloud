@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
-import { ArrowLeft, Keyboard, Loader2, Play, Square } from "lucide-react"
+import { ArrowLeft, Loader2, Play, Square } from "lucide-react"
 import { LoadingBlock, StatusNote } from "@/components/common/status-note"
 import { RhythmRankingList } from "@/components/music/rhythm-ranking"
 import { drawRhythmStage, resetRhythmStage, stageLayout } from "@/components/music/rhythm-stage"
@@ -11,9 +11,6 @@ import {
   RHYTHM_DIFFICULTIES,
   RHYTHM_DIFFICULTY_LABEL,
   RHYTHM_KEYS,
-  RHYTHM_KEY_CODES,
-  RHYTHM_KEY_LABELS,
-  RHYTHM_KEY_NAMES,
   fetchRhythmChart,
   fetchRhythmSheet,
   submitRhythmPlay,
@@ -31,8 +28,16 @@ import {
   type RhythmPress,
   type RhythmResult,
 } from "@/lib/rhythm-scoring"
+import {
+  DEFAULT_BINDINGS,
+  keyLabel,
+  keyNameFor,
+  normalizeBindings,
+  type KeyBindings,
+} from "@/lib/rhythm-keys"
 import { toUserFacingMessage, UI_ERRORS } from "@/lib/user-facing-error"
 import { cn } from "@/lib/utils"
+import { KeyBindingEditor } from "./key-binding-editor"
 import { RhythmResultPanel } from "./rhythm-result-panel"
 
 type Phase = "setup" | "loading" | "playing" | "finished"
@@ -54,9 +59,17 @@ type Prefs = {
   difficulty: RhythmDifficulty
   speed: number
   offsetMs: number
+  // 4키·7키 각각 레인별 키(KeyboardEvent.code)
+  bindings: KeyBindings
 }
 
-const DEFAULT_PREFS: Prefs = { keys: 4, difficulty: "normal", speed: 2.5, offsetMs: 0 }
+const DEFAULT_PREFS: Prefs = {
+  keys: 4,
+  difficulty: "normal",
+  speed: 2.5,
+  offsetMs: 0,
+  bindings: DEFAULT_BINDINGS,
+}
 
 function readPrefs(): Prefs {
   try {
@@ -70,6 +83,7 @@ function readPrefs(): Prefs {
       offsetMs: Number.isFinite(raw.offsetMs)
         ? Math.min(OFFSET_LIMIT_MS, Math.max(-OFFSET_LIMIT_MS, Number(raw.offsetMs)))
         : 0,
+      bindings: normalizeBindings(raw.bindings),
     }
   } catch {
     return DEFAULT_PREFS
@@ -107,6 +121,8 @@ export function RhythmGame({ challengeId }: RhythmGameProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const judgeRef = useRef<RhythmJudge | null>(null)
   const sheetRef = useRef<RhythmSheet | null>(null)
+  // 무대 키 자리에 쓸 글자 — 판을 시작할 때 설정에서 정해 둔다
+  const labelsRef = useRef<string[]>([])
   const timesRef = useRef<number[]>([])
   const pressesRef = useRef<RhythmPress[]>([])
   const openPressRef = useRef<number[]>([])
@@ -242,11 +258,11 @@ export function RhythmGame({ challengeId }: RhythmGameProps) {
 
   useEffect(() => {
     if (phase !== "playing" || !sheet) return
-    const codes = RHYTHM_KEY_CODES[sheet.keys]
-    const keys = RHYTHM_KEY_NAMES[sheet.keys]
+    const codes = prefs.bindings[sheet.keys]
+    const keys = codes.map(keyNameFor)
     // 자판 배열과 상관없이 같은 자리를 쓰도록 code 로 찾고, code 가 비어 있는 입력기만 key 로 찾는다.
     const laneOf = (e: KeyboardEvent) =>
-      e.code ? codes.indexOf(e.code) : keys.indexOf(e.key.toLowerCase())
+      e.code ? codes.indexOf(e.code) : keys.indexOf(e.key.toLowerCase()) // 대체 비교값이 빈 레인은 -1 로 남는다
     const onDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" || e.code === "Escape") {
         finish()
@@ -277,7 +293,7 @@ export function RhythmGame({ challengeId }: RhythmGameProps) {
       window.removeEventListener("keyup", onUp)
       window.removeEventListener("blur", onBlur)
     }
-  }, [phase, sheet, finish, pressLane, releaseLane])
+  }, [phase, sheet, prefs.bindings, finish, pressLane, releaseLane])
 
   const laneAt = (e: React.PointerEvent<HTMLCanvasElement>): number | null => {
     const s = sheetRef.current
@@ -355,7 +371,7 @@ export function RhythmGame({ challengeId }: RhythmGameProps) {
         notes: s.notes,
         times: timesRef.current,
         keys: s.keys,
-        keyLabels: RHYTHM_KEY_LABELS[s.keys],
+        keyLabels: labelsRef.current,
         time: songTime(performance.now()),
         pixelsPerSecond: BASE_PPS * speedRef.current,
         judge,
@@ -393,6 +409,7 @@ export function RhythmGame({ challengeId }: RhythmGameProps) {
     await unlock
 
     sheetRef.current = s
+    labelsRef.current = prefs.bindings[s.keys].map(keyLabel)
     timesRef.current = s.notes.map((n) => n[0])
     judgeRef.current = createRhythmJudge(s.notes, s.keys)
     // 이전 판의 파편·흔들림이 새 판 첫 화면에 남지 않게 지운다.
@@ -626,19 +643,11 @@ export function RhythmGame({ challengeId }: RhythmGameProps) {
               </label>
             </div>
 
-            <p className="mt-5 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-              <Keyboard className="h-4 w-4" aria-hidden="true" />
-              키:
-              {RHYTHM_KEY_LABELS[prefs.keys].map((label, i) => (
-                <kbd
-                  key={i}
-                  className="rounded-md border border-neon-cyan/40 bg-night-900 px-2 py-0.5 font-mono text-xs text-neon-cyan"
-                >
-                  {label === "␣" ? "Space" : label}
-                </kbd>
-              ))}
-              <span>· 휴대폰은 레인을 직접 터치</span>
-            </p>
+            <KeyBindingEditor
+              keys={prefs.keys}
+              bindings={prefs.bindings[prefs.keys]}
+              onChange={(next) => updatePrefs({ bindings: { ...prefs.bindings, [prefs.keys]: next } })}
+            />
 
             {loadError && (
               <p role="alert" className="mt-4 text-sm text-destructive">
