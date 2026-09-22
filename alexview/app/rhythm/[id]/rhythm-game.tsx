@@ -5,7 +5,7 @@ import Link from "next/link"
 import { ArrowLeft, Keyboard, Loader2, Play, Square } from "lucide-react"
 import { LoadingBlock, StatusNote } from "@/components/common/status-note"
 import { RhythmRankingList } from "@/components/music/rhythm-ranking"
-import { drawRhythmStage, stageLayout } from "@/components/music/rhythm-stage"
+import { drawRhythmStage, resetRhythmStage, stageLayout } from "@/components/music/rhythm-stage"
 import { fetchChallenge, type Challenge } from "@/lib/music-challenge-api"
 import {
   RHYTHM_DIFFICULTIES,
@@ -13,6 +13,7 @@ import {
   RHYTHM_KEYS,
   RHYTHM_KEY_CODES,
   RHYTHM_KEY_LABELS,
+  RHYTHM_KEY_NAMES,
   fetchRhythmChart,
   fetchRhythmSheet,
   submitRhythmPlay,
@@ -242,7 +243,7 @@ export function RhythmGame({ challengeId }: RhythmGameProps) {
   useEffect(() => {
     if (phase !== "playing" || !sheet) return
     const codes = RHYTHM_KEY_CODES[sheet.keys]
-    const keys = RHYTHM_KEY_LABELS[sheet.keys].map((l) => (l === "␣" ? " " : l.toLowerCase()))
+    const keys = RHYTHM_KEY_NAMES[sheet.keys]
     // 자판 배열과 상관없이 같은 자리를 쓰도록 code 로 찾고, code 가 비어 있는 입력기만 key 로 찾는다.
     const laneOf = (e: KeyboardEvent) =>
       e.code ? codes.indexOf(e.code) : keys.indexOf(e.key.toLowerCase())
@@ -394,6 +395,8 @@ export function RhythmGame({ challengeId }: RhythmGameProps) {
     sheetRef.current = s
     timesRef.current = s.notes.map((n) => n[0])
     judgeRef.current = createRhythmJudge(s.notes, s.keys)
+    // 이전 판의 파편·흔들림이 새 판 첫 화면에 남지 않게 지운다.
+    if (canvasRef.current) resetRhythmStage(canvasRef.current)
     pressesRef.current = []
     openPressRef.current = new Array<number>(s.keys).fill(-1)
     pressedRef.current = new Array<boolean>(s.keys).fill(false)

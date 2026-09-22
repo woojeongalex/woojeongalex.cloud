@@ -16,15 +16,28 @@ export const RHYTHM_DIFFICULTY_LABEL: Record<RhythmDifficulty, string> = {
   hard: "어려움",
 }
 
-/** 키 배치 — 7키는 오투잼과 같은 S D F Space J K L */
+/** 키 배치 — 4키는 방향키 ← ↓ ↑ →, 7키는 A S D Space J K L */
 export const RHYTHM_KEY_CODES: Record<RhythmKeys, string[]> = {
-  4: ["KeyD", "KeyF", "KeyJ", "KeyK"],
-  7: ["KeyS", "KeyD", "KeyF", "Space", "KeyJ", "KeyK", "KeyL"],
+  4: ["ArrowLeft", "ArrowDown", "ArrowUp", "ArrowRight"],
+  7: ["KeyA", "KeyS", "KeyD", "Space", "KeyJ", "KeyK", "KeyL"],
 }
 
+/** code 가 비어 오는 입력기용 — KeyboardEvent.key 값(소문자로 비교) */
+export const RHYTHM_KEY_NAMES: Record<RhythmKeys, string[]> = {
+  4: ["arrowleft", "arrowdown", "arrowup", "arrowright"],
+  7: ["a", "s", "d", " ", "j", "k", "l"],
+}
+
+/** 무대의 키 자리에 쓰는 글자 */
 export const RHYTHM_KEY_LABELS: Record<RhythmKeys, string[]> = {
-  4: ["D", "F", "J", "K"],
-  7: ["S", "D", "F", "␣", "J", "K", "L"],
+  4: ["←", "↓", "↑", "→"],
+  7: ["A", "S", "D", "␣", "J", "K", "L"],
+}
+
+/** 설정 화면·안내 문구용 */
+export const RHYTHM_KEY_HINT: Record<RhythmKeys, string> = {
+  4: "← ↓ ↑ →",
+  7: "A S D Space J K L",
 }
 
 export type RhythmSheetSummary = {

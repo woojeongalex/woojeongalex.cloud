@@ -75,7 +75,7 @@ export default function RhythmSongsPage() {
           >
             <li className="inline-flex items-center gap-2">
               <Keyboard className="h-4 w-4 text-neon-cyan" aria-hidden="true" />
-              4키 D F J K · 7키 S D F Space J K L
+              4키 ← ↓ ↑ → · 7키 A S D Space J K L
             </li>
             <li className="inline-flex items-center gap-2">
               <Smartphone className="h-4 w-4 text-neon-cyan" aria-hidden="true" />
