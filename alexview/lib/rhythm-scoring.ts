@@ -4,7 +4,7 @@
  * 서버(woojeongai/apps/music_challenge/domain/services/rhythm_scoring.py)와 똑같은 규칙이다.
  * 랭킹에는 서버가 입력 기록으로 다시 계산한 점수만 오른다. 한쪽을 고치면 둘 다 고친다.
  *
- * - 판정 창: ±45ms COOL, ±90ms GOOD, ±135ms BAD, 밖이면 MISS
+ * - 판정 창: ±60ms COOL, ±110ms GOOD, ±160ms BAD, 밖이면 MISS
  * - 누르면 그 레인에서 창 안의 가장 이른 미판정 노트를 친다. 창 안에 없으면 아무 일 없음
  * - 롱노트는 머리·꼬리를 따로 판정. 끝까지 누르고 있으면 꼬리 COOL, 일찍 떼면 그만큼 낮아짐
  * - 콤보는 BAD·MISS 에서 끊김
@@ -18,9 +18,9 @@ export type RhythmPress = [number, number, number]
 
 export type RhythmJudgement = "cool" | "good" | "bad" | "miss"
 
-export const COOL_WINDOW = 0.045
-export const GOOD_WINDOW = 0.09
-export const BAD_WINDOW = 0.135
+export const COOL_WINDOW = 0.06
+export const GOOD_WINDOW = 0.11
+export const BAD_WINDOW = 0.16
 
 const WEIGHT: Record<RhythmJudgement, number> = { cool: 1, good: 0.6, bad: 0.2, miss: 0 }
 

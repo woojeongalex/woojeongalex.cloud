@@ -3,7 +3,7 @@
 브라우저(alexview/lib/rhythm-scoring.ts)와 똑같은 규칙이다. 화면 점수는 조작할 수 있어
 랭킹에는 서버가 입력 기록으로 다시 계산한 값만 쓴다. 한쪽을 고치면 반드시 둘 다 고친다.
 
-- 판정 창: 노트 시각과의 차이 ±45ms COOL, ±90ms GOOD, ±135ms BAD. 밖이면 MISS.
+- 판정 창: 노트 시각과의 차이 ±60ms COOL, ±110ms GOOD, ±160ms BAD. 밖이면 MISS.
 - 키를 누르면 그 레인에서 판정 창 안에 있는 가장 이른 미판정 노트를 친다.
   창 안에 노트가 없으면 아무 일도 없다(빈 누름에 벌점 없음).
 - 롱노트는 머리와 꼬리를 따로 판정한다. 꼬리는 뗀 시각이 끝 시각보다 얼마나
@@ -19,9 +19,9 @@ from math import floor
 
 from music_challenge.domain.value_objects.rhythm_vo import RhythmNote
 
-COOL_WINDOW = 0.045
-GOOD_WINDOW = 0.090
-BAD_WINDOW = 0.135
+COOL_WINDOW = 0.060
+GOOD_WINDOW = 0.110
+BAD_WINDOW = 0.160
 
 MAX_SCORE = 1_000_000
 _ACCURACY_PART = 900_000

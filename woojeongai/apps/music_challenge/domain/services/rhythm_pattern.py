@@ -40,17 +40,18 @@ class _Profile:
     chord_ratio: float
 
 
+# 2026-09-22 난이도를 낮췄다("너무 어려워"). 쉬움은 정박만, 보통은 8분까지, 어려움만 16분.
 _PROFILES: dict[tuple[int, RhythmDifficulty], _Profile] = {
-    (4, RhythmDifficulty.EASY): _Profile(2, 1.4, 0.5, 1, 4, 0.08, 0, 2.0, 0.0),
-    (4, RhythmDifficulty.NORMAL): _Profile(4, 2.8, 0.25, 1, 4, 0.12, 1, 2.0, 0.0),
-    (4, RhythmDifficulty.HARD): _Profile(4, 4.6, 0.25, 1, 6, 0.15, 1, 0.8, 0.08),
-    (7, RhythmDifficulty.EASY): _Profile(2, 1.8, 0.5, 1, 4, 0.08, 0, 2.0, 0.0),
-    (7, RhythmDifficulty.NORMAL): _Profile(4, 3.6, 0.25, 1, 4, 0.12, 1, 0.9, 0.05),
-    (7, RhythmDifficulty.HARD): _Profile(4, 5.8, 0.25, 1, 6, 0.15, 2, 0.75, 0.12),
+    (4, RhythmDifficulty.EASY): _Profile(1, 1.0, 1.0, 1, 4, 0.06, 0, 2.0, 0.0),
+    (4, RhythmDifficulty.NORMAL): _Profile(2, 2.0, 0.5, 1, 4, 0.10, 1, 2.0, 0.0),
+    (4, RhythmDifficulty.HARD): _Profile(4, 3.4, 0.25, 1, 6, 0.12, 1, 0.85, 0.04),
+    (7, RhythmDifficulty.EASY): _Profile(1, 1.3, 1.0, 1, 4, 0.06, 0, 2.0, 0.0),
+    (7, RhythmDifficulty.NORMAL): _Profile(2, 2.6, 0.5, 1, 4, 0.10, 1, 0.95, 0.02),
+    (7, RhythmDifficulty.HARD): _Profile(4, 4.3, 0.25, 1, 6, 0.12, 1, 0.8, 0.06),
 }
 
 # 같은 레인을 이보다 빨리 연달아 치게 되면 옆 레인으로 옮긴다(초).
-_MIN_SAME_LANE_GAP = 0.3
+_MIN_SAME_LANE_GAP = 0.4
 # 롱노트가 끝난 뒤 같은 레인에 다음 노트가 오기까지 비워 둘 시간(초).
 _LANE_RELEASE_GAP = 0.12
 # 곡 시작 직후는 준비 시간이라 노트를 두지 않는다(초).
