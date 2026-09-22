@@ -9,20 +9,34 @@
 Touch)에서 medium 이 첫 후렴을 두 번째 회차에 붙였고, "엇갈리면 큰 모델"로 고르자
 뒤따르는 15줄이 4초 안에 몰렸다. 앞뒤 흐름과 함께 봐야 가려진다.
 """
-import json, math, sys
+
+import json
+import math
+import sys
 
 song = sys.argv[1] if len(sys.argv) > 1 else "still"
-load = lambda p: json.load(open(f"/data/{song}_{p}.json", encoding="utf-8"))
+
+
+def load(part: str):
+    return json.load(open(f"/data/{song}_{part}.json", encoding="utf-8"))
+
+
 a, b = load("timed")["lines"], load("timed_medium")["lines"]
 sa, sb = load("timed_sources"), load("timed_medium_sources")
 n = len(a)
 AGREE = 0.3
 SEC_PER_WORD = 0.45  # 이 곡들에서 한 줄을 부르는 데 드는 시간 / 단어 수의 대략값
 INTERP_PENALTY = 0.6
-wc = [max(1, len(l["text"].split())) for l in a]
+wc = [max(1, len(ln["text"].split())) for ln in a]
 
 # 후보: (시각, 출처, 인식 여부)
-cands = [[(a[i]["start"], "small", sa[i] != "보간"), (b[i]["start"], "medium", sb[i] != "보간")] for i in range(n)]
+cands = [
+    [
+        (a[i]["start"], "small", sa[i] != "보간"),
+        (b[i]["start"], "medium", sb[i] != "보간"),
+    ]
+    for i in range(n)
+]
 
 
 def gap_cost(i: int, t_prev: float, t_cur: float) -> float:
@@ -62,7 +76,11 @@ for i in range(n - 1, -1, -1):
 final, status = [], []
 for i in range(n):
     t, src, recog = cands[i][pick[i]]
-    agree = sa[i] != "보간" and sb[i] != "보간" and abs(a[i]["start"] - b[i]["start"]) <= AGREE
+    agree = (
+        sa[i] != "보간"
+        and sb[i] != "보간"
+        and abs(a[i]["start"] - b[i]["start"]) <= AGREE
+    )
     if agree:
         t = (a[i]["start"] + b[i]["start"]) / 2
         status.append("확정")
@@ -78,11 +96,24 @@ counts: dict[str, int] = {}
 for s in status:
     key = "골라냄" if s.startswith("골라냄") else s
     counts[key] = counts.get(key, 0) + 1
-print("줄 상태:", counts, f"| small 쓴 줄 {sum(1 for p in pick if p == 0)}, medium {sum(1 for p in pick if p == 1)}")
+print(
+    "줄 상태:",
+    counts,
+    f"| small 쓴 줄 {sum(1 for p in pick if p == 0)}, medium {sum(1 for p in pick if p == 1)}",
+)
 print("확인 권장 (골라냄·추정):")
 for i in range(n):
     if status[i].startswith("골라냄") or status[i] == "추정":
-        print(f"  {i+1:2d}번 {final[i]:6.2f}s  [{status[i]}]  small {a[i]['start']:.2f} / medium {b[i]['start']:.2f}  {a[i]['text']}")
-json.dump({"lines": [{"text": l["text"], "start": round(t, 2)} for l, t in zip(a, final)]},
-          open(f"/data/{song}_timed_final.json", "w", encoding="utf-8"), ensure_ascii=False)
-json.dump(status, open(f"/data/{song}_timed_final_status.json", "w", encoding="utf-8"), ensure_ascii=False)
+        print(
+            f"  {i + 1:2d}번 {final[i]:6.2f}s  [{status[i]}]  small {a[i]['start']:.2f} / medium {b[i]['start']:.2f}  {a[i]['text']}"
+        )
+json.dump(
+    {"lines": [{"text": ln["text"], "start": round(t, 2)} for ln, t in zip(a, final)]},
+    open(f"/data/{song}_timed_final.json", "w", encoding="utf-8"),
+    ensure_ascii=False,
+)
+json.dump(
+    status,
+    open(f"/data/{song}_timed_final_status.json", "w", encoding="utf-8"),
+    ensure_ascii=False,
+)

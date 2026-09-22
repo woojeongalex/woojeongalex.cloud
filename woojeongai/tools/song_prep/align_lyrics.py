@@ -5,7 +5,13 @@
 한국어는 음절 단위로 맞춘다. 인식 결과와 가사의 띄어쓰기·조사가 자주 달라서
 ("그림자가" / "그림자 가") 어절 단위로는 대부분의 줄을 놓친다.
 """
-import difflib, json, re, sys, time
+
+import difflib
+import json
+import re
+import sys
+import time
+
 from faster_whisper import WhisperModel
 
 vocals, lyrics_path, out_path = sys.argv[1:4]
@@ -14,7 +20,7 @@ model_name = sys.argv[4] if len(sys.argv) > 4 else "small.en"
 use_vad = not (len(sys.argv) > 5 and sys.argv[5] == "novad")
 language = sys.argv[6] if len(sys.argv) > 6 else "en"
 by_syllable = language == "ko"
-lines = [l["text"] for l in json.load(open(lyrics_path, encoding="utf-8"))["lines"]]
+lines = [ln["text"] for ln in json.load(open(lyrics_path, encoding="utf-8"))["lines"]]
 
 
 def norm(w: str) -> str:
@@ -56,15 +62,21 @@ for seg in segments:
         for k, p in enumerate(parts):
             t = w.start + (w.end - w.start) * k / max(1, len(parts))
             rec.append((p, t, w.end))
-print(f"인식 단어 {len(rec)}개 / 가사 단어 {len(lyric_words)}개 ({time.time()-t0:.0f}s, {model_name}, vad={use_vad})")
+print(
+    f"인식 단어 {len(rec)}개 / 가사 단어 {len(lyric_words)}개 ({time.time() - t0:.0f}s, {model_name}, vad={use_vad})"
+)
 
 # 인식 결과와 정답 가사를 순서대로 맞춘다 — 반복되는 후렴도 순서대로 짝지어진다.
-sm = difflib.SequenceMatcher(a=[w for w, _, _ in lyric_words], b=[w for w, _, _ in rec], autojunk=False)
+sm = difflib.SequenceMatcher(
+    a=[w for w, _, _ in lyric_words], b=[w for w, _, _ in rec], autojunk=False
+)
 word_time: dict[int, float] = {}
 for block in sm.get_matching_blocks():
     for k in range(block.size):
         word_time[block.a + k] = rec[block.b + k][1]
-print(f"맞춘 단어 {len(word_time)}/{len(lyric_words)} ({100*len(word_time)/len(lyric_words):.0f}%)")
+print(
+    f"맞춘 단어 {len(word_time)}/{len(lyric_words)} ({100 * len(word_time) / len(lyric_words):.0f}%)"
+)
 
 # 줄 시작 = 그 줄에서 처음 맞은 단위 시각 − (그 앞의 단위 수 × 평균 길이)
 # 영어 단어는 0.3초, 한국어 음절은 0.2초 정도로 부른다.
@@ -74,7 +86,9 @@ sources: list[str] = ["보간"] * len(lines)
 for idx, (w, li, k) in enumerate(lyric_words):
     if starts[li] is None and idx in word_time:
         starts[li] = max(0.0, word_time[idx] - k * AVG_WORD)
-        sources[li] = "인식" if k == 0 else f"인식(+{k}{'음절' if by_syllable else '단어'})"
+        sources[li] = (
+            "인식" if k == 0 else f"인식(+{k}{'음절' if by_syllable else '단어'})"
+        )
 
 # 시간이 거꾸로 가는 줄은 잘못 맞은 것으로 보고 비운다.
 last = -1.0
@@ -88,7 +102,7 @@ for i, s in enumerate(starts):
         last = s
 
 # 비어 있는 줄은 앞뒤로 맞은 줄 사이를 단어 수 비율로 채운다.
-wc = [max(1, len(l.split())) for l in lines]
+wc = [max(1, len(ln.split())) for ln in lines]
 i = 0
 while i < len(lines):
     if starts[i] is not None:
@@ -103,17 +117,25 @@ while i < len(lines):
     if b is None:  # 끝부분 — 줄당 단어 수 × 0.4초로 이어 붙인다
         t = a + (wc[prev_i] * 0.4 if prev_i >= 0 else 0)
         for k in range(i, j):
-            starts[k] = round(t, 2); t += wc[k] * 0.4
+            starts[k] = round(t, 2)
+            t += wc[k] * 0.4
     else:
-        span = [wc[prev_i]] if prev_i >= 0 else []
         total = sum(wc[prev_i:j]) if prev_i >= 0 else sum(wc[i:j]) + 1
         acc = wc[prev_i] if prev_i >= 0 else 0
         for k in range(i, j):
-            starts[k] = round(a + (b - a) * acc / total, 2); acc += wc[k]
+            starts[k] = round(a + (b - a) * acc / total, 2)
+            acc += wc[k]
     i = j
 
 matched = sum(1 for s in sources if s != "보간")
-print(f"인식으로 맞춘 줄 {matched}/{len(lines)}, 보간 {len(lines)-matched}")
-json.dump({"lines": [{"text": l, "start": round(s, 2)} for l, s in zip(lines, starts)]},
-          open(out_path, "w", encoding="utf-8"), ensure_ascii=False)
-json.dump(sources, open(out_path.replace(".json", "_sources.json"), "w", encoding="utf-8"), ensure_ascii=False)
+print(f"인식으로 맞춘 줄 {matched}/{len(lines)}, 보간 {len(lines) - matched}")
+json.dump(
+    {"lines": [{"text": ln, "start": round(s, 2)} for ln, s in zip(lines, starts)]},
+    open(out_path, "w", encoding="utf-8"),
+    ensure_ascii=False,
+)
+json.dump(
+    sources,
+    open(out_path.replace(".json", "_sources.json"), "w", encoding="utf-8"),
+    ensure_ascii=False,
+)
