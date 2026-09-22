@@ -11,16 +11,20 @@ import {
   Square,
   Upload,
 } from "lucide-react"
+import { ChallengeRankingSection } from "@/components/music/challenge-ranking"
 import { useAsyncAction } from "@/hooks/use-async-action"
 import { useMicRecording } from "@/hooks/use-mic-recording"
 import { useUserSession } from "@/hooks/use-user-session"
 import { blobToWav } from "@/lib/audio-wav"
 import {
   CHALLENGE_TYPE_LABEL,
+  INSTRUMENT_LABEL,
   MEDIA_TYPE_LABEL,
   fetchChallenge,
+  fetchChart,
   submitChallenge,
   type Challenge,
+  type Chart,
   type Evaluation,
   type MediaType,
 } from "@/lib/music-challenge-api"
@@ -49,6 +53,7 @@ type ChallengeDetailProps = {
 export function ChallengeDetail({ challengeId }: ChallengeDetailProps) {
   const user = useUserSession()
   const [challenge, setChallenge] = useState<Challenge | null>(null)
+  const [chart, setChart] = useState<Chart | null>(null)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [mediaType, setMediaType] = useState<MediaType>("audio")
@@ -59,6 +64,19 @@ export function ChallengeDetail({ challengeId }: ChallengeDetailProps) {
   const [micError, setMicError] = useState<string | null>(null)
   const { loading: submitting, error: submitError, run } = useAsyncAction()
   const mic = useMicRecording()
+
+  // 노래방 악보는 있으면 좋은 부가 정보라, 실패해도 챌린지 화면은 그대로 보여 준다.
+  useEffect(() => {
+    let alive = true
+    fetchChart(challengeId)
+      .then((c) => {
+        if (alive) setChart(c)
+      })
+      .catch(() => undefined)
+    return () => {
+      alive = false
+    }
+  }, [challengeId])
 
   // 미리듣기용 object URL 은 새 녹음마다 교체하고 언마운트 때 해제한다.
   useEffect(() => {
@@ -209,6 +227,36 @@ export function ChallengeDetail({ challengeId }: ChallengeDetailProps) {
                 </p>
               )}
             </section>
+
+            {chart?.status === "ready" && chart.notes.length > 0 && (
+              <section className="mt-6 overflow-hidden rounded-3xl bg-zinc-950 p-6 text-white">
+                <p className="text-sm font-medium text-sky-400">
+                  {chart.melody_source === "instrument" ? "연주 모드" : "노래방 모드"}
+                </p>
+                <h2 className="mt-1 text-2xl font-semibold">
+                  음표를 따라 {chart.melody_source === "instrument" ? "연주" : "노래"}하고
+                  실시간으로 채점받기
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-white/60">
+                  반주에 맞춰 흘러오는 음표에 {chart.melody_source === "instrument" ? "음을 맞추면" : "목소리를 맞추면"}
+                  음정·박자가 바로 판정되고, 끝나면 랭킹에 올라갑니다.
+                  {chart.melody_source === "instrument" && chart.instrument
+                    ? ` 멜로디 악기: ${INSTRUMENT_LABEL[chart.instrument]}.`
+                    : ""}
+                </p>
+                <Link
+                  href={`/music-challenge/${challengeId}/play`}
+                  className="mt-5 inline-flex items-center gap-2 rounded-full bg-sky-500 px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                >
+                  <Mic className="h-4 w-4" aria-hidden="true" />
+                  {chart.melody_source === "instrument" ? "연주 모드로 도전" : "노래방 모드로 도전"}
+                </Link>
+              </section>
+            )}
+
+            {chart?.status === "ready" && chart.notes.length > 0 && (
+              <ChallengeRankingSection challengeId={challengeId} />
+            )}
 
             {/* 제출 폼 */}
             <section className="mt-6 rounded-3xl border border-border bg-card p-6">

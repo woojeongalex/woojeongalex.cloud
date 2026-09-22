@@ -16,11 +16,15 @@ class ChartResponse(BaseModel):
     challenge_id: int
     # empty | processing | ready | failed
     status: str
+    # vocal | instrument
+    melody_source: str
+    # piano | guitar | violin | flute | saxophone | other. 보컬이면 null
+    instrument: str | None
     notes: list[NoteSchema]
     duration: float | None
     lyric_lines: list[LyricLineSchema]
-    instrumental_url: str | None
-    has_vocal: bool
+    backing_url: str | None
+    has_melody: bool
     error: str | None
 
 

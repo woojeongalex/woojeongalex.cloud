@@ -34,6 +34,19 @@ export type Evaluation = {
   pitch_score: number | null
   rhythm_score: number | null
   tempo: number | null
+  /** 노래방·연주 모드로 제출했을 때만 — 서버가 정답 음표와 다시 맞춰 본 결과 */
+  karaoke: KaraokeResult | null
+}
+
+export type KaraokeResult = {
+  score: number
+  pitch_accuracy: number
+  timing_accuracy: number
+  /** 이 곡 랭킹에서 내 최고 기록의 순위. 비로그인이면 null */
+  rank: number | null
+  /** 이 곡에서 내 최고 점수(이번 포함). 비로그인이면 null */
+  best_score: number | null
+  is_personal_best: boolean
 }
 
 export const CHALLENGE_TYPE_LABEL: Record<ChallengeType, string> = {
@@ -66,11 +79,19 @@ export function submitChallenge(input: {
   challengeId: number
   mediaType: MediaType
   file: File
+  /**
+   * 노래방·연주 모드에서 제출할 때만. 녹음이 곡의 몇 초 지점부터 시작됐는지
+   * (기기 지연을 뺀 값). 서버가 이 값으로 녹음을 정답 음표에 맞춰 다시 채점한다.
+   */
+  karaokeStartOffset?: number
 }): Promise<Evaluation> {
   const form = new FormData()
   form.append("challenge_id", String(input.challengeId))
   form.append("media_type", input.mediaType)
   form.append("media_file", input.file)
+  if (input.karaokeStartOffset !== undefined) {
+    form.append("karaoke_start_offset", input.karaokeStartOffset.toFixed(3))
+  }
   return postMusicFormAuthed<Evaluation>(`${BASE}/submissions/submit`, form)
 }
 
@@ -116,6 +137,25 @@ export async function fetchMyHistory(limit = 30): Promise<HistoryPayload> {
 
 export type ChartStatus = "empty" | "processing" | "ready" | "failed"
 
+/** 정답 멜로디를 어디서 뽑았는지 — 노래면 보컬 스템, 연주곡이면 멜로디 악기 스템 */
+export type MelodySource = "vocal" | "instrument"
+
+export type InstrumentKind = "piano" | "guitar" | "violin" | "flute" | "saxophone" | "other"
+
+export const MELODY_SOURCE_LABEL: Record<MelodySource, string> = {
+  vocal: "노래 (보컬)",
+  instrument: "연주곡 (악기)",
+}
+
+export const INSTRUMENT_LABEL: Record<InstrumentKind, string> = {
+  piano: "피아노",
+  guitar: "기타",
+  violin: "바이올린",
+  flute: "플루트",
+  saxophone: "색소폰",
+  other: "기타 악기",
+}
+
 /** 정답 멜로디의 음표 하나. 시간은 초, 음높이는 MIDI 번호(60 = 가온 도) */
 export type ChartNote = {
   start: number
@@ -132,12 +172,15 @@ export type LyricLine = {
 export type Chart = {
   challenge_id: number
   status: ChartStatus
+  melody_source: MelodySource
+  /** 연주곡의 멜로디 악기. 노래면 null */
+  instrument: InstrumentKind | null
   notes: ChartNote[]
   duration: number | null
   lyric_lines: LyricLine[]
   /** 도전 화면에서 틀 반주. 없으면 원곡을 대신 쓴다 */
-  instrumental_url: string | null
-  has_vocal: boolean
+  backing_url: string | null
+  has_melody: boolean
   error: string | null
 }
 
@@ -151,12 +194,17 @@ export function fetchChart(challengeId: number): Promise<Chart> {
  */
 export function uploadStems(input: {
   challengeId: number
-  vocalFile: File
-  instrumentalFile: File | null
+  /** 정답을 뽑을 트랙 — 보컬 스템 또는 멜로디 악기 스템 */
+  melodyFile: File
+  backingFile: File | null
+  melodySource: MelodySource
+  instrument: InstrumentKind | null
 }): Promise<Chart> {
   const form = new FormData()
-  form.append("vocal_file", input.vocalFile)
-  if (input.instrumentalFile) form.append("instrumental_file", input.instrumentalFile)
+  form.append("melody_file", input.melodyFile)
+  if (input.backingFile) form.append("backing_file", input.backingFile)
+  form.append("melody_source", input.melodySource)
+  if (input.instrument) form.append("instrument", input.instrument)
   return postMusicFormAuthed<Chart>(
     `${BASE}/challenges/${input.challengeId}/stems`,
     form
@@ -169,4 +217,46 @@ export function saveLyrics(challengeId: number, lines: LyricLine[]): Promise<Cha
     `${BASE}/challenges/${challengeId}/lyrics`,
     { lines }
   )
+}
+
+export type RankingEntry = {
+  rank: number
+  nickname: string
+  score: number
+  pitch_accuracy: number | null
+  timing_accuracy: number | null
+  achieved_at: string
+}
+
+export type ChallengeRanking = {
+  items: RankingEntry[]
+  /** 로그인했고 이 곡 노래방 기록이 있을 때만 */
+  me: { rank: number; best_score: number } | null
+}
+
+export type WeeklyRankingEntry = RankingEntry & {
+  challenge_id: number
+  challenge_title: string
+}
+
+/**
+ * 곡별 노래방·연주 랭킹 — 사람마다 최고 기록 하나.
+ * 누구나 볼 수 있고, 로그인했으면 토큰이 붙어 내 순위(me)도 온다.
+ */
+export async function fetchChallengeRanking(
+  challengeId: number,
+  limit = 20
+): Promise<ChallengeRanking> {
+  const data = await getMusicJsonAuthed<ChallengeRanking>(
+    `${BASE}/challenges/${challengeId}/ranking?limit=${limit}`
+  )
+  return { items: data.items ?? [], me: data.me ?? null }
+}
+
+/** 이번 주(한국 시간 월요일 0시부터) 사람마다 가장 높은 기록 한 곡 */
+export async function fetchWeeklyRanking(limit = 10): Promise<WeeklyRankingEntry[]> {
+  const data = await getMusicJson<{ items: WeeklyRankingEntry[] }>(
+    `${BASE}/rankings/weekly?limit=${limit}`
+  )
+  return data.items ?? []
 }

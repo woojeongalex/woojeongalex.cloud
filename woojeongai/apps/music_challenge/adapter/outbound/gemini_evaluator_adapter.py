@@ -5,6 +5,7 @@ import logging
 from core.matrix.keymaker_api import get_keymaker
 from music_challenge.app.ports.output.ai_evaluator_port import AIEvaluatorPort
 from music_challenge.app.ports.output.audio_analysis_port import AudioMetrics
+from music_challenge.domain.services.karaoke_scoring import KaraokeScore
 from music_challenge.domain.value_objects.music_challenge_vo import (
     ChallengeType,
     MediaType,
@@ -44,6 +45,19 @@ def _metrics_block(metrics: AudioMetrics | None) -> str:
     )
 
 
+def _karaoke_block(karaoke: KaraokeScore | None) -> str:
+    if karaoke is None:
+        return ""
+    return (
+        "\n\n노래방·연주 채점 결과(원곡의 정답 음표와 녹음을 맞춰 본 값 — 가장 중요한 근거):\n"
+        f"- 정답 음과 일치한 비율: {karaoke.pitch_accuracy}%\n"
+        f"- 음표를 제때 시작한 비율: {karaoke.timing_accuracy}%\n"
+        f"- 종합: {karaoke.score}/100\n"
+        "피드백은 이 두 수치 중 낮은 쪽을 먼저 짚고, 다음 도전에서 바로 해 볼 수 있는 "
+        "구체적인 연습 방법 하나를 제안하세요."
+    )
+
+
 class GeminiEvaluatorAdapter(AIEvaluatorPort):
     async def evaluate(
         self,
@@ -54,6 +68,7 @@ class GeminiEvaluatorAdapter(AIEvaluatorPort):
         media_type: MediaType,
         content_type: str,
         metrics: AudioMetrics | None = None,
+        karaoke: KaraokeScore | None = None,
     ) -> tuple[int, str]:
         try:
             # 모델명을 하드코딩하면 모델이 폐기될 때 조용히 404가 난다(실제로
@@ -76,7 +91,10 @@ class GeminiEvaluatorAdapter(AIEvaluatorPort):
                 f"챌린지명: [{challenge_title}]\n"
                 f"설명: {challenge_description}\n"
                 f"유형: {challenge_type.value} (vocal=노래, instrument=악기, both=둘 다)\n\n"
-                f"{_metrics_block(metrics)}\n\n"
+                # 노래방 모드는 일반 지표를 일부러 건너뛴다(정답 대비 결과가 더 정확하다).
+                # 그때 "분석 불가"라고 쓰면 모델이 오디오가 깨진 줄 안다.
+                f"{'' if karaoke and metrics is None else _metrics_block(metrics)}"
+                f"{_karaoke_block(karaoke)}\n\n"
                 f"{_RUBRIC}\n\n"
                 f"제출된 {media_type.value} 파일을 듣고 정확도(음정·박자·리듬), "
                 f"표현력과 감정, 전체 완성도를 평가하세요.\n"

@@ -123,13 +123,19 @@ export function ChartStudio({ challengeId }: ChartStudioProps) {
               currentTime={time}
               onChartChange={setChart}
             />
-            <LyricsSyncPanel
-              challengeId={challengeId}
-              savedLines={chart.lyric_lines}
-              audioRef={audioRef}
-              currentTime={time}
-              onChartChange={setChart}
-            />
+            {chart.melody_source === "vocal" ? (
+              <LyricsSyncPanel
+                challengeId={challengeId}
+                savedLines={chart.lyric_lines}
+                audioRef={audioRef}
+                currentTime={time}
+                onChartChange={setChart}
+              />
+            ) : (
+              <StatusNote>
+                연주곡이라 가사 단계는 건너뜁니다. 도전 화면에는 음표만 흘러갑니다.
+              </StatusNote>
+            )}
           </div>
         )}
       </div>

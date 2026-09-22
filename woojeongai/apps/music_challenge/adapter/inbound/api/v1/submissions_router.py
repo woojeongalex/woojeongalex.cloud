@@ -29,6 +29,7 @@ async def submit_challenge(
     challenge_id: int = Form(...),
     media_type: MediaType = Form(...),
     media_file: UploadFile = File(...),
+    karaoke_start_offset: float | None = Form(None),
     use_case: SubmitChallengeUseCase = Depends(get_submit_challenge_use_case),
     user: dict | None = Depends(get_optional_user),
 ) -> EvaluationResponse:
@@ -42,6 +43,7 @@ async def submit_challenge(
             data=data,
             # 로그인 상태면 토큰의 sub(username). 비로그인이면 None.
             username=user.get("sub") if user else None,
+            karaoke_start_offset=karaoke_start_offset,
         )
     )
     return evaluation_result_to_response(result)

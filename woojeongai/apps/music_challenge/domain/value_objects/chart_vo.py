@@ -1,6 +1,7 @@
 """노래방 화면의 "악보" — 정답 멜로디 음표와 가사 줄."""
 
 from dataclasses import dataclass
+from enum import Enum
 
 
 @dataclass(frozen=True)
@@ -18,3 +19,21 @@ class LyricLine:
 
     text: str
     start: float | None
+
+
+class MelodySource(str, Enum):
+    """정답 멜로디를 어디서 뽑았는지. 추출 방식과 도전 화면 문구가 달라진다."""
+
+    VOCAL = "vocal"
+    INSTRUMENT = "instrument"
+
+
+class InstrumentKind(str, Enum):
+    """연주곡의 멜로디 악기. 화면 표시용이며 추출은 같은 악기 프로필을 쓴다."""
+
+    PIANO = "piano"
+    GUITAR = "guitar"
+    VIOLIN = "violin"
+    FLUTE = "flute"
+    SAXOPHONE = "saxophone"
+    OTHER = "other"

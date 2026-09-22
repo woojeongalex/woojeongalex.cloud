@@ -23,6 +23,9 @@ class EvaluationPgRepository(EvaluationRepositoryPort):
             pitch_score=evaluation.pitch_score,
             rhythm_score=evaluation.rhythm_score,
             tempo=evaluation.tempo,
+            karaoke_score=evaluation.karaoke_score,
+            karaoke_pitch_accuracy=evaluation.karaoke_pitch_accuracy,
+            karaoke_timing_accuracy=evaluation.karaoke_timing_accuracy,
             created_at=evaluation.created_at,
         )
         self._session.add(model)
@@ -50,5 +53,8 @@ class EvaluationPgRepository(EvaluationRepositoryPort):
             pitch_score=model.pitch_score,
             rhythm_score=model.rhythm_score,
             tempo=model.tempo,
+            karaoke_score=model.karaoke_score,
+            karaoke_pitch_accuracy=model.karaoke_pitch_accuracy,
+            karaoke_timing_accuracy=model.karaoke_timing_accuracy,
             created_at=model.created_at,
         )

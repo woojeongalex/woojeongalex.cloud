@@ -5,7 +5,7 @@ from music_challenge.app.dtos.chart_dto import (
     UploadStemsCommand,
     UploadStemsResult,
 )
-from music_challenge.domain.value_objects.chart_vo import LyricLine
+from music_challenge.domain.value_objects.chart_vo import LyricLine, MelodySource
 
 
 class GetChartUseCase(ABC):
@@ -22,11 +22,16 @@ class UploadStemsUseCase(ABC):
 class BuildChartUseCase(ABC):
     @abstractmethod
     async def build(
-        self, challenge_id: int, vocal_key: str, vocal_bytes: bytes
+        self,
+        challenge_id: int,
+        melody_key: str,
+        melody_bytes: bytes,
+        source: MelodySource,
     ) -> None:
         """정답 멜로디를 추출해 저장한다. 요청 밖(백그라운드)에서 실행된다.
 
-        vocal_key 는 이 추출이 어느 업로드의 것인지 가리킨다. 처리 중에 새 스템이
+        source 에 따라 보컬/악기 추출 방식이 달라진다.
+        melody_key 는 이 추출이 어느 업로드의 것인지 가리킨다. 처리 중에 새 스템이
         올라왔다면 결과를 버려서, 늦게 끝난 옛 작업이 새 결과를 덮지 못하게 한다.
         """
 

@@ -3,6 +3,15 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
+class KaraokeResultResponse(BaseModel):
+    score: int
+    pitch_accuracy: int
+    timing_accuracy: int
+    rank: int | None
+    best_score: int | None
+    is_personal_best: bool
+
+
 class EvaluationResponse(BaseModel):
     id: int
     submission_id: int
@@ -13,6 +22,8 @@ class EvaluationResponse(BaseModel):
     pitch_score: int | None = None
     rhythm_score: int | None = None
     tempo: float | None = None
+    # 노래방·연주 모드 제출만 — 정답 음표 대비 서버 채점과 랭킹 위치
+    karaoke: KaraokeResultResponse | None = None
 
 
 class SubmissionHistoryItemResponse(BaseModel):

@@ -6,8 +6,8 @@
  * ffmpeg 도 없다. 그대로 올리면 librosa 분석이 통째로 실패해 음정·박자 지표가
  * 비어버린다. 그래서 업로드 전에 브라우저에서 PCM 으로 풀어 WAV 로 다시 싼다.
  *
- * 샘플레이트는 원본을 유지한다(보통 48kHz). 리샘플링은 아티팩트를 만들 수 있고,
- * 20MB 업로드 한도 안에서 수 분 길이까지 충분히 들어간다.
+ * 샘플레이트는 기본으로 원본을 유지한다(보통 48kHz). 긴 곡을 올릴 때는 sampleRate
+ * 옵션으로 줄인다 — 48kHz 모노는 1분에 약 5.8MB 다.
  */
 
 function encodeWav(samples: Float32Array, sampleRate: number): Blob {
@@ -39,8 +39,29 @@ function encodeWav(samples: Float32Array, sampleRate: number): Blob {
   return new Blob([buffer], { type: "audio/wav" })
 }
 
+type BlobToWavOptions = {
+  /**
+   * 지정하면 이 샘플레이트로 줄인다. 노래방 제출은 서버가 어차피 16kHz 로 분석하고,
+   * 48kHz 그대로면 4분 곡이 23MB 라 AI 코칭(인라인 20MB 한도)이 건너뛰어진다.
+   */
+  sampleRate?: number
+}
+
+/** 여러 채널을 평균 내어 모노로 */
+function toMono(buffer: AudioBuffer): Float32Array {
+  const mono = new Float32Array(buffer.length)
+  for (let ch = 0; ch < buffer.numberOfChannels; ch++) {
+    const data = buffer.getChannelData(ch)
+    for (let i = 0; i < buffer.length; i++) mono[i] += data[i] / buffer.numberOfChannels
+  }
+  return mono
+}
+
 /** 녹음 Blob → 모노 16bit WAV. 디코딩에 실패하면 null. */
-export async function blobToWav(blob: Blob): Promise<Blob | null> {
+export async function blobToWav(
+  blob: Blob,
+  options: BlobToWavOptions = {}
+): Promise<Blob | null> {
   const AudioCtx =
     window.AudioContext ??
     (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
@@ -49,15 +70,19 @@ export async function blobToWav(blob: Blob): Promise<Blob | null> {
   const ctx = new AudioCtx()
   try {
     const decoded = await ctx.decodeAudioData(await blob.arrayBuffer())
-    const length = decoded.length
-    const channels = decoded.numberOfChannels
-    const mono = new Float32Array(length)
-
-    for (let ch = 0; ch < channels; ch++) {
-      const data = decoded.getChannelData(ch)
-      for (let i = 0; i < length; i++) mono[i] += data[i] / channels
+    const target = options.sampleRate
+    if (!target || target === decoded.sampleRate) {
+      return encodeWav(toMono(decoded), decoded.sampleRate)
     }
-    return encodeWav(mono, decoded.sampleRate)
+    // 브라우저 내장 리샘플러(OfflineAudioContext)로 줄인다. 앞단에 저역 통과가 들어가
+    // 직접 솎아 내는 것과 달리 에일리어싱이 생기지 않는다.
+    const offline = new OfflineAudioContext(1, Math.ceil(decoded.duration * target), target)
+    const source = offline.createBufferSource()
+    source.buffer = decoded
+    source.connect(offline.destination)
+    source.start()
+    const rendered = await offline.startRendering()
+    return encodeWav(rendered.getChannelData(0), target)
   } catch {
     return null
   } finally {

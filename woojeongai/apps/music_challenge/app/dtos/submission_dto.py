@@ -12,3 +12,6 @@ class SubmitChallengeCommand:
     data: bytes
     # 검증된 JWT 의 sub. 비로그인이면 None.
     username: str | None = None
+    # 노래방·연주 모드 제출만. 녹음이 곡의 몇 초 지점부터 시작됐는지(기기 지연 반영).
+    # 서버가 이 값으로 녹음을 정답 음표에 맞춰 다시 채점한다.
+    karaoke_start_offset: float | None = None

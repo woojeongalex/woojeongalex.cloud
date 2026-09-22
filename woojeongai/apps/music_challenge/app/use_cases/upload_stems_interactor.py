@@ -16,6 +16,7 @@ from music_challenge.app.ports.output.chart_repository_port import ChartReposito
 from music_challenge.app.ports.output.media_storage_port import MediaStoragePort
 from music_challenge.app.use_cases.chart_result import to_chart_result
 from music_challenge.domain.entities.chart_entity import ChallengeChart, ChartStatus
+from music_challenge.domain.value_objects.chart_vo import MelodySource
 
 
 class UploadStemsInteractor(UploadStemsUseCase):
@@ -38,12 +39,19 @@ class UploadStemsInteractor(UploadStemsUseCase):
         if not await self._challenge_repo.find_by_id(command.challenge_id):
             raise HTTPException(status_code=404, detail="챌린지를 찾을 수 없습니다.")
 
+        # 보컬 멜로디에 악기 종류가 붙어 있으면 화면이 "피아노 멜로디"처럼 잘못 보인다.
+        instrument = (
+            command.instrument
+            if command.melody_source == MelodySource.INSTRUMENT
+            else None
+        )
+
         existing = await self._chart_repo.find(command.challenge_id)
-        vocal_key = await self._put(command.challenge_id, "vocal", command.vocal)
-        instrumental_key = (
-            await self._put(command.challenge_id, "instrumental", command.instrumental)
-            if command.instrumental
-            else (existing.instrumental_s3_key if existing else None)
+        melody_key = await self._put(command.challenge_id, "melody", command.melody)
+        backing_key = (
+            await self._put(command.challenge_id, "backing", command.backing)
+            if command.backing
+            else (existing.backing_s3_key if existing else None)
         )
 
         # 가사는 스템과 따로 관리하므로 스템을 다시 올려도 지우지 않는다.
@@ -51,14 +59,16 @@ class UploadStemsInteractor(UploadStemsUseCase):
             ChallengeChart(
                 challenge_id=command.challenge_id,
                 status=ChartStatus.PROCESSING,
+                melody_source=command.melody_source,
+                instrument=instrument,
                 notes=[],
                 duration=None,
-                vocal_s3_key=vocal_key,
-                instrumental_s3_key=instrumental_key,
+                melody_s3_key=melody_key,
+                backing_s3_key=backing_key,
                 lyric_lines=existing.lyric_lines if existing else [],
                 error=None,
                 updated_at=datetime.utcnow(),
             )
         )
-        chart = await to_chart_result(saved, command.challenge_id, self._storage)
-        return UploadStemsResult(chart=chart, vocal_key=vocal_key)
+        chart = await to_chart_result(saved, self._storage)
+        return UploadStemsResult(chart=chart, melody_key=melody_key)

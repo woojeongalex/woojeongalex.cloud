@@ -11,14 +11,16 @@ def chart_result_to_response(result: ChartResult) -> ChartResponse:
     return ChartResponse(
         challenge_id=result.challenge_id,
         status=result.status.value,
+        melody_source=result.melody_source.value,
+        instrument=result.instrument.value if result.instrument else None,
         notes=[NoteSchema(start=n.start, end=n.end, midi=n.midi) for n in result.notes],
         duration=result.duration,
         lyric_lines=[
             LyricLineSchema(text=line.text, start=line.start)
             for line in result.lyric_lines
         ],
-        instrumental_url=result.instrumental_url,
-        has_vocal=result.has_vocal,
+        backing_url=result.backing_url,
+        has_melody=result.has_melody,
         error=result.error,
     )
 

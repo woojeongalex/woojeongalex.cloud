@@ -5,6 +5,7 @@ from fastapi import (
     BackgroundTasks,
     Depends,
     File,
+    Form,
     HTTPException,
     UploadFile,
     status,
@@ -31,6 +32,7 @@ from music_challenge.app.ports.input.chart_use_case import (
     UpdateLyricsUseCase,
     UploadStemsUseCase,
 )
+from music_challenge.domain.value_objects.chart_vo import InstrumentKind, MelodySource
 
 charts_router = APIRouter(prefix="/challenges", tags=["music-challenge"])
 
@@ -70,8 +72,10 @@ async def get_chart(
 async def upload_stems(
     challenge_id: int,
     background: BackgroundTasks,
-    vocal_file: UploadFile = File(...),
-    instrumental_file: UploadFile | None = File(None),
+    melody_file: UploadFile = File(...),
+    backing_file: UploadFile | None = File(None),
+    melody_source: MelodySource = Form(MelodySource.VOCAL),
+    instrument: InstrumentKind | None = Form(None),
     _admin: dict = Depends(require_admin),
     use_case: UploadStemsUseCase = Depends(get_upload_stems_use_case),
 ) -> ChartResponse:
@@ -79,17 +83,24 @@ async def upload_stems(
 
     정답 멜로디 추출은 3분 곡에 수십 초가 걸려 프록시 타임아웃에 걸릴 수 있으므로
     응답 뒤에 돌린다. 화면은 GET /chart 의 status 로 완료를 확인한다.
+
+    melody_file 은 정답을 뽑을 트랙이다. 노래면 보컬 스템, 연주곡이면 멜로디를
+    연주하는 악기 하나의 스템(melody_source=instrument).
     """
-    vocal = await _read_stem(vocal_file, "보컬")
-    instrumental = (
-        await _read_stem(instrumental_file, "반주") if instrumental_file else None
-    )
+    melody = await _read_stem(melody_file, "멜로디")
+    backing = await _read_stem(backing_file, "반주") if backing_file else None
     result = await use_case.upload(
         UploadStemsCommand(
-            challenge_id=challenge_id, vocal=vocal, instrumental=instrumental
+            challenge_id=challenge_id,
+            melody=melody,
+            backing=backing,
+            melody_source=melody_source,
+            instrument=instrument,
         )
     )
-    background.add_task(run_build_chart, challenge_id, result.vocal_key, vocal.data)
+    background.add_task(
+        run_build_chart, challenge_id, result.melody_key, melody.data, melody_source
+    )
     return chart_result_to_response(result.chart)
 
 

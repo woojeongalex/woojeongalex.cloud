@@ -10,7 +10,10 @@ from music_challenge.app.ports.output.challenge_repository_port import (
 )
 from music_challenge.app.ports.output.chart_repository_port import ChartRepositoryPort
 from music_challenge.app.ports.output.media_storage_port import MediaStoragePort
-from music_challenge.app.use_cases.chart_result import to_chart_result
+from music_challenge.app.use_cases.chart_result import (
+    default_melody_source,
+    to_chart_result,
+)
 from music_challenge.domain.entities.chart_entity import ChallengeChart, ChartStatus
 from music_challenge.domain.value_objects.chart_vo import LyricLine
 
@@ -45,7 +48,8 @@ class UpdateLyricsInteractor(UpdateLyricsUseCase):
         self._storage = storage
 
     async def update(self, challenge_id: int, lines: list[LyricLine]) -> ChartResult:
-        if not await self._challenge_repo.find_by_id(challenge_id):
+        challenge = await self._challenge_repo.find_by_id(challenge_id)
+        if not challenge:
             raise HTTPException(status_code=404, detail="챌린지를 찾을 수 없습니다.")
         _validate(lines)
 
@@ -54,10 +58,12 @@ class UpdateLyricsInteractor(UpdateLyricsUseCase):
         base = existing or ChallengeChart(
             challenge_id=challenge_id,
             status=ChartStatus.EMPTY,
+            melody_source=default_melody_source(challenge.challenge_type),
+            instrument=None,
             notes=[],
             duration=None,
-            vocal_s3_key=None,
-            instrumental_s3_key=None,
+            melody_s3_key=None,
+            backing_s3_key=None,
             lyric_lines=[],
             error=None,
             updated_at=datetime.utcnow(),
@@ -65,4 +71,4 @@ class UpdateLyricsInteractor(UpdateLyricsUseCase):
         saved = await self._chart_repo.save(
             replace(base, lyric_lines=lines, updated_at=datetime.utcnow())
         )
-        return await to_chart_result(saved, challenge_id, self._storage)
+        return await to_chart_result(saved, self._storage)

@@ -14,3 +14,7 @@ class SubmissionEvaluation:
     pitch_score: int | None = None
     rhythm_score: int | None = None
     tempo: float | None = None
+    # 노래방·연주 모드로 제출했을 때만. 정답 음표 대비 서버 재채점 결과.
+    karaoke_score: int | None = None
+    karaoke_pitch_accuracy: int | None = None
+    karaoke_timing_accuracy: int | None = None

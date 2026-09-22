@@ -52,13 +52,18 @@ class SubmissionEvaluationModel(SQLModel, table=True):
     pitch_score: int | None = Field(default=None)
     rhythm_score: int | None = Field(default=None)
     tempo: float | None = Field(default=None)
+    # 노래방·연주 모드 제출만. 정답 음표 대비 서버 재채점 결과이며 랭킹은 이 값만 쓴다.
+    karaoke_score: int | None = Field(default=None, index=True)
+    karaoke_pitch_accuracy: int | None = Field(default=None)
+    karaoke_timing_accuracy: int | None = Field(default=None)
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 
 class ChallengeChartModel(SQLModel, table=True):
-    """노래방 화면용 악보 — 정답 멜로디, 가사 타이밍, 스템 위치.
+    """노래방·연주 화면용 악보 — 정답 멜로디, 가사 타이밍, 스템 위치.
 
     목록 조회마다 수백 개의 음표를 실어 나르지 않도록 챌린지와 분리했다.
+    melody 는 정답을 뽑는 트랙(보컬 또는 멜로디 악기), backing 은 도전 때 트는 반주다.
     """
 
     __tablename__ = "challenge_charts"
@@ -67,8 +72,12 @@ class ChallengeChartModel(SQLModel, table=True):
     status: str = Field(default="empty", max_length=20)
     notes: list | None = Field(default=None, sa_column=Column(JSON, nullable=True))
     duration: float | None = Field(default=None)
-    vocal_s3_key: str | None = Field(default=None, max_length=500)
-    instrumental_s3_key: str | None = Field(default=None, max_length=500)
+    # vocal | instrument
+    melody_source: str = Field(default="vocal", max_length=20)
+    # piano | guitar | violin | flute | saxophone | other. 보컬이면 비어 있다.
+    instrument: str | None = Field(default=None, max_length=20)
+    melody_s3_key: str | None = Field(default=None, max_length=500)
+    backing_s3_key: str | None = Field(default=None, max_length=500)
     lyric_lines: list | None = Field(
         default=None, sa_column=Column(JSON, nullable=True)
     )

@@ -8,6 +8,7 @@ from music_challenge.adapter.outbound.librosa_audio_analysis_adapter import (
 )
 from music_challenge.adapter.outbound.librosa_melody_extractor_adapter import (
     LibrosaMelodyExtractorAdapter,
+    LibrosaPitchTrackerAdapter,
 )
 from music_challenge.adapter.outbound.pg.challenge_pg_repository import (
     ChallengePgRepository,
@@ -16,6 +17,7 @@ from music_challenge.adapter.outbound.pg.chart_pg_repository import ChartPgRepos
 from music_challenge.adapter.outbound.pg.evaluation_pg_repository import (
     EvaluationPgRepository,
 )
+from music_challenge.adapter.outbound.pg.ranking_pg_query import RankingPgQuery
 from music_challenge.adapter.outbound.pg.submission_pg_repository import (
     SubmissionPgRepository,
 )
@@ -37,6 +39,10 @@ from music_challenge.app.ports.input.chart_use_case import (
     UploadStemsUseCase,
 )
 from music_challenge.app.ports.input.history_use_case import GetMyHistoryUseCase
+from music_challenge.app.ports.input.ranking_use_case import (
+    GetChallengeRankingUseCase,
+    GetWeeklyRankingUseCase,
+)
 from music_challenge.app.ports.input.submission_use_case import SubmitChallengeUseCase
 from music_challenge.app.use_cases.build_chart_interactor import BuildChartInteractor
 from music_challenge.app.use_cases.create_challenge_interactor import (
@@ -45,9 +51,15 @@ from music_challenge.app.use_cases.create_challenge_interactor import (
 from music_challenge.app.use_cases.get_challenge_interactor import (
     GetChallengeInteractor,
 )
+from music_challenge.app.use_cases.get_challenge_ranking_interactor import (
+    GetChallengeRankingInteractor,
+)
 from music_challenge.app.use_cases.get_chart_interactor import GetChartInteractor
 from music_challenge.app.use_cases.get_my_history_interactor import (
     GetMyHistoryInteractor,
+)
+from music_challenge.app.use_cases.get_weekly_ranking_interactor import (
+    GetWeeklyRankingInteractor,
 )
 from music_challenge.app.use_cases.list_challenges_interactor import (
     ListChallengesInteractor,
@@ -93,6 +105,9 @@ def get_submit_challenge_use_case(session: AsyncSession) -> SubmitChallengeUseCa
         evaluator=GeminiEvaluatorAdapter(),
         user_lookup=UserLookupPgRepository(session),
         audio_analysis=LibrosaAudioAnalysisAdapter(),
+        chart_repo=ChartPgRepository(session),
+        pitch_tracker=LibrosaPitchTrackerAdapter(),
+        ranking=RankingPgQuery(session),
     )
 
 
@@ -132,3 +147,15 @@ def get_update_lyrics_use_case(session: AsyncSession) -> UpdateLyricsUseCase:
         chart_repo=ChartPgRepository(session),
         storage=S3MediaStorageAdapter(),
     )
+
+
+def get_challenge_ranking_use_case(session: AsyncSession) -> GetChallengeRankingUseCase:
+    return GetChallengeRankingInteractor(
+        challenge_repo=ChallengePgRepository(session),
+        ranking=RankingPgQuery(session),
+        user_lookup=UserLookupPgRepository(session),
+    )
+
+
+def get_weekly_ranking_use_case(session: AsyncSession) -> GetWeeklyRankingUseCase:
+    return GetWeeklyRankingInteractor(ranking=RankingPgQuery(session))

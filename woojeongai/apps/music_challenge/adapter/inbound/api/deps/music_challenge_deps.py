@@ -13,9 +13,17 @@ from music_challenge.app.ports.input.chart_use_case import (
     UploadStemsUseCase,
 )
 from music_challenge.app.ports.input.history_use_case import GetMyHistoryUseCase
+from music_challenge.app.ports.input.ranking_use_case import (
+    GetChallengeRankingUseCase,
+    GetWeeklyRankingUseCase,
+)
+from music_challenge.domain.value_objects.chart_vo import MelodySource
 from music_challenge.app.ports.input.submission_use_case import SubmitChallengeUseCase
 from music_challenge.dependencies.music_challenge_director import (
     get_build_chart_use_case as _build_chart,
+)
+from music_challenge.dependencies.music_challenge_director import (
+    get_challenge_ranking_use_case as _challenge_ranking,
 )
 from music_challenge.dependencies.music_challenge_director import (
     get_challenge_use_case as _get,
@@ -40,6 +48,9 @@ from music_challenge.dependencies.music_challenge_director import (
 )
 from music_challenge.dependencies.music_challenge_director import (
     get_upload_stems_use_case as _upload_stems,
+)
+from music_challenge.dependencies.music_challenge_director import (
+    get_weekly_ranking_use_case as _weekly_ranking,
 )
 
 
@@ -92,8 +103,22 @@ def get_update_lyrics_use_case(
 
 
 async def run_build_chart(
-    challenge_id: int, vocal_key: str, vocal_bytes: bytes
+    challenge_id: int, melody_key: str, melody_bytes: bytes, source: MelodySource
 ) -> None:
     """BackgroundTasks 용. 요청 세션은 응답과 함께 닫히므로 새 세션을 연다."""
     async for session in get_db():
-        await _build_chart(session).build(challenge_id, vocal_key, vocal_bytes)
+        await _build_chart(session).build(
+            challenge_id, melody_key, melody_bytes, source
+        )
+
+
+def get_challenge_ranking_use_case(
+    session: AsyncSession = Depends(get_db),
+) -> GetChallengeRankingUseCase:
+    return _challenge_ranking(session)
+
+
+def get_weekly_ranking_use_case(
+    session: AsyncSession = Depends(get_db),
+) -> GetWeeklyRankingUseCase:
+    return _weekly_ranking(session)

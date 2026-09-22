@@ -1,9 +1,18 @@
 "use client"
 
+import { useState } from "react"
 import { Loader2, Upload } from "lucide-react"
 import { MelodyPreview } from "@/components/music/melody-preview"
 import { useAsyncAction } from "@/hooks/use-async-action"
-import { uploadStems, type Chart, type ChartStatus } from "@/lib/music-challenge-api"
+import {
+  INSTRUMENT_LABEL,
+  MELODY_SOURCE_LABEL,
+  uploadStems,
+  type Chart,
+  type ChartStatus,
+  type InstrumentKind,
+  type MelodySource,
+} from "@/lib/music-challenge-api"
 import { formatSeconds } from "@/lib/lyrics"
 import { midiToName } from "@/lib/music-notes"
 import { UI_ERRORS } from "@/lib/user-facing-error"
@@ -16,6 +25,21 @@ const STATUS_LABEL: Record<ChartStatus, string> = {
   failed: "추출 실패",
 }
 
+const MELODY_SOURCES: MelodySource[] = ["vocal", "instrument"]
+const INSTRUMENTS: InstrumentKind[] = ["piano", "guitar", "violin", "flute", "saxophone", "other"]
+
+/** 어떤 스템을 올려야 하는지는 노래냐 연주곡이냐에 따라 다르다. */
+const GUIDE: Record<MelodySource, { melodyLabel: string; text: string }> = {
+  vocal: {
+    melodyLabel: "보컬 스템",
+    text: "Suno의 Get Stems로 받은 보컬 트랙에서 정답 멜로디를 뽑고, 반주는 도전 화면에서 틀어 줍니다. 완성곡을 보컬 자리에 올리면 악기 소리까지 음표로 잡혀 판정이 틀어집니다.",
+  },
+  instrument: {
+    melodyLabel: "멜로디 악기 스템",
+    text: "멜로디를 연주하는 악기 하나만 담긴 스템(예: 피아노 스템)을 올리세요. 나머지 악기를 합친 트랙은 반주로 올립니다. 한 번에 한 음씩 이어지는 멜로디만 판정할 수 있고, 화음(여러 음을 동시에 누르는 것)은 판정하지 않습니다.",
+  },
+}
+
 type StemsPanelProps = {
   challengeId: number
   chart: Chart
@@ -24,23 +48,26 @@ type StemsPanelProps = {
 }
 
 export function StemsPanel({ challengeId, chart, currentTime, onChartChange }: StemsPanelProps) {
+  const [source, setSource] = useState<MelodySource>(chart.melody_source)
+  const [instrument, setInstrument] = useState<InstrumentKind>(chart.instrument ?? "piano")
   const { loading, error, run } = useAsyncAction()
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const form = e.currentTarget
     const formData = new FormData(form)
-    const vocal = formData.get("vocal_file")
-    const instrumental = formData.get("instrumental_file")
-    if (!(vocal instanceof File) || vocal.size === 0) return
+    const melody = formData.get("melody_file")
+    const backing = formData.get("backing_file")
+    if (!(melody instanceof File) || melody.size === 0) return
 
     const result = await run(
       () =>
         uploadStems({
           challengeId,
-          vocalFile: vocal,
-          instrumentalFile:
-            instrumental instanceof File && instrumental.size > 0 ? instrumental : null,
+          melodyFile: melody,
+          backingFile: backing instanceof File && backing.size > 0 ? backing : null,
+          melodySource: source,
+          instrument: source === "instrument" ? instrument : null,
         }),
       { fallbackError: UI_ERRORS.requestFailed, onSuccess: onChartChange }
     )
@@ -49,6 +76,7 @@ export function StemsPanel({ challengeId, chart, currentTime, onChartChange }: S
 
   const midis = chart.notes.map((n) => n.midi)
   const busy = loading || chart.status === "processing"
+  const guide = GUIDE[source]
 
   return (
     <section className="rounded-3xl border border-border bg-card p-6">
@@ -74,19 +102,53 @@ export function StemsPanel({ challengeId, chart, currentTime, onChartChange }: S
         </span>
       </div>
 
-      <p className="mt-4 text-sm leading-6 text-muted-foreground">
-        Suno의 <strong className="text-foreground">Get Stems</strong>로 받은 파일을 올리세요.
-        보컬 트랙에서 정답 멜로디를 뽑고, 반주는 도전 화면에서 틀어 줍니다. 완성곡을
-        보컬 자리에 올리면 악기 소리까지 음표로 잡혀 판정이 틀어집니다.
-      </p>
+      <fieldset className="mt-5" disabled={busy}>
+        <legend className="text-sm font-medium">이 곡은</legend>
+        <div className="mt-2 inline-flex rounded-full border border-border bg-muted/40 p-1">
+          {MELODY_SOURCES.map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => setSource(s)}
+              aria-pressed={source === s}
+              className={cn(
+                "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
+                source === s
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {MELODY_SOURCE_LABEL[s]}
+            </button>
+          ))}
+        </div>
+        {source === "instrument" && (
+          <label className="mt-3 flex flex-wrap items-center gap-2 text-sm">
+            <span className="font-medium">멜로디 악기</span>
+            <select
+              value={instrument}
+              onChange={(e) => setInstrument(e.target.value as InstrumentKind)}
+              className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm"
+            >
+              {INSTRUMENTS.map((k) => (
+                <option key={k} value={k}>
+                  {INSTRUMENT_LABEL[k]}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+      </fieldset>
+
+      <p className="mt-4 text-sm leading-6 text-muted-foreground">{guide.text}</p>
 
       <form onSubmit={handleSubmit} className="mt-5 grid gap-4 sm:grid-cols-2">
         <label className="grid gap-2 text-sm">
           <span className="font-medium">
-            보컬 스템 <span className="text-muted-foreground">(필수 · WAV/MP3)</span>
+            {guide.melodyLabel} <span className="text-muted-foreground">(필수 · WAV/MP3)</span>
           </span>
           <input
-            name="vocal_file"
+            name="melody_file"
             type="file"
             accept="audio/*"
             required
@@ -99,7 +161,7 @@ export function StemsPanel({ challengeId, chart, currentTime, onChartChange }: S
             반주 스템 <span className="text-muted-foreground">(선택 · 이미 있으면 유지)</span>
           </span>
           <input
-            name="instrumental_file"
+            name="backing_file"
             type="file"
             accept="audio/*"
             disabled={busy}
@@ -140,7 +202,15 @@ export function StemsPanel({ challengeId, chart, currentTime, onChartChange }: S
 
       {chart.status === "ready" && chart.duration !== null && (
         <div className="mt-6">
-          <dl className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
+          <dl className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-5">
+            <div>
+              <dt className="text-muted-foreground">멜로디</dt>
+              <dd className="font-semibold">
+                {chart.melody_source === "instrument" && chart.instrument
+                  ? INSTRUMENT_LABEL[chart.instrument]
+                  : "보컬"}
+              </dd>
+            </div>
             <div>
               <dt className="text-muted-foreground">음표</dt>
               <dd className="font-mono font-semibold">{chart.notes.length}개</dd>
@@ -157,7 +227,7 @@ export function StemsPanel({ challengeId, chart, currentTime, onChartChange }: S
             </div>
             <div>
               <dt className="text-muted-foreground">반주</dt>
-              <dd className="font-semibold">{chart.instrumental_url ? "있음" : "없음 (원곡 사용)"}</dd>
+              <dd className="font-semibold">{chart.backing_url ? "있음" : "없음 (원곡 사용)"}</dd>
             </div>
           </dl>
           <MelodyPreview
@@ -167,7 +237,7 @@ export function StemsPanel({ challengeId, chart, currentTime, onChartChange }: S
             className="mt-4"
           />
           <p className="mt-2 text-xs text-muted-foreground">
-            아래 플레이어로 원곡을 틀면 재생선이 따라갑니다. 들리는 멜로디와 음표 모양이
+            위 플레이어로 원곡을 틀면 재생선이 따라갑니다. 들리는 멜로디와 음표 모양이
             맞는지 확인해 주세요.
           </p>
         </div>

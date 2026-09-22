@@ -1,5 +1,6 @@
 from music_challenge.adapter.inbound.api.schemas.submission_schema import (
     EvaluationResponse,
+    KaraokeResultResponse,
     SubmissionHistoryItemResponse,
 )
 from music_challenge.app.dtos.evaluation_dto import EvaluationResult
@@ -16,6 +17,18 @@ def evaluation_result_to_response(result: EvaluationResult) -> EvaluationRespons
         pitch_score=result.pitch_score,
         rhythm_score=result.rhythm_score,
         tempo=result.tempo,
+        karaoke=(
+            KaraokeResultResponse(
+                score=result.karaoke.score,
+                pitch_accuracy=result.karaoke.pitch_accuracy,
+                timing_accuracy=result.karaoke.timing_accuracy,
+                rank=result.karaoke.rank,
+                best_score=result.karaoke.best_score,
+                is_personal_best=result.karaoke.is_personal_best,
+            )
+            if result.karaoke
+            else None
+        ),
     )
 
 

@@ -5,7 +5,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from music_challenge.adapter.outbound.orm.music_challenge_orm import ChallengeChartModel
 from music_challenge.app.ports.output.chart_repository_port import ChartRepositoryPort
 from music_challenge.domain.entities.chart_entity import ChallengeChart, ChartStatus
-from music_challenge.domain.value_objects.chart_vo import LyricLine, Note
+from music_challenge.domain.value_objects.chart_vo import (
+    InstrumentKind,
+    LyricLine,
+    MelodySource,
+    Note,
+)
 
 
 class ChartPgRepository(ChartRepositoryPort):
@@ -23,12 +28,14 @@ class ChartPgRepository(ChartRepositoryPort):
             self._session.add(model)
 
         model.status = chart.status.value
+        model.melody_source = chart.melody_source.value
+        model.instrument = chart.instrument.value if chart.instrument else None
         model.notes = [
             {"start": n.start, "end": n.end, "midi": n.midi} for n in chart.notes
         ] or None
         model.duration = chart.duration
-        model.vocal_s3_key = chart.vocal_s3_key
-        model.instrumental_s3_key = chart.instrumental_s3_key
+        model.melody_s3_key = chart.melody_s3_key
+        model.backing_s3_key = chart.backing_s3_key
         model.lyric_lines = [
             {"text": line.text, "start": line.start} for line in chart.lyric_lines
         ] or None
@@ -43,13 +50,15 @@ class ChartPgRepository(ChartRepositoryPort):
         return ChallengeChart(
             challenge_id=model.challenge_id,
             status=ChartStatus(model.status),
+            melody_source=MelodySource(model.melody_source),
+            instrument=InstrumentKind(model.instrument) if model.instrument else None,
             notes=[
                 Note(start=n["start"], end=n["end"], midi=n["midi"])
                 for n in (model.notes or [])
             ],
             duration=model.duration,
-            vocal_s3_key=model.vocal_s3_key,
-            instrumental_s3_key=model.instrumental_s3_key,
+            melody_s3_key=model.melody_s3_key,
+            backing_s3_key=model.backing_s3_key,
             lyric_lines=[
                 LyricLine(text=line["text"], start=line.get("start"))
                 for line in (model.lyric_lines or [])
