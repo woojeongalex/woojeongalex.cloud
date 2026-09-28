@@ -5,6 +5,9 @@
 
 .claude/settings.local.json
 
+# Claude Code 세션 메모리 (기기별 로컬 데이터)
+.claude/projects/
+
 # 로컬 LLM 모델 가중치 (ship 데스크탑 WSL에만 존재, git에 절대 커밋 금지)
 models/
 *.safetensors
