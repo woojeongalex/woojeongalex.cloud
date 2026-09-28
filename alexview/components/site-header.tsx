@@ -32,7 +32,6 @@ const SECONDARY_LINKS = [
   { href: "/analyze", label: "보컬 분석" },
   { href: "/instrument", label: "악기" },
   { href: "/speech", label: "스피치" },
-  { href: "/titanic", label: "LESSON" },
 ]
 
 export function SiteHeader() {

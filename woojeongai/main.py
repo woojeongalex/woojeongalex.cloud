@@ -23,6 +23,7 @@ configure_logging()
 from fastapi import Depends, FastAPI, HTTPException
 from core.dependencies import RoleChecker
 from apps.auth.rbac import Role
+
 require_admin = RoleChecker(Role.ADMIN)
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -30,9 +31,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from adapters.db_health_adapter import DbHealthAdapter
 
 try:
-    from database import dispose_engine, get_db, init_db
+    from database import dispose_engine, get_db
 except ModuleNotFoundError:
-    from apps.database import dispose_engine, get_db, init_db
+    from apps.database import dispose_engine, get_db
 from core.matrix.keymaker_api import get_keymaker
 from music.adapter.inbound.api import music_router
 from friday13th.adapter.inbound.api.v1 import (
@@ -41,9 +42,6 @@ from friday13th.adapter.inbound.api.v1 import (
     signup_router,
     token_router,
 )
-from titanic.adapter.inbound.api import titanic_router
-from silicon_valley.adapter.inbound.api import silicon_valley_router
-from star_craft.adapter.inbound.api import star_craft_router
 from music_challenge.adapter.inbound.api import music_challenge_router
 import music_challenge.adapter.outbound.orm.music_challenge_orm  # noqa: F401 — Alembic autogenerate
 
@@ -72,6 +70,7 @@ class ChatResponse(BaseModel):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     from core.matrix.database_manager import init_engine
+
     init_engine()
     try:
         yield
@@ -100,10 +99,7 @@ app.include_router(signup_router)
 app.include_router(login_router)
 app.include_router(oauth_router)
 app.include_router(token_router)
-app.include_router(titanic_router)
-app.include_router(silicon_valley_router)
 app.include_router(music_router)
-app.include_router(star_craft_router)
 app.include_router(music_challenge_router)
 
 

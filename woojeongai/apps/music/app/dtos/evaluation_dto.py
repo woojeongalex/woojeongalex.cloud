@@ -1,7 +1,7 @@
 """[Layer: Use Cases] 보컬 평가 DTO."""
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 __all__ = [
     "VocalEvaluationCreateCommand",

@@ -44,19 +44,19 @@ def _alembic_database_url() -> str:
     """온라인(async) 마이그레이션용 URL."""
     url = os.getenv("DATABASE_URL", "").strip()
     if not url:
-        raise RuntimeError("DATABASE_URL이 설정되지 않았습니다. backend/.env를 확인하세요.")
+        raise RuntimeError(
+            "DATABASE_URL이 설정되지 않았습니다. backend/.env를 확인하세요."
+        )
     if url.startswith(_ALEMBIC_ALREADY_ASYNC):
         return url
     for sync_prefix, async_prefix in _ALEMBIC_SYNC_TO_ASYNC_PREFIX.items():
         if url.startswith(sync_prefix):
-            return async_prefix + url[len(sync_prefix):]
+            return async_prefix + url[len(sync_prefix) :]
     return url
 
 
 def _import_models() -> None:
     import friday13th.adapter.outbound.orm.user_model  # noqa: F401
-    import titanic.adapter.outbound.orm.passenger_orm  # noqa: F401
-    import titanic.adapter.outbound.orm.booking_orm  # noqa: F401
     import music_challenge.adapter.outbound.orm.music_challenge_orm  # noqa: F401
 
 

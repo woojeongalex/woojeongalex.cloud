@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 
+from music_challenge.adapter.inbound.api.v1.ai_chat_router import ai_chat_router
 from music_challenge.adapter.inbound.api.v1.challenges_router import challenges_router
 from music_challenge.adapter.inbound.api.v1.charts_router import charts_router
 from music_challenge.adapter.inbound.api.v1.rankings_router import rankings_router
@@ -10,6 +11,7 @@ from music_challenge.adapter.inbound.api.v1.rhythm_router import (
 from music_challenge.adapter.inbound.api.v1.submissions_router import submissions_router
 
 music_challenge_router = APIRouter(prefix="/music_challenge", tags=["music_challenge"])
+music_challenge_router.include_router(ai_chat_router)
 music_challenge_router.include_router(challenges_router)
 music_challenge_router.include_router(charts_router)
 music_challenge_router.include_router(rankings_router)

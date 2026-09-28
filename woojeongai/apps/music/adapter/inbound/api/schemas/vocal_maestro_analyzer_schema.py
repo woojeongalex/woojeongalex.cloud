@@ -1,7 +1,6 @@
 """[Layer: Adapter Inbound] Maestro 스키마 — 자기소개 + 보컬 분석."""
 from __future__ import annotations
 
-from typing import Literal
 
 from pydantic import BaseModel, Field
 

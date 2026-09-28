@@ -2,6 +2,7 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_db
+from music_challenge.app.ports.input.ai_chat_use_case import AiChatUseCase
 from music_challenge.app.ports.input.challenge_use_case import (
     CreateChallengeUseCase,
     GetChallengeUseCase,
@@ -25,6 +26,9 @@ from music_challenge.app.ports.input.rhythm_use_case import (
     ListRhythmSongsUseCase,
     RequestRhythmBuildUseCase,
     SubmitRhythmPlayUseCase,
+)
+from music_challenge.dependencies.music_challenge_director import (
+    get_ai_chat_use_case as _ai_chat,
 )
 from music_challenge.dependencies.music_challenge_director import (
     get_build_rhythm_chart_use_case as _build_rhythm_chart,
@@ -185,3 +189,7 @@ def get_list_rhythm_songs_use_case(
     session: AsyncSession = Depends(get_db),
 ) -> ListRhythmSongsUseCase:
     return _list_rhythm_songs(session)
+
+
+def get_ai_chat_use_case() -> AiChatUseCase:
+    return _ai_chat()

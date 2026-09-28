@@ -13,7 +13,6 @@ import {
 } from "lucide-react"
 import { EyebrowBadge, SectionHeading } from "@/components/common/section-heading"
 import { SynthBackdrop } from "@/components/common/synth-backdrop"
-import { ExaoneChatBanner } from "@/components/exaone-chat-banner"
 import { GeminiChat } from "@/components/gemini-chat"
 import { IuemGuideCarousel } from "@/components/iuem-guide-carousel"
 import { ChallengePreviewSection } from "@/components/music/challenge-preview-section"
@@ -189,9 +188,8 @@ export default function HomePage() {
       <section className="border-b border-border">
         <div className="mx-auto max-w-6xl px-4 py-12 md:py-14">
           <SectionHeading label="AI 에게 물어보기" title="연습이 막히면 대화로" />
-          <div className="mt-8 grid gap-5 lg:grid-cols-2 lg:items-start">
+          <div className="mt-8">
             <GeminiChat layout="sidebar" />
-            <ExaoneChatBanner />
           </div>
         </div>
       </section>

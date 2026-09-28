@@ -23,11 +23,14 @@ from music_challenge.app.use_cases.rhythm_chart_interactors import (
     ListRhythmSongsInteractor,
     RequestRhythmBuildInteractor,
 )
+from music_challenge.app.ports.input.ai_chat_use_case import AiChatUseCase
+from music_challenge.app.use_cases.ai_chat_interactor import AiChatInteractor
 from music_challenge.app.use_cases.rhythm_play_interactors import (
     GetRhythmRankingInteractor,
     SubmitRhythmPlayInteractor,
 )
 
+from music_challenge.adapter.outbound.gemini_chat_adapter import GeminiChatAdapter
 from music_challenge.adapter.outbound.gemini_evaluator_adapter import (
     GeminiEvaluatorAdapter,
 )
@@ -243,3 +246,8 @@ def get_list_rhythm_songs_use_case(session: AsyncSession) -> ListRhythmSongsUseC
         challenge_repo=ChallengePgRepository(session),
         list_query=RhythmChartListPgQuery(session),
     )
+
+
+def get_ai_chat_use_case() -> AiChatUseCase:
+    """DB 를 쓰지 않는 유일한 조립이라 세션을 받지 않는다."""
+    return AiChatInteractor(chat=GeminiChatAdapter())

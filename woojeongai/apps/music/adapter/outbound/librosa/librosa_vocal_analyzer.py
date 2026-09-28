@@ -1,4 +1,5 @@
 """[Layer: Adapter Outbound] librosa 기반 보컬 분석 — CPU-bound, 동기 함수."""
+
 from __future__ import annotations
 
 import io
@@ -43,7 +44,9 @@ class LibrosaAnalysisResult:
     duration: float
 
 
-def analyze_vocal_sync(audio_bytes: bytes, content_type: str = "audio/wav") -> LibrosaAnalysisResult:
+def analyze_vocal_sync(
+    audio_bytes: bytes, content_type: str = "audio/wav"
+) -> LibrosaAnalysisResult:
     """동기 분석 함수 — 호출 측에서 asyncio.to_thread 위임."""
     y, sr = librosa.load(io.BytesIO(audio_bytes), sr=None, mono=True)
     duration = float(librosa.get_duration(y=y, sr=sr))
@@ -68,11 +71,14 @@ def analyze_vocal_sync(audio_bytes: bytes, content_type: str = "audio/wav") -> L
     # ── 리듬 분석 (beat_track) ────────────────────────────────────────
     tempo_arr, beats = librosa.beat.beat_track(y=y, sr=sr)
     tempo = float(tempo_arr) if np.ndim(tempo_arr) == 0 else float(tempo_arr[0])
-    onset_env = librosa.onset.onset_strength(y=y, sr=sr)
     # 비트 간격 일관성
     if len(beats) >= 2:
         intervals = np.diff(beats).astype(float)
-        rhythm_cv = float(np.std(intervals) / np.mean(intervals)) if np.mean(intervals) > 0 else 1.0
+        rhythm_cv = (
+            float(np.std(intervals) / np.mean(intervals))
+            if np.mean(intervals) > 0
+            else 1.0
+        )
         rhythm_score = max(0, min(100, int(100 - rhythm_cv * 120)))
     else:
         rhythm_score = 50
@@ -94,7 +100,10 @@ def analyze_vocal_sync(audio_bytes: bytes, content_type: str = "audio/wav") -> L
 
     logger.info(
         "[Maestro][librosa] pitch=%d rhythm=%d grade=%s duration=%.1fs",
-        pitch_score, rhythm_score, grade, duration,
+        pitch_score,
+        rhythm_score,
+        grade,
+        duration,
     )
     return LibrosaAnalysisResult(
         pitch_score=pitch_score,
