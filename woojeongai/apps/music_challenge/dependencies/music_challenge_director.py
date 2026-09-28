@@ -52,6 +52,9 @@ from music_challenge.adapter.outbound.pg.submission_pg_repository import (
 from music_challenge.adapter.outbound.pg.user_lookup_pg_repository import (
     UserLookupPgRepository,
 )
+from music_challenge.adapter.outbound.ffmpeg_audio_transcoder_adapter import (
+    FfmpegAudioTranscoderAdapter,
+)
 from music_challenge.adapter.outbound.s3_media_storage_adapter import (
     S3MediaStorageAdapter,
 )
@@ -107,6 +110,7 @@ def get_create_challenge_use_case(session: AsyncSession) -> CreateChallengeUseCa
     return CreateChallengeInteractor(
         challenge_repo=ChallengePgRepository(session),
         storage=S3MediaStorageAdapter(),
+        transcoder=FfmpegAudioTranscoderAdapter(),
     )
 
 
@@ -159,6 +163,7 @@ def get_upload_stems_use_case(session: AsyncSession) -> UploadStemsUseCase:
         challenge_repo=ChallengePgRepository(session),
         chart_repo=ChartPgRepository(session),
         storage=S3MediaStorageAdapter(),
+        transcoder=FfmpegAudioTranscoderAdapter(),
     )
 
 

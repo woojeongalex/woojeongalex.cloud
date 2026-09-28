@@ -4,10 +4,14 @@ FROM python:3.13-slim
 # 2. 컨테이너 내부에서 작업할 폴더 지정
 WORKDIR /app
 
-# 3. OCR 엔진 설치 (pytesseract는 이 바이너리를 호출한다)
+# 3. 시스템 바이너리
+#    - tesseract: OCR 엔진 (pytesseract가 이 바이너리를 호출한다)
+#    - ffmpeg: 올라온 음원을 재생용 MP3 로 줄인다. 무압축 WAV 를 그대로 내려보내면
+#      4분짜리 곡이 40MB 라 LTE 에서 곡 시작까지 십몇 초가 걸린다.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         tesseract-ocr tesseract-ocr-kor tesseract-ocr-eng \
+        ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
 # 4. 의존성 패키지 설치 (캐시 최적화를 위해 먼저 복사)
