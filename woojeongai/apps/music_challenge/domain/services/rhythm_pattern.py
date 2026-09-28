@@ -9,7 +9,7 @@
    음이 오르면 오른쪽으로 간다. 같은 레인 연타가 너무 빠르면 옆 레인으로 비킨다.
 4. 롱노트 — 같은 음이 길게 이어지는 소리를 누르고 있는 노트로 바꾼다. 누르는 동안
    다른 레인의 노트는 계속 나온다(오투잼 방식). 동시에 누르는 롱노트 수는 제한한다.
-5. 동시치기 — 정박의 가장 센 순간만 두 개(7키는 세 개까지) 동시에 친다.
+5. 동시치기 — 어려움에서만, 정박의 가장 센 순간을 두 개(7키는 세 개까지) 동시에 친다.
 """
 
 from bisect import bisect_left, insort
@@ -41,13 +41,15 @@ class _Profile:
 
 
 # 2026-09-22 난이도를 낮췄다("너무 어려워"). 쉬움은 정박만, 보통은 8분까지, 어려움만 16분.
+# 2026-09-28 한 번 더 낮췄다. 난이도마다 노트 밀도를 약 25% 줄이고, 어려움의 최소 간격을
+# 8분(0.5박)으로 넓혀 16분 연타를 없앴다. 동시치기는 어려움에만 남기고 수도 줄였다.
 _PROFILES: dict[tuple[int, RhythmDifficulty], _Profile] = {
-    (4, RhythmDifficulty.EASY): _Profile(1, 1.0, 1.0, 1, 4, 0.06, 0, 2.0, 0.0),
-    (4, RhythmDifficulty.NORMAL): _Profile(2, 2.0, 0.5, 1, 4, 0.10, 1, 2.0, 0.0),
-    (4, RhythmDifficulty.HARD): _Profile(4, 3.4, 0.25, 1, 6, 0.12, 1, 0.85, 0.04),
-    (7, RhythmDifficulty.EASY): _Profile(1, 1.3, 1.0, 1, 4, 0.06, 0, 2.0, 0.0),
-    (7, RhythmDifficulty.NORMAL): _Profile(2, 2.6, 0.5, 1, 4, 0.10, 1, 0.95, 0.02),
-    (7, RhythmDifficulty.HARD): _Profile(4, 4.3, 0.25, 1, 6, 0.12, 1, 0.8, 0.06),
+    (4, RhythmDifficulty.EASY): _Profile(1, 0.8, 1.0, 1, 4, 0.06, 0, 2.0, 0.0),
+    (4, RhythmDifficulty.NORMAL): _Profile(2, 1.5, 0.5, 1, 4, 0.10, 1, 2.0, 0.0),
+    (4, RhythmDifficulty.HARD): _Profile(4, 2.6, 0.5, 1, 6, 0.12, 1, 0.92, 0.02),
+    (7, RhythmDifficulty.EASY): _Profile(1, 1.0, 1.0, 1, 4, 0.06, 0, 2.0, 0.0),
+    (7, RhythmDifficulty.NORMAL): _Profile(2, 2.0, 0.5, 1, 4, 0.10, 1, 2.0, 0.0),
+    (7, RhythmDifficulty.HARD): _Profile(4, 3.2, 0.5, 1, 6, 0.12, 1, 0.90, 0.03),
 }
 
 # 같은 레인을 이보다 빨리 연달아 치게 되면 옆 레인으로 옮긴다(초).
@@ -220,7 +222,7 @@ def build_sheet(
         want = _lane_for(ranks[onset.pitch], keys)
         size = 1
         if j in chord_ok:
-            size = 3 if keys == 7 and onset.strength >= 0.97 else 2
+            size = 3 if keys == 7 and onset.strength >= 0.99 else 2
 
         end: float | None = None
         if (
