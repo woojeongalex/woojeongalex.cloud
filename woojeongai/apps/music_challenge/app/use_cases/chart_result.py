@@ -34,7 +34,7 @@ async def to_chart_result(
 ) -> ChartResult:
     """악보 엔티티를 응답용으로 바꾼다. 반주는 바로 재생할 수 있게 서명 URL 로 준다."""
     backing_url = (
-        await storage.presigned_url(chart.backing_s3_key)
+        await storage.playback_url(chart.backing_s3_key)
         if chart.backing_s3_key
         else None
     )

@@ -116,6 +116,12 @@ class S3Manager:
         )
         return obj["Body"].read()
 
+    def head(self, key: str, bucket: str | None = None) -> dict:
+        """객체 정보만 읽는다. 없으면 ClientError(404). 내용은 받지 않는다."""
+        return self._get_client().head_object(
+            Bucket=self._resolve_bucket(bucket), Key=key
+        )
+
     def download_file(
         self, key: str, local_path: str, bucket: str | None = None
     ) -> None:

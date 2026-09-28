@@ -94,7 +94,7 @@ class GetRhythmChartInteractor(GetRhythmChartUseCase):
     async def get(self, challenge_id: int) -> RhythmChartResult:
         challenge = await _load_challenge(self._challenge_repo, challenge_id)
         chart = await self._rhythm_repo.find(challenge_id)
-        audio_url = await self._storage.presigned_url(challenge.music_s3_key)
+        audio_url = await self._storage.playback_url(challenge.music_s3_key)
         return _summary(chart, challenge_id, audio_url)
 
     async def get_sheet(
@@ -116,7 +116,7 @@ class GetRhythmChartInteractor(GetRhythmChartUseCase):
             level=sheet.level,
             bpm=chart.bpm,
             duration=chart.duration,
-            audio_url=await self._storage.presigned_url(challenge.music_s3_key),
+            audio_url=await self._storage.playback_url(challenge.music_s3_key),
             notes=sheet.notes,
         )
 
@@ -149,7 +149,7 @@ class RequestRhythmBuildInteractor(RequestRhythmBuildUseCase):
                 updated_at=datetime.utcnow(),
             )
         )
-        audio_url = await self._storage.presigned_url(challenge.music_s3_key)
+        audio_url = await self._storage.playback_url(challenge.music_s3_key)
         return _summary(saved, challenge_id, audio_url), job_id, challenge.music_s3_key
 
 

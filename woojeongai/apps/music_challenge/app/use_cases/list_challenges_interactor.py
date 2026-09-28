@@ -19,7 +19,7 @@ class ListChallengesInteractor(ListChallengesUseCase):
         challenges = await self._challenge_repo.find_all_active()
         results = []
         for c in challenges:
-            music_url = await self._storage.presigned_url(c.music_s3_key)
+            music_url = await self._storage.playback_url(c.music_s3_key)
             results.append(
                 ChallengeResult(
                     id=c.id,

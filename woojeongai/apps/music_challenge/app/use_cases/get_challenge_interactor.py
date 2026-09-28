@@ -21,7 +21,7 @@ class GetChallengeInteractor(GetChallengeUseCase):
         challenge = await self._challenge_repo.find_by_id(challenge_id)
         if not challenge:
             raise HTTPException(status_code=404, detail="챌린지를 찾을 수 없습니다.")
-        music_url = await self._storage.presigned_url(challenge.music_s3_key)
+        music_url = await self._storage.playback_url(challenge.music_s3_key)
         return ChallengeResult(
             id=challenge.id,
             title=challenge.title,
