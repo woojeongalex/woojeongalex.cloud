@@ -5,7 +5,13 @@ import Link from "next/link"
 import { ArrowLeft, Loader2, Play, Square } from "lucide-react"
 import { LoadingBlock, StatusNote } from "@/components/common/status-note"
 import { RhythmRankingList } from "@/components/music/rhythm-ranking"
-import { drawRhythmStage, resetRhythmStage, stageLayout } from "@/components/music/rhythm-stage"
+import {
+  beatGridOf,
+  drawRhythmStage,
+  resetRhythmStage,
+  stageLayout,
+  type RhythmBeat,
+} from "@/components/music/rhythm-stage"
 import { fetchChallenge, type Challenge } from "@/lib/music-challenge-api"
 import {
   RHYTHM_DIFFICULTIES,
@@ -45,6 +51,8 @@ type Phase = "setup" | "loading" | "playing" | "finished"
 // 곡을 틀기 전 노트가 위에서 내려올 시간(초). 이 동안 곡 위치는 음수다.
 const PREROLL_SEC = 2
 const TICK_MS = 10
+// 창이 포커스를 잃고 이만큼 지나도 돌아오지 않으면 곡을 멈춘다(ms).
+const BLUR_GRACE_MS = 600
 const UI_REFRESH_MS = 100
 // 오디오 위치와 게임 시계가 이만큼 어긋나면 곧바로 맞춘다(초). 그 아래는 조금씩 당긴다.
 const HARD_RESYNC_SEC = 0.06
@@ -124,6 +132,7 @@ export function RhythmGame({ challengeId }: RhythmGameProps) {
   // 무대 키 자리에 쓸 글자 — 판을 시작할 때 설정에서 정해 둔다
   const labelsRef = useRef<string[]>([])
   const timesRef = useRef<number[]>([])
+  const beatRef = useRef<RhythmBeat | null>(null)
   const pressesRef = useRef<RhythmPress[]>([])
   const openPressRef = useRef<number[]>([])
   const pressedRef = useRef<boolean[]>([])
@@ -137,6 +146,11 @@ export function RhythmGame({ challengeId }: RhythmGameProps) {
   const rafRef = useRef(0)
   const lastUiRef = useRef(0)
   const playingRef = useRef(false)
+  // 일시정지한 순간의 게임 시계(초). 곡 시작 전 준비 시간에는 음수다.
+  const pausedClockRef = useRef(0)
+  // 멈춘 동안에도 "그만하기"는 되어야 해서 상태와 별도로 ref 로도 들고 있다.
+  const pausedRef = useRef(false)
+  const [paused, setPaused] = useState(false)
 
   useEffect(() => {
     const saved = readPrefs()
@@ -206,8 +220,10 @@ export function RhythmGame({ challengeId }: RhythmGameProps) {
   )
 
   const finish = useCallback(() => {
-    if (!playingRef.current) return
+    if (!playingRef.current && !pausedRef.current) return
     playingRef.current = false
+    pausedRef.current = false
+    setPaused(false)
     stopLoops()
     const audio = audioRef.current
     if (audio) {
@@ -256,6 +272,21 @@ export function RhythmGame({ challengeId }: RhythmGameProps) {
     [songTime]
   )
 
+  /** 곡과 루프를 멈춘다. 멈춘 위치를 기억해 두었다가 그대로 이어서 시작한다. */
+  const pauseGame = useCallback(() => {
+    if (!playingRef.current) return
+    playingRef.current = false
+    stopLoops()
+    pausedClockRef.current = (performance.now() - zeroRef.current) / 1000
+    audioRef.current?.pause()
+    // 멈춘 동안에는 keyup 이 오지 않으므로, 누르고 있던 레인은 지금 뗀 것으로 본다.
+    const now = performance.now()
+    const s = sheetRef.current
+    if (s) for (let lane = 0; lane < s.keys; lane++) releaseLane(lane, now)
+    pausedRef.current = true
+    setPaused(true)
+  }, [releaseLane])
+
   useEffect(() => {
     if (phase !== "playing" || !sheet) return
     const codes = prefs.bindings[sheet.keys]
@@ -280,20 +311,32 @@ export function RhythmGame({ challengeId }: RhythmGameProps) {
       e.preventDefault()
       releaseLane(lane, e.timeStamp)
     }
-    // 창을 벗어나면 keyup 이 오지 않는다. 누르고 있던 레인을 모두 뗀 것으로 본다.
+    // 창을 벗어나면 어차피 칠 수 없고 keyup 도 오지 않으니 곡째로 멈춘다.
+    // 다른 앱으로 전환하면 visibilitychange 가 뜨지 않으므로 blur 도 함께 본다.
+    // 다만 브라우저 UI 를 잠깐 누르는 정도로도 blur 는 뜬다. 바로 돌아오면 멈추지 않게
+    // 잠깐 기다렸다가, 그때도 포커스가 없으면 그제야 멈춘다.
+    let blurTimer: number | undefined
     const onBlur = () => {
       const now = performance.now()
       for (let lane = 0; lane < sheet.keys; lane++) releaseLane(lane, now)
+      window.clearTimeout(blurTimer)
+      blurTimer = window.setTimeout(() => {
+        if (!document.hasFocus()) pauseGame()
+      }, BLUR_GRACE_MS)
     }
+    const onFocus = () => window.clearTimeout(blurTimer)
     window.addEventListener("keydown", onDown)
     window.addEventListener("keyup", onUp)
     window.addEventListener("blur", onBlur)
+    window.addEventListener("focus", onFocus)
     return () => {
+      window.clearTimeout(blurTimer)
       window.removeEventListener("keydown", onDown)
       window.removeEventListener("keyup", onUp)
       window.removeEventListener("blur", onBlur)
+      window.removeEventListener("focus", onFocus)
     }
-  }, [phase, sheet, prefs.bindings, finish, pressLane, releaseLane])
+  }, [phase, sheet, prefs.bindings, finish, pauseGame, pressLane, releaseLane])
 
   const laneAt = (e: React.PointerEvent<HTMLCanvasElement>): number | null => {
     const s = sheetRef.current
@@ -377,10 +420,38 @@ export function RhythmGame({ challengeId }: RhythmGameProps) {
         judge,
         pressed: pressedRef.current,
         combo: judge.live().combo,
+        beat: beatRef.current,
       })
     }
     rafRef.current = requestAnimationFrame(draw)
   }, [songTime])
+
+  /** 멈춘 자리에서 그대로 이어서 시작한다. */
+  const resumeGame = useCallback(() => {
+    if (playingRef.current || !sheetRef.current) return
+    const clock = pausedClockRef.current
+    zeroRef.current = performance.now() - clock * 1000
+    const audio = audioRef.current
+    if (audio && audioStartedRef.current) {
+      audio.currentTime = Math.max(0, clock)
+      void audio.play().catch(() => undefined)
+    }
+    playingRef.current = true
+    pausedRef.current = false
+    setPaused(false)
+    tickRef.current = window.setInterval(tick, TICK_MS)
+    rafRef.current = requestAnimationFrame(draw)
+  }, [draw, tick])
+
+  // 탭을 옮기거나 창을 내리면 곡을 멈춘다. 배경에서 노래만 계속 나오면 안 된다.
+  useEffect(() => {
+    if (phase !== "playing") return
+    const onHide = () => {
+      if (document.hidden) pauseGame()
+    }
+    document.addEventListener("visibilitychange", onHide)
+    return () => document.removeEventListener("visibilitychange", onHide)
+  }, [phase, pauseGame])
 
   const start = async () => {
     const audio = audioRef.current
@@ -411,6 +482,7 @@ export function RhythmGame({ challengeId }: RhythmGameProps) {
     sheetRef.current = s
     labelsRef.current = prefs.bindings[s.keys].map(keyLabel)
     timesRef.current = s.notes.map((n) => n[0])
+    beatRef.current = beatGridOf(s.bpm, timesRef.current)
     judgeRef.current = createRhythmJudge(s.notes, s.keys)
     // 이전 판의 파편·흔들림이 새 판 첫 화면에 남지 않게 지운다.
     if (canvasRef.current) resetRhythmStage(canvasRef.current)
@@ -421,6 +493,8 @@ export function RhythmGame({ challengeId }: RhythmGameProps) {
     audioStartedRef.current = false
     zeroRef.current = performance.now() + PREROLL_SEC * 1000
     playingRef.current = true
+    pausedRef.current = false
+    setPaused(false)
     audio.onended = () => finish()
 
     setSheet(s)
@@ -551,6 +625,30 @@ export function RhythmGame({ challengeId }: RhythmGameProps) {
           {phase === "loading" && (
             <div className="absolute inset-0 flex items-center justify-center bg-night-950/80">
               <Loader2 className="h-8 w-8 animate-spin text-neon-pink" aria-hidden="true" />
+            </div>
+          )}
+          {paused && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 bg-night-950/85">
+              <p className="neon-text font-orbitron text-3xl font-bold">일시정지</p>
+              <p className="text-sm text-muted-foreground">
+                다른 탭으로 가서 곡을 멈췄습니다. 멈춘 자리에서 이어집니다.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={resumeGame}
+                  className="rounded-full bg-neon-pink px-6 py-2.5 text-sm font-semibold text-night-950 transition-opacity hover:opacity-90"
+                >
+                  이어서 하기
+                </button>
+                <button
+                  type="button"
+                  onClick={finish}
+                  className="rounded-full border border-neon-cyan/60 px-6 py-2.5 text-sm font-medium text-neon-cyan transition-colors hover:bg-neon-cyan/10"
+                >
+                  그만하기
+                </button>
+              </div>
             </div>
           )}
         </div>
