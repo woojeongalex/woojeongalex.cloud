@@ -14,6 +14,32 @@
 
 import type { LiveHit, RhythmJudge, RhythmJudgement, RhythmNote } from "@/lib/rhythm-scoring"
 
+/** 박 간격과 첫 박 위치(초). 배경을 박자에 맞춰 뛰게 하는 데 쓴다. */
+export type RhythmBeat = {
+  period: number
+  anchor: number
+}
+
+/**
+ * 채보에서 박 간격과 위상을 구한다.
+ *
+ * 서버 비트 격자는 0초에서 시작하지 않으므로 `시각 % (60/BPM)` 로는 음악과 어긋난다.
+ * 노트는 그 격자 위에 놓이므로, 노트 시각의 최빈 위상이 곧 박의 위치다.
+ */
+export function beatGridOf(bpm: number | null, times: number[]): RhythmBeat | null {
+  if (!bpm || bpm <= 0 || times.length < 8) return null
+  const period = 60 / bpm
+  const bins = 48
+  const hist = new Array<number>(bins).fill(0)
+  for (const t of times) {
+    const phase = ((t % period) + period) % period
+    hist[Math.min(bins - 1, Math.floor((phase / period) * bins))]++
+  }
+  let best = 0
+  for (let i = 1; i < bins; i++) if (hist[i] > hist[best]) best = i
+  return { period, anchor: ((best + 0.5) / bins) * period }
+}
+
 export type RhythmFrame = {
   notes: RhythmNote[]
   /** 노트 시각만 뽑은 배열 — 보이는 구간을 이분 탐색으로 찾는다 */
@@ -27,6 +53,8 @@ export type RhythmFrame = {
   judge: RhythmJudge
   pressed: boolean[]
   combo: number
+  /** 박 위치. 없으면 배경이 박자에 반응하지 않는다 */
+  beat: RhythmBeat | null
 }
 
 /** 판정선 높이에서의 레인 배치 — 터치 입력도 같은 값을 쓴다(판정선 근처를 누르므로). */
@@ -67,6 +95,35 @@ const PERSPECTIVE_K = 3.2
 // 롱노트는 최대 6박이다. 이보다 먼저 시작한 노트는 화면에 남아 있을 수 없다.
 const MAX_LONG_SEC = 5
 const NOTE_H = 18
+// 배경 바닥 — 레인 양옆으로 몇 칸까지, 레인보다 몇 배 멀리까지 그릴지.
+// 소실점 근처에서도 화면 폭을 덮으려면 칸이 넉넉해야 한다.
+const BACKDROP_COLS = 22
+const BACKDROP_DEPTH = 1.6
+// 길 양옆 네온 기둥 — 보이는 구간의 몇 분의 일마다 하나. 절대 초로 두면 노트 속도를
+// 올렸을 때 보이는 구간이 짧아져 기둥이 한 개도 안 나온다.
+const PILLAR_STEP_RATIO = 0.3
+const PILLAR_GAP_LANES = 2.2
+const PILLAR_HEIGHT = 190
+// 박 펄스가 한 박의 몇 분의 일에 걸쳐 잦아드는지. 한 마디는 네 박으로 본다.
+const BEAT_DECAY = 0.55
+const BEATS_PER_BAR = 4
+// 콤보가 쌓일수록 배경이 보라에서 주황빛으로 뜨거워진다. 이 콤보에서 가장 뜨겁다.
+// 노트는 청록·흰색·분홍이라 배경을 그 색으로 두면 노트로 헷갈린다. 그래서 뜨거운 쪽도
+// 분홍(#ff2e97)이 아니라 주황빛으로 잡았다.
+const COMBO_FULL = 80
+const COOL_RGB: readonly [number, number, number] = [180, 76, 255]
+const HOT_RGB: readonly [number, number, number] = [255, 122, 72]
+
+/** 먼 도시 실루엣 — 지평선 쪽 띠. [가로 위치(0~1), 폭(px), 높이(px), 창 수] */
+const SKYLINE: readonly (readonly [number, number, number, number])[] = [
+  [0.02, 34, 26, 3], [0.07, 22, 15, 2], [0.11, 40, 34, 4], [0.17, 26, 20, 2],
+  [0.21, 18, 11, 1], [0.25, 44, 29, 4], [0.31, 24, 38, 3], [0.36, 30, 17, 2],
+  [0.41, 20, 25, 2], [0.45, 36, 13, 3], [0.52, 28, 31, 3], [0.57, 42, 19, 4],
+  [0.62, 22, 36, 2], [0.67, 32, 22, 3], [0.72, 26, 14, 2], [0.76, 38, 28, 4],
+  [0.82, 20, 33, 2], [0.86, 30, 18, 3], [0.91, 24, 24, 2], [0.96, 36, 30, 3],
+]
+// 실루엣이 지평선 위로 이만큼까지 올라온다(px). 하늘이 좁아 낮게 잡는다.
+const SKYLINE_SCALE = 1.0
 const JUDGEMENT_SHOW_SEC = 0.55
 const FLOOR_STEP_SEC = 0.25
 
@@ -251,6 +308,131 @@ export function drawRhythmStage(canvas: HTMLCanvasElement, frame: RhythmFrame) {
 
   g.save()
   g.translate(shakeX, shakeY)
+
+  // ── 박 펄스 — 박마다 0 에서 1 로 튀었다가 잦아든다. 마디 첫 박은 따로 센다 ──
+  let beatPulse = 0
+  let barPulse = 0
+  if (frame.beat) {
+    const { period, anchor } = frame.beat
+    const since = (((time - anchor) % period) + period) % period
+    beatPulse = Math.max(0, 1 - since / (period * BEAT_DECAY))
+    beatPulse *= beatPulse // 앞이 날카롭고 뒤가 부드럽게
+    const index = Math.floor((time - anchor) / period)
+    if (((index % BEATS_PER_BAR) + BEATS_PER_BAR) % BEATS_PER_BAR === 0) {
+      barPulse = beatPulse
+    }
+  }
+
+  // ── 콤보 열기 — 콤보가 쌓일수록 배경 색이 보라에서 뜨거운 분홍으로 간다 ──
+  const heat = Math.min(1, frame.combo / COMBO_FULL)
+  const backR = Math.round(COOL_RGB[0] + (HOT_RGB[0] - COOL_RGB[0]) * heat)
+  const backG = Math.round(COOL_RGB[1] + (HOT_RGB[1] - COOL_RGB[1]) * heat)
+  const backB = Math.round(COOL_RGB[2] + (HOT_RGB[2] - COOL_RGB[2]) * heat)
+  const back = (a: number) => `rgba(${backR},${backG},${backB},${a})`
+
+  // ── 먼 도시 실루엣 — 레인이 모이는 자리 위 좁은 하늘에 낮게 깐다 ──
+  // 이 무대는 소실점이 화면 위로 벗어나 바닥이 화면을 덮는다. 그래서 실루엣은
+  // 바닥 투영으로 세우지 않고, 레인 끝(farY)을 지평선으로 삼아 그 위에 얹는다.
+  const skyGlow = g.createLinearGradient(0, farY - 46, 0, farY + 4)
+  skyGlow.addColorStop(0, back(0))
+  skyGlow.addColorStop(1, back(0.09 + heat * 0.07 + barPulse * 0.06))
+  g.fillStyle = skyGlow
+  g.fillRect(0, farY - 46, cssW, 50)
+  for (const [at, w, h, windows] of SKYLINE) {
+    const bw = w * SKYLINE_SCALE
+    const bh = h * SKYLINE_SCALE
+    const bx = at * cssW - bw / 2
+    const by = farY - bh
+    g.fillStyle = "rgba(9,4,18,0.92)"
+    g.fillRect(bx, by, bw, bh)
+    // 창문 몇 개만 켠다. 박마다 같이 깜빡여 도시가 곡에 맞춰 뛰는 느낌을 준다.
+    g.fillStyle = back(0.35 + beatPulse * 0.45)
+    for (let i = 0; i < windows; i++) {
+      const wx = bx + 3 + ((i * 7) % Math.max(1, bw - 6))
+      const wy = by + 4 + ((i * 5) % Math.max(1, bh - 6))
+      g.fillRect(wx, wy, 2, 2)
+    }
+  }
+
+  // ── 레인 밖 바닥 — 같은 소실점으로 화면 끝까지 잇는다 ──
+  // 레인 폭 안에만 격자가 있으면 양옆이 휑하다. 레인이 놓인 바닥이 옆으로 계속
+  // 이어지는 것처럼 그려 신스웨이브 특유의 지평선 격자를 만든다.
+  const sBackFar = scaleAt(lookAhead * BACKDROP_DEPTH)
+  const sBackNear = scaleAt(-0.28 * lookAhead)
+
+  // 바닥 빛 — 선만으로는 가장자리가 검게 비어 보인다. 면으로 한 겹 깔아 준다.
+  const lift = 1 + beatPulse * 0.5 + barPulse * 0.7
+  const wash = g.createLinearGradient(0, yAt(sBackFar), 0, lineY)
+  wash.addColorStop(0, back(0.2 * lift))
+  wash.addColorStop(0.55, back(0.11 * lift))
+  wash.addColorStop(1, back(0.04 * lift))
+  g.fillStyle = wash
+  g.fillRect(0, yAt(sBackFar), cssW, lineY - yAt(sBackFar))
+  // 가운데(레인 쪽)가 밝고 가장자리로 갈수록 어두워지게 — 시선이 레인에 남는다
+  const sideDim = g.createLinearGradient(0, 0, cssW, 0)
+  sideDim.addColorStop(0, "rgba(13,6,25,0.34)")
+  sideDim.addColorStop(0.3, "rgba(13,6,25,0)")
+  sideDim.addColorStop(0.7, "rgba(13,6,25,0)")
+  sideDim.addColorStop(1, "rgba(13,6,25,0.34)")
+  g.fillStyle = sideDim
+  g.fillRect(0, yAt(sBackFar), cssW, lineY - yAt(sBackFar))
+  for (let k = -BACKDROP_COLS; k <= BACKDROP_COLS; k++) {
+    const x = cx + k * laneW
+    if (x > left - 1 && x < left + width + 1) continue // 레인 안은 따로 그린다
+    const fade = 1 - Math.abs(k) / (BACKDROP_COLS + 1)
+    g.strokeStyle = back(0.07 + 0.2 * fade)
+    g.lineWidth = 1
+    g.beginPath()
+    g.moveTo(xAt(x, sBackFar), yAt(sBackFar))
+    g.lineTo(xAt(x, sBackNear), yAt(sBackNear))
+    g.stroke()
+  }
+  const backPhase = ((time % FLOOR_STEP_SEC) + FLOOR_STEP_SEC) % FLOOR_STEP_SEC
+  for (let k = 0; k * FLOOR_STEP_SEC < lookAhead * BACKDROP_DEPTH; k++) {
+    const ahead = k * FLOOR_STEP_SEC - backPhase
+    if (ahead < 0) continue
+    const s = scaleAt(ahead)
+    const bar = Math.round((time + ahead) / FLOOR_STEP_SEC) % 4 === 0
+    g.strokeStyle = back((bar ? 0.3 : 0.13) * lift * Math.min(1, 0.35 + s))
+    g.lineWidth = bar ? 1.5 : 1
+    g.beginPath()
+    g.moveTo(0, yAt(s))
+    g.lineTo(cssW, yAt(s))
+    g.stroke()
+  }
+
+  // ── 길 양옆 네온 기둥 — 바닥에 서서 뒤로 흘러간다 ──
+  // 소실점이 화면 위로 벗어나 있어 이 무대에는 하늘이 없다(화면 전체가 바닥이다).
+  // 그래서 해·지평선 대신 바닥에 서 있는 것으로 빈 공간을 채운다. 속도감도 같이 는다.
+  const pillarStep = lookAhead * PILLAR_STEP_RATIO
+  const pillarPhase = ((time % pillarStep) + pillarStep) % pillarStep
+  for (let k = 0; k * pillarStep < lookAhead * BACKDROP_DEPTH; k++) {
+    const ahead = k * pillarStep - pillarPhase
+    if (ahead < 0) continue
+    const s = scaleAt(ahead)
+    const baseY = yAt(s)
+    const h = PILLAR_HEIGHT * s
+    for (const side of [-1, 1]) {
+      const px = xAt(cx + side * (width / 2 + laneW * PILLAR_GAP_LANES), s)
+      if (px < -20 || px > cssW + 20) continue
+      const beam = g.createLinearGradient(0, baseY, 0, baseY - h)
+      beam.addColorStop(0, back(0.6 * s * lift))
+      beam.addColorStop(0.5, back(0.18 * s * lift))
+      beam.addColorStop(1, back(0))
+      g.fillStyle = beam
+      g.shadowColor = back(1)
+      g.shadowBlur = 12 * s
+      const w = Math.max(1.5, 7 * s) * (1 + barPulse * 0.5)
+      g.fillRect(px - w / 2, baseY - h * (1 + beatPulse * 0.18), w, h * (1 + beatPulse * 0.18))
+      g.shadowBlur = 0
+      // 기둥이 바닥에 떨어뜨리는 빛 웅덩이
+      const pool = g.createRadialGradient(px, baseY, 0, px, baseY, 34 * s)
+      pool.addColorStop(0, back(0.22 * s * lift))
+      pool.addColorStop(1, back(0))
+      g.fillStyle = pool
+      g.fillRect(px - 34 * s, baseY - 34 * s, 68 * s, 68 * s)
+    }
+  }
 
   // ── 레인 바닥(사다리꼴) ──
   const sFar = scaleAt(lookAhead)
