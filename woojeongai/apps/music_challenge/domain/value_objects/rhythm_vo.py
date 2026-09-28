@@ -27,17 +27,21 @@ class RhythmNote:
 class Onset:
     """곡에서 소리가 새로 시작되는 순간 하나 — 노트 후보.
 
+    time 은 소리가 시작되는 시각(봉우리가 아니라 시작점),
     strength 는 주변 몇 초 안에서 얼마나 두드러지는지(0~1),
     pitch 는 그 순간 가장 강한 음의 음이름 위치(0~1, C=0),
-    sustain 은 그 소리가 이어지는 길이(초),
-    percussive 는 타악기 성분이 더 강한지다.
+    sustain 은 그 소리가 이어지는 길이(초)다.
+
+    2026-09-28 타악기 여부(percussive)를 뺐다. 저장만 하고 어디서도 쓰지 않던 값인데,
+    노트 고르기에 가중치로 넣어 봤더니 드럼 일치율은 그대로면서 정박·규칙성만
+    떨어졌다. 드럼은 비트 격자를 맞추는 데 쓰고(어댑터), 채보가 그 격자를 따르면
+    자연히 드럼에 얹힌다.
     """
 
     time: float
     strength: float
     pitch: float
     sustain: float
-    percussive: bool
 
 
 @dataclass(frozen=True)
