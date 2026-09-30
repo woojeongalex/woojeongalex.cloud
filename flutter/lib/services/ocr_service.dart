@@ -42,7 +42,7 @@ class OcrService {
     required Uint8List bytes,
     required String filename,
   }) async {
-    final uri = Uri.parse('$_baseUrl/silicon_valley/s3-image/upload-ocr');
+    final uri = Uri.parse('$_baseUrl/ocr/upload');
     final request = http.MultipartRequest('POST', uri)
       ..files.add(
         http.MultipartFile.fromBytes(

@@ -43,6 +43,7 @@ from friday13th.adapter.inbound.api.v1 import (
     token_router,
 )
 from music_challenge.adapter.inbound.api import music_challenge_router
+from ocr.adapter.inbound.api import ocr_router
 import music_challenge.adapter.outbound.orm.music_challenge_orm  # noqa: F401 — Alembic autogenerate
 
 logger = logging.getLogger(__name__)
@@ -101,6 +102,7 @@ app.include_router(oauth_router)
 app.include_router(token_router)
 app.include_router(music_router)
 app.include_router(music_challenge_router)
+app.include_router(ocr_router)
 
 
 @app.get("/health")
