@@ -247,8 +247,37 @@ cd woojeongai && sudo DOCKER_BUILDKIT=0 docker build -t woojeongalexcloud-backen
 # 5) 교체
 sudo docker compose -f docker-compose.aws.yml up -d --force-recreate backend
 
-# 6) 확인
+# 6) neo4j 가 딸려 올라왔으면 다시 내린다 (아래 참고)
+sudo docker stop neo4j && sudo docker update --restart=no neo4j
+
+# 7) 확인
 curl -s -o /dev/null -w "%{http_code}\n" https://aws-api.woojeongalex.cloud/health
+```
+
+#### Dockerfile 을 고칠 때 — 레이어 순서가 디스크를 좌우한다
+
+이 서버는 디스크가 30GB 인데 이미지 하나가 6.8GB 다. 옛 이미지와 새 이미지가
+겹치면 금방 찬다.
+
+`RUN` 줄을 하나라도 고치면 **그 뒤의 모든 레이어가 다시 만들어진다.** 그래서
+apt 줄에 패키지 하나를 더한 것만으로 pip 레이어(torch 등 6.5GB)까지 새로
+받게 되고, 실제로 2026-09-30 에 디스크가 100% 차서 빌드가
+`No space left on device` 로 죽었다.
+
+**새 시스템 패키지는 `pip install` 뒤에 별도 `RUN` 으로 넣는다.** 그러면 앞
+레이어가 캐시에 맞아 100MB 남짓만 더 얹고, 빌드도 10분에서 1분 안쪽으로 준다.
+
+빌드 전에 `df -h /` 로 최소 8GB 는 남았는지 본다.
+
+#### neo4j 는 compose up 에 딸려 온다
+
+`docker compose up -d backend` 를 해도 의존 관계 때문에 **neo4j 가 같이
+켜진다.** 이 인스턴스는 RAM 912MB 라 neo4j 가 올라오면 여유 메모리가 40MB
+아래로 떨어진다. 배포 뒤에는 반드시 다시 내릴 것.
+
+```bash
+sudo docker stop neo4j && sudo docker update --restart=no neo4j
+free -m    # available 이 300MB 언저리로 돌아오면 정상
 ```
 
 **되돌리기**: `sudo docker tag woojeongalexcloud-backend:rollback-<날짜> woojeongalexcloud-backend:latest` 후 5번 반복.
@@ -278,6 +307,8 @@ curl -s -o /dev/null -w "%{http_code}\n" https://aws-api.woojeongalex.cloud/heal
 | `pgrep -f "이름"` 이 안 끝남 | 감싸는 bash 자신의 명령줄이 걸린다. PID 파일이나 `wait` 를 쓸 것 |
 | `docker cp`/`exec` 경로가 깨짐 | MSYS 가 경로를 변환한다. `MSYS_NO_PATHCONV=1` 을 붙인다 |
 | 디스크 부족 | 실제 Docker 는 WSL 안(C 드라이브)이다. D 의 Docker Desktop 이 아니다 |
+| 운영 빌드가 `No space left on device` | Dockerfile 의 `RUN` 줄을 고치면 뒤 레이어가 전부 새로 만들어진다. 새 시스템 패키지는 pip 뒤에 따로 넣을 것 |
+| 배포 뒤 서버가 느려짐 | `compose up` 에 neo4j 가 딸려 왔을 수 있다. `free -m` 의 available 이 100MB 아래면 그것이다 |
 
 **느리다는 말에 코드부터 고치지 말 것.** 9/28 성능 문제 4건이 전부 코드가 아니었다 — Cloudflare 엣지 경유, WAV 크기, 스왑, 엔진 혼동.
 
