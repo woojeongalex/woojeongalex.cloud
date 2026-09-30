@@ -12,7 +12,10 @@ from music_challenge.app.ports.output.audio_analysis_port import AudioAnalysisPo
 from music_challenge.app.ports.output.challenge_repository_port import (
     ChallengeRepositoryPort,
 )
-from music_challenge.app.ports.output.chart_repository_port import ChartRepositoryPort
+from music_challenge.app.ports.output.chart_repository_port import (
+    ChartRepositoryPort,
+    ChartSummary,
+)
 from music_challenge.app.ports.output.evaluation_repository_port import (
     EvaluationRepositoryPort,
 )
@@ -30,6 +33,10 @@ from music_challenge.domain.entities.submission_entity import ChallengeSubmissio
 from music_challenge.domain.services.karaoke_scoring import (
     KaraokeScore,
     score_performance,
+)
+from music_challenge.domain.services.vocal_traits import (
+    VocalTraits,
+    analyze_vocal_traits,
 )
 from music_challenge.domain.value_objects.music_challenge_vo import MediaType
 
@@ -90,7 +97,7 @@ class SubmitChallengeInteractor(SubmitChallengeUseCase):
             )
         )
 
-        karaoke = await self._score_karaoke(command)
+        karaoke, traits = await self._score_karaoke(command)
 
         # 노래방 모드면 일반 지표는 건너뛴다. 둘 다 pyin 을 돌리는 CPU 작업이라
         # 1GB EC2 에서 제출 하나가 수 분씩 걸리고, 정답 대비 결과가 더 정확하다.
@@ -112,6 +119,7 @@ class SubmitChallengeInteractor(SubmitChallengeUseCase):
             content_type=command.content_type,
             metrics=metrics,
             karaoke=karaoke,
+            traits=traits,
         )
         # 랭킹이 붙으므로 점수는 AI 판단이 아니라 정답 대비 결정적인 값이어야 한다.
         if karaoke:
@@ -123,7 +131,12 @@ class SubmitChallengeInteractor(SubmitChallengeUseCase):
             if user_id
             else set()
         )
-        next_id = self._recommend_next(challenge, score, all_active, attempted)
+        ready = {
+            s.challenge_id: s for s in await self._chart_repo.find_ready_summaries()
+        }
+        next_id = self._recommend_next(
+            challenge, score, all_active, attempted, ready, traits
+        )
 
         saved_eval = await self._evaluation_repo.save(
             SubmissionEvaluation(
@@ -156,19 +169,20 @@ class SubmitChallengeInteractor(SubmitChallengeUseCase):
 
     async def _score_karaoke(
         self, command: SubmitChallengeCommand
-    ) -> KaraokeScore | None:
-        """노래방·연주 모드 제출이면 녹음을 정답 음표에 맞춰 채점한다.
+    ) -> tuple[KaraokeScore | None, VocalTraits | None]:
+        """노래방·연주 모드 제출이면 녹음을 정답 음표에 맞춰 채점하고 발성을 진단한다.
 
-        보정값이 없거나(일반 제출), 영상이거나, 악보가 아직 준비되지 않았으면 None.
+        보정값이 없거나(일반 제출), 영상이거나, 악보가 아직 준비되지 않았으면
+        둘 다 None.
         """
         if (
             command.karaoke_start_offset is None
             or command.media_type != MediaType.AUDIO
         ):
-            return None
+            return None, None
         chart = await self._chart_repo.find(command.challenge_id)
         if chart is None or chart.status != ChartStatus.READY or not chart.notes:
-            return None
+            return None, None
 
         offset = min(_OFFSET_MAX, max(_OFFSET_MIN, command.karaoke_start_offset))
         try:
@@ -177,9 +191,13 @@ class SubmitChallengeInteractor(SubmitChallengeUseCase):
             )
         except Exception:
             # 녹음을 읽지 못하면 노래방 채점 없이 일반 평가로 넘어간다.
-            return None
+            return None, None
         # 녹음 기준 시각을 곡 기준 시각으로 옮긴다.
-        return score_performance(chart.notes, [(t + offset, m) for t, m in frames])
+        shifted = [(t + offset, m) for t, m in frames]
+        return (
+            score_performance(chart.notes, shifted),
+            analyze_vocal_traits(chart.notes, shifted),
+        )
 
     async def _karaoke_result(
         self, challenge_id: int, user_id: int | None, karaoke: KaraokeScore | None
@@ -205,32 +223,59 @@ class SubmitChallengeInteractor(SubmitChallengeUseCase):
         score: int,
         all_active: list[MusicChallenge],
         attempted: set[int],
+        ready: dict[int, ChartSummary],
+        traits: VocalTraits | None,
     ) -> int | None:
         """다음에 도전할 챌린지를 고른다.
 
-        규칙은 단순하지만 근거가 있다.
-        1. 방금 푼 것과 이미 해본 것은 뺀다(로그인 사용자만 이력을 안다).
-        2. 점수가 낮으면 같은 유형으로 더 연습시키고, 높으면 다른 유형으로
+        1. 악보가 준비된 곡만 후보다. 예전에는 활성 챌린지면 다 골랐는데,
+           그러면 악보가 없어 도전 자체가 안 되는 곡을 추천해 막다른 길로
+           보냈다.
+        2. 방금 부른 것과 이미 해본 것은 뺀다(로그인 사용자만 이력을 안다).
+        3. 점수가 낮으면 같은 유형으로 더 연습시키고, 높으면 다른 유형으로
            넓혀준다. 잘한 사람에게 같은 걸 또 주면 지루하고, 못한 사람에게
            낯선 유형을 주면 이탈한다.
-        3. 후보가 없으면(다 해봤으면) 방금 것만 빼고 재도전을 권한다.
+        4. 남은 후보 중에서는 이번에 편하게 낸 음역과 가장 잘 겹치는 곡을
+           고른다. 음역을 모르면(짧게 불렀거나 거의 못 맞혔으면) 곡 번호
+           순으로 둔다 — 적어도 매번 같은 곡이 나오지는 않는다.
         """
-        fresh = [c for c in all_active if c.id != current.id and c.id not in attempted]
-        candidates = fresh or [c for c in all_active if c.id != current.id]
-        if not candidates:
+        singable = [c for c in all_active if c.id != current.id and c.id in ready]
+        if not singable:
             return None
 
+        fresh = [c for c in singable if c.id not in attempted]
+        candidates = fresh or singable
+
         if score < _PRACTICE_MORE_BELOW:
-            same_type = [
+            narrowed = [
                 c for c in candidates if c.challenge_type == current.challenge_type
             ]
-            if same_type:
-                return same_type[0].id
         else:
-            other_type = [
+            narrowed = [
                 c for c in candidates if c.challenge_type != current.challenge_type
             ]
-            if other_type:
-                return other_type[0].id
+        candidates = narrowed or candidates
 
-        return candidates[0].id
+        return self._best_fit(candidates, ready, traits).id
+
+    @staticmethod
+    def _best_fit(
+        candidates: list[MusicChallenge],
+        ready: dict[int, ChartSummary],
+        traits: VocalTraits | None,
+    ) -> MusicChallenge:
+        """편한 음역에 가장 많이 걸치는 곡. 음역을 모르면 곡 번호가 작은 것."""
+        low = traits.comfort_low_midi if traits else None
+        high = traits.comfort_high_midi if traits else None
+        if low is None or high is None or high <= low:
+            return min(candidates, key=lambda c: c.id)
+
+        def overlap(c: MusicChallenge) -> float:
+            chart = ready[c.id]
+            span = chart.high_midi - chart.low_midi
+            if span <= 0:
+                return 0.0
+            shared = min(high, chart.high_midi) - max(low, chart.low_midi)
+            return max(0.0, shared) / span
+
+        return max(candidates, key=lambda c: (overlap(c), -c.id))
