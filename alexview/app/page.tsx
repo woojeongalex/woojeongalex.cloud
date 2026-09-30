@@ -16,6 +16,7 @@ import { SynthBackdrop } from "@/components/common/synth-backdrop"
 import { IuemGuideCarousel } from "@/components/iuem-guide-carousel"
 import { ChallengePreviewSection } from "@/components/music/challenge-preview-section"
 import { MyProgressSection } from "@/components/music/my-progress-section"
+import { TeamProjectBanner } from "@/components/team-project-banner"
 import { WeeklyKingBanner } from "@/components/weekly-king-banner"
 import { useUserSession } from "@/hooks/use-user-session"
 
@@ -183,6 +184,7 @@ export default function HomePage() {
         </div>
       </section>
 
+      <TeamProjectBanner />
 
       {/* WEEKLY + GUIDE */}
       <section>
