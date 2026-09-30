@@ -3,7 +3,10 @@ from datetime import datetime
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from music_challenge.adapter.outbound.orm.music_challenge_orm import ChallengeChartModel
+from music_challenge.adapter.outbound.orm.music_challenge_orm import (
+    ChallengeChartModel,
+    RhythmChartModel,
+)
 from music_challenge.app.ports.output.chart_repository_port import (
     ChartRepositoryPort,
     ChartSummary,
@@ -53,13 +56,23 @@ class ChartPgRepository(ChartRepositoryPort):
     async def find_ready_summaries(self) -> list[ChartSummary]:
         # 음역은 컬럼이 아니라 notes 안에 있어 파이썬에서 접는다. 곡 수가 수십 개
         # 수준이라 한 번 훑는 편이 컬럼을 늘려 마이그레이션하는 것보다 싸다.
-        stmt = select(
-            ChallengeChartModel.challenge_id, ChallengeChartModel.notes
-        ).where(ChallengeChartModel.status == ChartStatus.READY.value)
+        # BPM 은 리듬 게임 채보에만 있고 없을 수도 있어 바깥 조인으로 붙인다.
+        stmt = (
+            select(
+                ChallengeChartModel.challenge_id,
+                ChallengeChartModel.notes,
+                RhythmChartModel.bpm,
+            )
+            .outerjoin(
+                RhythmChartModel,
+                RhythmChartModel.challenge_id == ChallengeChartModel.challenge_id,
+            )
+            .where(ChallengeChartModel.status == ChartStatus.READY.value)
+        )
         rows = await self._session.execute(stmt)
 
         out: list[ChartSummary] = []
-        for challenge_id, notes in rows.all():
+        for challenge_id, notes, bpm in rows.all():
             midis = [n["midi"] for n in (notes or [])]
             if not midis:
                 continue
@@ -68,6 +81,7 @@ class ChartPgRepository(ChartRepositoryPort):
                     challenge_id=challenge_id,
                     low_midi=min(midis),
                     high_midi=max(midis),
+                    bpm=bpm,
                 )
             )
         return out

@@ -34,6 +34,11 @@ from music_challenge.domain.services.karaoke_scoring import (
     KaraokeScore,
     score_performance,
 )
+from music_challenge.domain.services.next_song import (
+    SongCandidate,
+    pick_next_song,
+    read_weakness,
+)
 from music_challenge.domain.services.vocal_traits import (
     VocalTraits,
     analyze_vocal_traits,
@@ -135,7 +140,7 @@ class SubmitChallengeInteractor(SubmitChallengeUseCase):
             s.challenge_id: s for s in await self._chart_repo.find_ready_summaries()
         }
         next_id = self._recommend_next(
-            challenge, score, all_active, attempted, ready, traits
+            challenge, score, all_active, attempted, ready, traits, karaoke
         )
 
         saved_eval = await self._evaluation_repo.save(
@@ -225,19 +230,19 @@ class SubmitChallengeInteractor(SubmitChallengeUseCase):
         attempted: set[int],
         ready: dict[int, ChartSummary],
         traits: VocalTraits | None,
+        karaoke: KaraokeScore | None,
     ) -> int | None:
         """다음에 도전할 챌린지를 고른다.
 
-        1. 악보가 준비된 곡만 후보다. 예전에는 활성 챌린지면 다 골랐는데,
-           그러면 악보가 없어 도전 자체가 안 되는 곡을 추천해 막다른 길로
-           보냈다.
+        여기서는 후보만 추린다.
+        1. 악보가 준비된 곡만. 예전에는 활성 챌린지면 다 골랐는데, 그러면
+           악보가 없어 도전 자체가 안 되는 곡을 추천해 막다른 길로 보냈다.
         2. 방금 부른 것과 이미 해본 것은 뺀다(로그인 사용자만 이력을 안다).
         3. 점수가 낮으면 같은 유형으로 더 연습시키고, 높으면 다른 유형으로
            넓혀준다. 잘한 사람에게 같은 걸 또 주면 지루하고, 못한 사람에게
            낯선 유형을 주면 이탈한다.
-        4. 남은 후보 중에서는 이번에 편하게 낸 음역과 가장 잘 겹치는 곡을
-           고른다. 음역을 모르면(짧게 불렀거나 거의 못 맞혔으면) 곡 번호
-           순으로 둔다 — 적어도 매번 같은 곡이 나오지는 않는다.
+
+        추려진 후보 중 무엇을 줄지는 도메인 규칙(next_song)이 정한다.
         """
         singable = [c for c in all_active if c.id != current.id and c.id in ready]
         if not singable:
@@ -256,26 +261,23 @@ class SubmitChallengeInteractor(SubmitChallengeUseCase):
             ]
         candidates = narrowed or candidates
 
-        return self._best_fit(candidates, ready, traits).id
-
-    @staticmethod
-    def _best_fit(
-        candidates: list[MusicChallenge],
-        ready: dict[int, ChartSummary],
-        traits: VocalTraits | None,
-    ) -> MusicChallenge:
-        """편한 음역에 가장 많이 걸치는 곡. 음역을 모르면 곡 번호가 작은 것."""
-        low = traits.comfort_low_midi if traits else None
-        high = traits.comfort_high_midi if traits else None
-        if low is None or high is None or high <= low:
-            return min(candidates, key=lambda c: c.id)
-
-        def overlap(c: MusicChallenge) -> float:
-            chart = ready[c.id]
-            span = chart.high_midi - chart.low_midi
-            if span <= 0:
-                return 0.0
-            shared = min(high, chart.high_midi) - max(low, chart.low_midi)
-            return max(0.0, shared) / span
-
-        return max(candidates, key=lambda c: (overlap(c), -c.id))
+        weakness = read_weakness(
+            comfort_low_midi=traits.comfort_low_midi if traits else None,
+            comfort_high_midi=traits.comfort_high_midi if traits else None,
+            low_accuracy=traits.low_accuracy if traits else None,
+            high_accuracy=traits.high_accuracy if traits else None,
+            timing_accuracy=karaoke.timing_accuracy if karaoke else None,
+        )
+        return pick_next_song(
+            [
+                SongCandidate(
+                    challenge_id=c.id,
+                    same_type=c.challenge_type == current.challenge_type,
+                    low_midi=ready[c.id].low_midi,
+                    high_midi=ready[c.id].high_midi,
+                    bpm=ready[c.id].bpm,
+                )
+                for c in candidates
+            ],
+            weakness,
+        )
