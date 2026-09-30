@@ -147,13 +147,20 @@ class GeminiEvaluatorAdapter(AIEvaluatorPort):
                 logger.warning("Gemini 모델 미설정 — GEMINI_API_KEY 를 확인하세요")
                 return 70, "AI 평가를 사용할 수 없어 기본 점수를 부여합니다."
 
-            if len(media_bytes) > _MAX_INLINE_BYTES:
+            # 노래방 제출은 이미 정답 음표와 맞춰 음정·박자·발성을 전부 숫자로
+            # 재 놓았고, 점수도 호출 측이 그 값으로 덮어쓴다. 모델이 할 일은
+            # 코칭 문장뿐이라 녹음을 같이 보낼 이유가 없다 — 4분짜리 곡이면
+            # 제출마다 4~5MB 를 올리는 셈이고, 그만큼 그대로 요금이 된다.
+            # 채점 결과가 없는 제출(영상, 악보가 없는 곡)은 오디오가 유일한
+            # 근거이므로 그때만 올린다.
+            send_audio = karaoke is None
+
+            if send_audio and len(media_bytes) > _MAX_INLINE_BYTES:
                 return (
                     65,
                     f"파일 크기 초과로 자동 분석이 제한되었습니다. [{challenge_title}] 챌린지 참여 감사합니다!",
                 )
 
-            b64 = base64.b64encode(media_bytes).decode()
             prompt = (
                 f"당신은 음악 챌린지 평가 전문가입니다.\n"
                 f"챌린지명: [{challenge_title}]\n"
@@ -165,17 +172,24 @@ class GeminiEvaluatorAdapter(AIEvaluatorPort):
                 f"{_karaoke_block(karaoke)}"
                 f"{_traits_block(traits)}\n\n"
                 f"{_RUBRIC}\n\n"
-                f"제출된 {media_type.value} 파일을 듣고 정확도(음정·박자·리듬), "
-                f"표현력과 감정, 전체 완성도를 평가하세요.\n"
-                f'반드시 JSON으로만 응답: {{"score": 0~100 정수, "feedback": "한국어 피드백 2~3문장"}}'
+                + (
+                    f"제출된 {media_type.value} 파일을 듣고 정확도(음정·박자·리듬), "
+                    f"표현력과 감정, 전체 완성도를 평가하세요.\n"
+                    if send_audio
+                    else "위 수치만 근거로 판단하세요. 녹음은 주어지지 않았으므로 "
+                    "음색·감정처럼 듣지 않고는 알 수 없는 것은 말하지 마세요.\n"
+                )
+                + '반드시 JSON으로만 응답: {"score": 0~100 정수, "feedback": "한국어 피드백 2~3문장"}'
             )
 
+            if send_audio:
+                b64 = base64.b64encode(media_bytes).decode()
+                payload: list = [{"mime_type": content_type, "data": b64}, prompt]
+            else:
+                payload = [prompt]
+
             response = model.generate_content(
-                [
-                    {"mime_type": content_type, "data": b64},
-                    prompt,
-                ],
-                generation_config=_GENERATION_CONFIG,
+                payload, generation_config=_GENERATION_CONFIG
             )
             return self._parse(response.text)
         except Exception as e:
