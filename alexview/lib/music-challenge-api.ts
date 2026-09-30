@@ -36,6 +36,28 @@ export type Evaluation = {
   tempo: number | null
   /** 노래방·연주 모드로 제출했을 때만 — 서버가 정답 음표와 다시 맞춰 본 결과 */
   karaoke: KaraokeResult | null
+  /** 같은 녹음의 음높이 곡선에서 읽은 발성 진단. 잴 수 없었던 항목은 null */
+  traits: VocalTraits | null
+}
+
+export type VocalTraits = {
+  /** 음표 구간에서 실제로 소리를 낸 비율 */
+  voiced_ratio: number
+  /** 음정이 쏠린 방향과 크기. 양수면 높게, 음수면 낮게 */
+  pitch_bias_cents: number | null
+  /** 어긋난 순간 중 아래로 쳐진 비율 */
+  flat_ratio: number | null
+  /** 음을 제 음높이로 잡기까지 걸린 시간의 중앙값 */
+  attack_delay_ms: number | null
+  vibrato_extent_cents: number | null
+  vibrato_rate_hz: number | null
+  /** 곡의 가운데 음을 기준으로 나눈 아래·위 구간 정확도 */
+  low_accuracy: number | null
+  high_accuracy: number | null
+  /** 편하게 낸 음역(MIDI 번호) */
+  comfort_low_midi: number | null
+  comfort_high_midi: number | null
+  weak_note_count: number
 }
 
 export type KaraokeResult = {

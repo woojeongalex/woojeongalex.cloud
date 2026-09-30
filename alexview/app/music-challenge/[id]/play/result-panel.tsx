@@ -9,6 +9,7 @@ import { blobToWav } from "@/lib/audio-wav"
 import { JUDGEMENT_LABEL, type FinalScore, type Judgement } from "@/lib/karaoke-scoring"
 import { submitChallenge, type Evaluation } from "@/lib/music-challenge-api"
 import { UI_ERRORS, UserFacingError } from "@/lib/user-facing-error"
+import { traitRows } from "@/lib/vocal-traits-view"
 
 const JUDGEMENTS: Judgement[] = ["perfect", "great", "good", "miss"]
 
@@ -45,6 +46,7 @@ export function ResultPanel({ challengeId, final, recording, startOffset, onRetr
 
   const karaoke = evaluation?.karaoke ?? null
   const shownScore = karaoke?.score ?? final.score
+  const traitRowsToShow = evaluation?.traits ? traitRows(evaluation.traits) : []
 
   return (
     <section className="mt-6 rounded-3xl border border-border bg-card p-6 shadow-[0_0_40px_-18px_#ff2e97] animate-in fade-in slide-in-from-bottom-6 duration-700">
@@ -146,6 +148,36 @@ export function ResultPanel({ challengeId, final, recording, startOffset, onRetr
               >
                 랭킹 보기
               </Link>
+            </div>
+          )}
+          {traitRowsToShow.length > 0 && (
+            <div>
+              <p className="font-orbitron text-xs font-bold tracking-[0.25em] text-neon-cyan">
+                발성 진단
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                녹음의 음높이 곡선에서 잰 값입니다. 코칭은 이 수치를 근거로 씁니다.
+              </p>
+              <ul className="mt-3 divide-y divide-border rounded-2xl border border-border">
+                {traitRowsToShow.map((row) => (
+                  <li
+                    key={row.label}
+                    className="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-4 py-3"
+                  >
+                    <span className="w-24 shrink-0 text-xs text-muted-foreground">{row.label}</span>
+                    <span
+                      className={`font-orbitron text-sm font-bold tabular-nums ${
+                        row.warn ? "text-neon-pink" : "text-neon-cyan"
+                      }`}
+                    >
+                      {row.value}
+                    </span>
+                    <span className="w-full text-xs text-foreground/70 sm:w-auto sm:flex-1">
+                      {row.note}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
           <div>

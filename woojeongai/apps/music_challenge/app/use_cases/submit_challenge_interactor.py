@@ -4,7 +4,11 @@ from datetime import datetime
 
 from fastapi import HTTPException
 
-from music_challenge.app.dtos.evaluation_dto import EvaluationResult, KaraokeResult
+from music_challenge.app.dtos.evaluation_dto import (
+    EvaluationResult,
+    KaraokeResult,
+    VocalTraitsResult,
+)
 from music_challenge.app.dtos.submission_dto import SubmitChallengeCommand
 from music_challenge.app.ports.input.submission_use_case import SubmitChallengeUseCase
 from music_challenge.app.ports.output.ai_evaluator_port import AIEvaluatorPort
@@ -49,6 +53,26 @@ from music_challenge.domain.value_objects.music_challenge_vo import MediaType
 _PRACTICE_MORE_BELOW = 60
 # 녹음 시작 시점 보정값의 허용 범위(초). 기기 지연은 수백 ms 수준이라 이 밖은 조작으로 본다.
 _OFFSET_MIN, _OFFSET_MAX = -1.0, 2.0
+
+
+def _traits_result(traits: VocalTraits | None) -> VocalTraitsResult | None:
+    """도메인 진단을 응답용으로 옮긴다. 필드를 하나씩 적는다 — 도메인에 항목이
+    늘었을 때 화면까지 손댈지 여기서 결정하게 한다."""
+    if traits is None:
+        return None
+    return VocalTraitsResult(
+        voiced_ratio=traits.voiced_ratio,
+        pitch_bias_cents=traits.pitch_bias_cents,
+        flat_ratio=traits.flat_ratio,
+        attack_delay_ms=traits.attack_delay_ms,
+        vibrato_extent_cents=traits.vibrato_extent_cents,
+        vibrato_rate_hz=traits.vibrato_rate_hz,
+        low_accuracy=traits.low_accuracy,
+        high_accuracy=traits.high_accuracy,
+        comfort_low_midi=traits.comfort_low_midi,
+        comfort_high_midi=traits.comfort_high_midi,
+        weak_note_count=traits.weak_note_count,
+    )
 
 
 class SubmitChallengeInteractor(SubmitChallengeUseCase):
@@ -170,6 +194,7 @@ class SubmitChallengeInteractor(SubmitChallengeUseCase):
             rhythm_score=saved_eval.rhythm_score,
             tempo=saved_eval.tempo,
             karaoke=await self._karaoke_result(command.challenge_id, user_id, karaoke),
+            traits=_traits_result(traits),
         )
 
     async def _score_karaoke(

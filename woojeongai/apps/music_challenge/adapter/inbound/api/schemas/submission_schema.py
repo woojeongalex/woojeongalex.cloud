@@ -12,6 +12,22 @@ class KaraokeResultResponse(BaseModel):
     is_personal_best: bool
 
 
+class VocalTraitsResponse(BaseModel):
+    """발성 진단. 잴 수 없었던 항목은 null 이며 화면은 그 줄을 빼고 그린다."""
+
+    voiced_ratio: int
+    pitch_bias_cents: int | None
+    flat_ratio: int | None
+    attack_delay_ms: int | None
+    vibrato_extent_cents: int | None
+    vibrato_rate_hz: float | None
+    low_accuracy: int | None
+    high_accuracy: int | None
+    comfort_low_midi: float | None
+    comfort_high_midi: float | None
+    weak_note_count: int
+
+
 class EvaluationResponse(BaseModel):
     id: int
     submission_id: int
@@ -24,6 +40,8 @@ class EvaluationResponse(BaseModel):
     tempo: float | None = None
     # 노래방·연주 모드 제출만 — 정답 음표 대비 서버 채점과 랭킹 위치
     karaoke: KaraokeResultResponse | None = None
+    # 같은 녹음의 음높이 곡선에서 읽은 발성 진단
+    traits: VocalTraitsResponse | None = None
 
 
 class SubmissionHistoryItemResponse(BaseModel):

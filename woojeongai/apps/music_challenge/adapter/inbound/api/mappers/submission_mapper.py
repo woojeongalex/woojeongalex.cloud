@@ -2,6 +2,7 @@ from music_challenge.adapter.inbound.api.schemas.submission_schema import (
     EvaluationResponse,
     KaraokeResultResponse,
     SubmissionHistoryItemResponse,
+    VocalTraitsResponse,
 )
 from music_challenge.app.dtos.evaluation_dto import EvaluationResult
 from music_challenge.app.dtos.history_dto import SubmissionHistoryItem
@@ -27,6 +28,23 @@ def evaluation_result_to_response(result: EvaluationResult) -> EvaluationRespons
                 is_personal_best=result.karaoke.is_personal_best,
             )
             if result.karaoke
+            else None
+        ),
+        traits=(
+            VocalTraitsResponse(
+                voiced_ratio=result.traits.voiced_ratio,
+                pitch_bias_cents=result.traits.pitch_bias_cents,
+                flat_ratio=result.traits.flat_ratio,
+                attack_delay_ms=result.traits.attack_delay_ms,
+                vibrato_extent_cents=result.traits.vibrato_extent_cents,
+                vibrato_rate_hz=result.traits.vibrato_rate_hz,
+                low_accuracy=result.traits.low_accuracy,
+                high_accuracy=result.traits.high_accuracy,
+                comfort_low_midi=result.traits.comfort_low_midi,
+                comfort_high_midi=result.traits.comfort_high_midi,
+                weak_note_count=result.traits.weak_note_count,
+            )
+            if result.traits
             else None
         ),
     )
