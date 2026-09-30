@@ -23,16 +23,13 @@ from music_challenge.app.use_cases.rhythm_chart_interactors import (
     ListRhythmSongsInteractor,
     RequestRhythmBuildInteractor,
 )
-from music_challenge.app.ports.input.ai_chat_use_case import AiChatUseCase
-from music_challenge.app.use_cases.ai_chat_interactor import AiChatInteractor
 from music_challenge.app.use_cases.rhythm_play_interactors import (
     GetRhythmRankingInteractor,
     SubmitRhythmPlayInteractor,
 )
 
-from music_challenge.adapter.outbound.gemini_chat_adapter import GeminiChatAdapter
-from music_challenge.adapter.outbound.gemini_evaluator_adapter import (
-    GeminiEvaluatorAdapter,
+from music_challenge.adapter.outbound.rule_based_evaluator_adapter import (
+    RuleBasedEvaluatorAdapter,
 )
 from music_challenge.adapter.outbound.librosa_audio_analysis_adapter import (
     LibrosaAudioAnalysisAdapter,
@@ -137,7 +134,7 @@ def get_submit_challenge_use_case(session: AsyncSession) -> SubmitChallengeUseCa
         submission_repo=SubmissionPgRepository(session),
         evaluation_repo=EvaluationPgRepository(session),
         storage=S3MediaStorageAdapter(),
-        evaluator=GeminiEvaluatorAdapter(),
+        evaluator=RuleBasedEvaluatorAdapter(),
         user_lookup=UserLookupPgRepository(session),
         audio_analysis=LibrosaAudioAnalysisAdapter(),
         chart_repo=ChartPgRepository(session),
@@ -248,6 +245,3 @@ def get_list_rhythm_songs_use_case(session: AsyncSession) -> ListRhythmSongsUseC
     )
 
 
-def get_ai_chat_use_case() -> AiChatUseCase:
-    """DB 를 쓰지 않는 유일한 조립이라 세션을 받지 않는다."""
-    return AiChatInteractor(chat=GeminiChatAdapter())
