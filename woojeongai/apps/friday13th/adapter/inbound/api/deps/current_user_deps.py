@@ -33,14 +33,18 @@ async def require_admin(payload: dict = Depends(get_current_user)) -> dict:
 
 
 async def get_optional_user(authorization: str | None = Header(None)) -> dict | None:
-    """로그인했으면 토큰 페이로드, 아니면 None.
+    """토큰을 아예 안 보냈으면 None(비로그인 참여), 보냈는데 유효하지 않으면 401.
 
-    비로그인 참여를 허용하면서도 로그인한 사용자는 기록에 남겨야 하는
-    엔드포인트용. 토큰이 없거나 유효하지 않아도 401 을 내지 않는다.
+    비로그인 참여를 허용하면서도 로그인한 사용자는 기록에 남겨야 하는 엔드포인트용.
+
+    예전에는 유효하지 않은 토큰도 None 으로 넘겼다. 그러면 세션이 끊긴 사용자의
+    제출이 조용히 익명으로 저장돼 랭킹에서 사라진다 — 화면은 로그인 상태로 보이고
+    점수도 나오는데 기록에만 안 남으니 알아챌 방법이 없다. 서버를 재시작해 Redis
+    세션이 비워지면 로그인한 모든 사용자에게 한꺼번에 일어난다.
+
+    401 을 내면 클라이언트(authFetch)가 토큰을 갱신해 다시 보낸다. 갱신까지
+    실패하면 그때는 화면에 오류가 보이므로 사용자가 다시 로그인하고 제출할 수 있다.
     """
     if not authorization or not authorization.startswith("Bearer "):
         return None
-    try:
-        return await get_current_user(authorization)
-    except HTTPException:
-        return None
+    return await get_current_user(authorization)

@@ -125,6 +125,14 @@ export function ResultPanel({ challengeId, final, recording, startOffset, onRetr
 
       {evaluation && (
         <div className="mt-6 space-y-5">
+          {/* 로그인 상태로 보이는데 순위가 없다 = 서버가 익명으로 받았다.
+              아무 말도 안 하면 기록이 사라진 걸 알아챌 방법이 없다. */}
+          {user && karaoke && karaoke.rank === null && (
+            <p className="rounded-2xl border border-destructive/40 bg-destructive/5 px-5 py-4 text-sm">
+              로그인이 풀려 이 점수는 랭킹과 기록에 남지 않았습니다. 다시 로그인한 뒤 한 번 더
+              도전해 주세요.
+            </p>
+          )}
           {karaoke && karaoke.rank !== null && (
             <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-neon-yellow/40 bg-neon-yellow/5 px-5 py-4">
               <Trophy className="h-5 w-5 text-neon-yellow" aria-hidden="true" />
