@@ -32,8 +32,15 @@ class ChallengePgRepository(ChallengeRepositoryPort):
         return self._to_entity(model) if model else None
 
     async def find_all_active(self) -> list[MusicChallenge]:
-        stmt = select(MusicChallengeModel).where(
-            MusicChallengeModel.is_active.is_(True)
+        # 정렬이 없으면 DB 가 주는 순서(= 대체로 만든 순)로 나가서, 목록과 홈
+        # 첫 카드에 제일 오래된 곡부터 깔린다. 초기 테스트 음원이 맨 앞에 서는
+        # 문제가 여기서 왔다. 최근에 올린 곡을 앞에 둔다.
+        stmt = (
+            select(MusicChallengeModel)
+            .where(MusicChallengeModel.is_active.is_(True))
+            .order_by(
+                MusicChallengeModel.created_at.desc(), MusicChallengeModel.id.desc()
+            )
         )
         rows = await self._session.execute(stmt)
         return [self._to_entity(r) for r in rows.scalars()]

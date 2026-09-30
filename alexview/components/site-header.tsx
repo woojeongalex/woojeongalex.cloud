@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BarChart2, ChevronDown, Gamepad2, History, Music4 } from "lucide-react"
+import { ChevronDown, Gamepad2, History, Music4 } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -96,12 +96,6 @@ export function SiteHeader() {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-            {user?.role === "admin" && (
-              <Link href="/admin" className={cn(navLinkClass, isActive("/admin") ? activeLink : idleLink)}>
-                <BarChart2 className="size-3.5" aria-hidden />
-                Admin
-              </Link>
-            )}
             {!user && (
               <Link
                 href="/auth"

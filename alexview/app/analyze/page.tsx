@@ -2,7 +2,6 @@
 
 import { useCallback, useMemo, useRef, useState } from "react"
 import {
-  CheckCircle2,
   FileVideo,
   Mic,
   Music4,
@@ -20,9 +19,6 @@ import type { VocalAnalysisResult } from "@/lib/analyze-media"
 import { fetchSongMrSearch, type SongMrHit } from "@/lib/song-mr-api"
 import { postSingEvaluation } from "@/lib/sing-evaluation-api"
 import { UserFacingError, UI_ERRORS } from "@/lib/user-facing-error"
-
-const apiBaseUrl =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000"
 
 const ANALYZE_VOCAL_DROPZONE_COPY = {
   ...VOCAL_DROPZONE_COPY,
@@ -425,26 +421,6 @@ export default function AnalyzePage() {
               )}
             </article>
 
-            {/* API 연결 배너 */}
-            <article className="rounded-3xl border-2 border-neon-pink/40 bg-night-900 p-6 shadow-[0_0_32px_rgba(255,46,151,0.15)]">
-              <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-                <CheckCircle2 className="h-4 w-4 text-neon-green" aria-hidden="true" />
-                백엔드 API 연결 배너
-              </div>
-              <h2 className="mt-3 text-xl font-semibold text-foreground">
-                이 화면은 바로 API와 연결할 수 있게 설계했습니다.
-              </h2>
-              <div className="mt-6 space-y-3 text-sm">
-                <ApiRow label="MR 검색·DB 저장" value={`${apiBaseUrl}/api/songs/search?q=`} />
-                <ApiRow label="보컬 분석 결과 저장" value={`${apiBaseUrl}/api/music/sing-evaluation`} />
-                <ApiRow label="곡 목록 조회" value={`${apiBaseUrl}/songs`} />
-                <ApiRow label="음원 분석 요청" value={`${apiBaseUrl}/analysis/songs/:songId`} />
-                <ApiRow label="녹음 업로드" value={`${apiBaseUrl}/analysis/recordings`} />
-                <ApiRow label="영상·음원 업로드" value={`${apiBaseUrl}/analysis/media-upload`} />
-                <ApiRow label="결과 조회" value={`${apiBaseUrl}/analysis/results/:resultId`} />
-              </div>
-            </article>
-
             {/* 추천 배너 */}
             <article className="rounded-3xl border border-border bg-night-900 p-6">
               <div className="flex items-center gap-2 text-sm font-medium text-foreground">
@@ -487,11 +463,3 @@ function ResultCard({ title, value, description }: { title: string; value: strin
   )
 }
 
-function ApiRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl border border-border bg-night-950 p-3">
-      <p className="font-orbitron text-xs uppercase tracking-[0.2em] text-neon-cyan">{label}</p>
-      <p className="mt-1 break-all font-mono text-xs font-medium text-foreground">{value}</p>
-    </div>
-  )
-}
