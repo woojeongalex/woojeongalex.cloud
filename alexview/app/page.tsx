@@ -33,7 +33,7 @@ const LOOP_STEPS = [
     icon: AudioLines,
     title: "분석한다",
     description:
-      "음정과 박자는 신호 분석으로 수치를 내고, 그 수치를 근거로 AI가 무엇을 고칠지 짚어줍니다.",
+      "음정과 박자를 신호 분석으로 재고, 그 수치에서 발성 8가지를 진단해 무엇을 고칠지 짚어줍니다.",
   },
   {
     n: "03",
@@ -89,7 +89,7 @@ export default function HomePage() {
             className="mt-6 max-w-2xl text-base font-medium leading-8 text-white [text-shadow:0_1px_14px_#0d0619,0_0_3px_#0d0619] animate-in fade-in slide-in-from-bottom-6 duration-700 fill-mode-both"
             style={{ animationDelay: "240ms" }}
           >
-            AI가 만든 곡을 노래방처럼 부르면 음정·박자를 재서 AI 코칭까지 돌려주고, 리듬 게임으로
+            AI가 만든 곡을 노래방처럼 부르면 음정·박자를 재고 발성까지 진단해 주고, 리듬 게임으로
             치면 판정이 바로 터집니다. 점수는 곡마다 랭킹에 쌓입니다.
           </p>
 

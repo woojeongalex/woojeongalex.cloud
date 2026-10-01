@@ -41,8 +41,8 @@ function encodeWav(samples: Float32Array, sampleRate: number): Blob {
 
 type BlobToWavOptions = {
   /**
-   * 지정하면 이 샘플레이트로 줄인다. 노래방 제출은 서버가 어차피 16kHz 로 분석하고,
-   * 48kHz 그대로면 4분 곡이 23MB 라 AI 코칭(인라인 20MB 한도)이 건너뛰어진다.
+   * 지정하면 이 샘플레이트로 줄인다. 노래방 제출은 서버가 어차피 16kHz 로 분석하므로
+   * 48kHz 그대로 올릴 이유가 없다 — 4분 곡이 23MB 라 업로드만 느려진다.
    */
   sampleRate?: number
 }

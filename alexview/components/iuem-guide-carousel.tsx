@@ -82,7 +82,7 @@ const GUIDE_SLIDES: GuideSlide[] = [
       { step: "1", title: "MENU·스피치", icon: Radio },
       { step: "2", title: "고민 선택", icon: Brain },
       { step: "3", title: "마이크 녹음", icon: Mic },
-      { step: "4", title: "AI 코칭", icon: ListChecks },
+      { step: "4", title: "발성 코칭", icon: ListChecks },
     ],
   },
 ]

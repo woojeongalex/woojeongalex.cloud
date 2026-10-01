@@ -101,7 +101,7 @@ export function ResultPanel({ challengeId, final, recording, startOffset, onRetr
             ) : (
               <Upload className="h-4 w-4" aria-hidden="true" />
             )}
-            {loading ? "채점 중… (AI 코칭까지 30초 정도)" : user ? "제출하고 랭킹 등록" : "제출하고 AI 코칭 받기"}
+            {loading ? "채점 중… (30초 정도)" : user ? "제출하고 랭킹 등록" : "제출하고 진단 받기"}
           </button>
           <button
             type="button"
@@ -181,7 +181,7 @@ export function ResultPanel({ challengeId, final, recording, startOffset, onRetr
             </div>
           )}
           <div>
-            <p className="font-orbitron text-xs font-bold tracking-[0.25em] text-neon-cyan">AI 코칭</p>
+            <p className="font-orbitron text-xs font-bold tracking-[0.25em] text-neon-cyan">발성 코칭</p>
             <p className="mt-2 whitespace-pre-line text-sm leading-7 text-foreground/90">{evaluation.feedback}</p>
           </div>
           <div className="flex flex-wrap gap-3">
