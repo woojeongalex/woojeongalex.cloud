@@ -8,8 +8,8 @@
 set -euo pipefail
 
 SITE_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-HOST="${DEPLOY_HOST:-ec2-user@54.116.178.227}"
-KEY="${DEPLOY_KEY:-$HOME/.ssh/woojeongalex-agent-key.pem}"
+HOST="${DEPLOY_HOST:-ec2-user@<EC2_IP>}"
+KEY="${DEPLOY_KEY:-$HOME/.ssh/<키파일>}"
 DOMAIN="${DEPLOY_DOMAIN:-demo.woojeongalex.cloud}"
 REMOTE_DIR="/home/ec2-user/demo-site"
 SSH=(ssh -o BatchMode=yes -i "$KEY" "$HOST")

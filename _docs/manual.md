@@ -140,7 +140,7 @@ docker compose -f docker-compose.yaml -f docker-compose.local.yml up -d pgvector
 
 ### 로컬 테스트 계정
 
-**testuser1 / Test1234!** (로컬 DB 에서만 admin)
+**testuser1** / 로컬에서 직접 정한 비밀번호 (로컬 DB 에서만 admin)
 
 ---
 
@@ -219,7 +219,7 @@ SONG_PREP_PASSWORD=<비번> python3 prepare_song.py <곡.wav> <가사.txt> \
 ### EC2
 
 ```bash
-ssh -i ~/.ssh/woojeongalex-agent-key.pem ec2-user@54.116.178.227
+ssh -i ~/.ssh/<키파일> ec2-user@<EC2_IP>
 ```
 
 - 인스턴스 `i-0378de2b8dc6047c8` (t3.micro, 탄력적 IP)
