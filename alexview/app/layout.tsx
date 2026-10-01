@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Black_Han_Sans, IBM_Plex_Sans_KR, JetBrains_Mono, Orbitron } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { PortfolioBar } from '@/components/portfolio-bar'
 import { SiteHeader } from '@/components/site-header'
 import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
@@ -98,6 +99,7 @@ export default function RootLayout({
       <body className="min-h-screen overflow-x-hidden font-sans antialiased">
         {/* 신스웨이브 한 가지 테마만 쓴다. dark: 변형이 늘 켜지도록 다크로 고정한다. */}
         <ThemeProvider attribute="class" forcedTheme="dark" defaultTheme="dark" enableSystem={false}>
+          <PortfolioBar />
           <SiteHeader />
           {children}
           {process.env.NODE_ENV === 'production' && <Analytics />}
