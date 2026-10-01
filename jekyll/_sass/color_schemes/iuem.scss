@@ -1,32 +1,33 @@
-// IUEM 배색 — 흑백.
+// IUEM 배색 — 서비스와 같은 신스웨이브.
 //
-// 색을 쓰지 않는다. 레퍼런스에서 유일한 '색'은 **흐린 회색** 하나이고, 그것도
-// 강조가 아니라 **힘을 빼는 용도**였다("YOUR ONLY LIMIT IS *OBSOLETE*").
-// 그래서 여기서도 강조는 색이 아니라 **크기·굵기·여백**이 맡고, 회색은
-// 뒤로 물러나야 할 것에만 쓴다.
+// 색값은 `alexview/app/globals.css` 의 토큰을 그대로 옮긴 것이다. 기록 사이트가
+// 서비스와 다른 보라를 쓰면 두 개가 따로 노는 것처럼 보인다.
+//
+//   night-950 #0d0619 · night-900 #12072a · night-800 #1a0b33 · night-600 #3b1d66
+//   neon-pink #ff2e97 · neon-cyan #2ee6ff · neon-violet #b44cff
 
 $color-scheme: dark;
 
-// 바탕 — 순흑. 회색빛 검정으로 두면 이 느낌이 흐려진다.
-$body-background-color: #000000;
-$sidebar-color: #000000;
-$search-background-color: #0a0a0a;
-$table-background-color: #000000;
-$code-background-color: #0a0a0a;
-$base-button-color: #141414;
-$feedback-color: #0a0a0a;
+// 바탕 — 밤보라. 사이드바를 한 단계 더 어둡게 해 본문이 앞으로 나오게
+$body-background-color: #12072a;
+$sidebar-color: #0d0619;
+$search-background-color: #1a0b33;
+$table-background-color: #160a2b;
+$code-background-color: #0d0619;
+$base-button-color: #22103f;
+$feedback-color: #1a0b33;
 
 // 글자
-$body-text-color: #b4b4b4; // 본문은 한 단계 낮춰 제목이 치고 나오게
+$body-text-color: #cfc4e8;
 $body-heading-color: #ffffff;
-$search-result-preview-color: #6e6e6e;
-$nav-child-link-color: #8a8a8a;
+$search-result-preview-color: #9b8bc4;
+$nav-child-link-color: #b9abdb;
 
-// 링크도 흰색이다. 구분은 색이 아니라 밑줄이 한다(custom.scss).
-$link-color: #ffffff;
-$btn-primary-color: #ffffff;
+// 포인트 — 링크는 시안, 버튼은 핑크. 서비스가 쓰는 방식과 같다
+// (시안 = 가는 길, 핑크 = 누르는 것).
+$link-color: #2ee6ff;
+$btn-primary-color: #ff2e97;
 
-// 선은 보일 듯 말 듯. 상자를 그리지 않고 선 하나로 나눈다.
-$border-color: #222222;
+$border-color: #3b1d66;
 
 @import "./vendor/OneDarkJekyll/syntax";

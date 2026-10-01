@@ -1,18 +1,18 @@
 // 테마 변수 덮어쓰기. support 뒤·modules 앞에 들어가서 `!default` 값을 바꾼다.
 
-// 전부 산세리프. 세리프를 섞으면 "문서"로 보이고, 지금 노리는 것은 그 반대다.
-$body-font-family: "Gothic A1", "Archivo", "Malgun Gothic", system-ui, sans-serif;
+// 서비스(alexview)와 같은 글꼴. 기록과 서비스가 따로 노는 것처럼 보이지 않게.
+$body-font-family: "IBM Plex Sans KR", "Malgun Gothic", system-ui, sans-serif;
 $mono-font-family: "JetBrains Mono", "SFMono-Regular", menlo, consolas, monospace;
 
-$body-line-height: 1.45;
-$content-line-height: 1.8; // 여백을 넓게 — 글이 숨 쉬게 둔다
-$body-heading-line-height: 1.02; // 큰 제목은 줄끼리 붙어야 덩어리로 보인다
+$body-line-height: 1.5;
+$content-line-height: 1.75;
+$body-heading-line-height: 1.15;
 
 $font-size-4: 0.9375rem;
 $font-size-5: 1rem;
 
-// 제목 크기를 테마 기본보다 크게 잡는다. 레퍼런스의 인상은 대부분 '크기'에서 온다.
-$font-size-8: 2.75rem; // h1
-$font-size-9: 3.25rem;
-$font-size-10: 4rem;
-$font-size-10-sm: 4.75rem;
+// 제목 크기. 서비스 히어로만큼은 아니어도 한 번은 크게 친다.
+$font-size-8: 2.3rem; // h1
+$font-size-9: 2.75rem;
+$font-size-10: 3.25rem;
+$font-size-10-sm: 3.75rem;
