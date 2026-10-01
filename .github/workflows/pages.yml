@@ -1,0 +1,64 @@
+# 개발 기록(jekyll/)을 GitHub Pages 로 올린다.
+#
+# **Actions 로 빌드하는 이유**: Pages 가 자체적으로 돌리는 Jekyll 은 3.9 고정이고 테마도
+# 정해진 목록 안에서만 고를 수 있다. 이 사이트는 Jekyll 4.4 + just-the-docs 라 둘 다 벗어난다.
+# 그리고 Pages 가 읽는 소스 경로는 저장소 루트나 /docs 뿐인데, 이 사이트는 jekyll/ 에 있다.
+#
+# baseurl 은 _config.yml 에 박지 않는다 — configure-pages 가 알려 주는 값을 받아 쓴다.
+# 그래야 로컬에서 `jekyll serve` 할 때와 배포본이 서로 다른 주소를 쓸 수 있다.
+
+name: 개발 기록 배포 (GitHub Pages)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'jekyll/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 배포는 한 번에 하나만. 돌고 있는 것을 끊지는 않는다(중간에 끊기면 Pages 가 반쯤 올라간다)
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+          working-directory: ./jekyll
+
+      - name: Pages 설정 읽기
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: 빌드
+        working-directory: ./jekyll
+        env:
+          JEKYLL_ENV: production
+        run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./jekyll/_site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

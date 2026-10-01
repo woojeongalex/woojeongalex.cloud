@@ -4,7 +4,9 @@ lang: ko
 theme: just-the-docs
 color_scheme: dark
 
-url: ""
+# baseurl 은 여기 적지 않는다 — 배포 때 Actions 가 Pages 에서 받은 값을 넘긴다
+# (`.github/workflows/pages.yml`). 여기 박아 두면 로컬 `jekyll serve` 주소까지 같이 바뀐다.
+url: "https://woojeongalex.github.io"
 baseurl: ""
 
 search_enabled: true
