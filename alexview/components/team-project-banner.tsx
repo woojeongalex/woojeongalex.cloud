@@ -3,12 +3,18 @@ import { ArrowUpRight, Boxes, ExternalLink } from "lucide-react"
 /**
  * 홈에서 팀 프로젝트(Arda / Eval-ATS)로 보내는 배너.
  *
- * **주소는 이 두 줄에만 둔다.** 개인 운영본(`ats.woojeongalex.cloud`)은 아직 서버가
- * 없어 열리지 않는다. 그래서 지금은 팀이 띄워 둔 주소를 가리킨다 — 살아 있는 쪽을
- * 걸어야 배너가 거짓말을 하지 않는다. 개인 운영본이 뜨면 여기 두 줄만 바꾼다.
+ * **주소는 이 세 줄에만 둔다.**
+ *
+ * 처음에는 팀이 띄워 둔 주소만 걸었다. 그런데 그 둘은 **내가 통제하지 못한다** —
+ * 이탈한 전 팀장 명의 인프라라 언제 꺼질지 모른다고 인수인계 문서가 적어 두었다.
+ * 지원 중에 꺼지면 배너가 죽은 링크가 된다.
+ *
+ * 그래서 첫 버튼은 **내 포크**로 돌렸다. 팀 저장소의 정식 포크라 출처가 드러나고,
+ * 거기 README 에 내가 맡은 범위가 적혀 있다. 팀 쪽이 사라져도 이건 남는다.
  */
-const DOCS_URL = "https://ats.suvisdev.cloud"
+const REPO_URL = "https://github.com/woojeongalex/Arda"
 const SERVICE_URL = "https://seuk.suvisdev.cloud"
+const DOCS_URL = "https://ats.suvisdev.cloud"
 
 /** 팀 문서 사이트와 인수인계 문서가 같은 값을 적고 있는 것만 싣는다. */
 const FACTS = [
@@ -60,12 +66,12 @@ export function TeamProjectBanner() {
 
             <div className="flex shrink-0 flex-col gap-3 lg:w-60">
               <a
-                href={DOCS_URL}
+                href={REPO_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="glow-button inline-flex items-center justify-center gap-2 rounded-full bg-neon-violet px-6 py-3.5 text-sm font-bold text-night-950"
               >
-                프로젝트 살펴보기
+                코드와 담당 범위
                 <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
               </a>
               <a
@@ -75,10 +81,19 @@ export function TeamProjectBanner() {
                 className="inline-flex items-center justify-center gap-2 rounded-full border border-neon-cyan/70 bg-night-950/70 px-6 py-3.5 text-sm font-semibold text-neon-cyan transition-colors hover:bg-neon-cyan/10"
               >
                 <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                서비스 열기
+                돌아가는 서비스
               </a>
               <p className="text-center text-[11px] leading-5 text-muted-foreground">
-                팀 SEUK 가 운영하는 주소로 열립니다
+                서비스와{" "}
+                <a
+                  href={DOCS_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline underline-offset-2 hover:text-foreground"
+                >
+                  소개 문서
+                </a>
+                는 팀 SEUK 가 운영합니다
               </p>
             </div>
           </div>
