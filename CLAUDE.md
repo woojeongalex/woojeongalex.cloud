@@ -35,10 +35,11 @@ mypy . --ignore-missing-imports
 ### Next.js 작업 후 (`alexview/`)
 ```bash
 cd alexview
-pnpm lint:fix
-pnpm format
 pnpm type-check
 ```
+
+> 린터·포매터는 아직 붙이지 않았다. `tsc --noEmit` 하나가 전부다.
+> 전에는 여기에 `pnpm lint:fix` · `pnpm format` 이 적혀 있었는데 **둘 다 정의된 적이 없다.**
 
 ### 온톨로지 노드(MD) 작업 후
 ```bash

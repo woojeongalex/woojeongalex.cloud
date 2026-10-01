@@ -33,7 +33,13 @@
 
 ```bash
 cd woojeongai
-ruff check . --fix
-ruff format .
-mypy . --ignore-missing-imports
+~/.venvs/lint/bin/ruff check . --fix
+~/.venvs/lint/bin/ruff format <이번에 고친 파일만>
 ```
+
+> **ruff 는 PATH 에 없다.** `~/.venvs/lint/bin/` 을 쓴다.
+>
+> **`ruff format .` 을 전체에 돌리지 말 것.** 저장소가 포맷돼 있지 않아 무관한 108개 파일이
+> 재포맷된다. 이번에 고친 파일만 지정한다.
+>
+> **mypy 전체 실행은 멈춘다** — `alembic`/`apps` 중복 모듈 오류다. 파일을 지정해 돌린다.
