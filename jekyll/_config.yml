@@ -2,7 +2,7 @@ title: IUEM
 description: AI가 만든 노래를 부르면, AI가 채점하고 다음 곡을 골라 주는 음악 챌린지 — 개발 기록
 lang: ko
 theme: just-the-docs
-color_scheme: dark
+color_scheme: iuem
 
 # baseurl 은 여기 적지 않는다 — 배포 때 Actions 가 Pages 에서 받은 값을 넘긴다
 # (`.github/workflows/pages.yml`). 여기 박아 두면 로컬 `jekyll serve` 주소까지 같이 바뀐다.

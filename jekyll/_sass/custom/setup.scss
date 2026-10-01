@@ -1,0 +1,17 @@
+// 테마 변수 덮어쓰기. 이 파일은 support 뒤·modules 앞에 들어가서
+// `!default` 로 잡혀 있던 값을 여기서 바꾼다.
+
+// 본문은 세리프. 긴 글을 읽는 사이트라 산세리프보다 눈이 덜 피로하다.
+// 한글은 Source Serif 에 없으므로 맑은 고딕으로 떨어진다.
+$body-font-family: "Source Serif 4", "Malgun Gothic", Georgia, "Times New Roman",
+  serif;
+$mono-font-family: "JetBrains Mono", "SFMono-Regular", menlo, consolas, monospace;
+
+// 기본값(1.4 / 1.6)은 산세리프 기준이라 세리프에는 빡빡하다.
+$body-line-height: 1.5;
+$content-line-height: 1.75;
+$body-heading-line-height: 1.2;
+
+// 본문을 한 칸 키운다. 기본 0.875rem 은 세리프에서 작아 보인다.
+$font-size-4: 0.9375rem;
+$font-size-5: 1.0625rem;

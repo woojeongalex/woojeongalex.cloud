@@ -1,0 +1,148 @@
+// 마지막에 들어가는 규칙. 테마 기본값을 이기므로 여기서 마무리한다.
+
+// ── 제목은 디스플레이 글꼴 ──────────────────────────────────────
+// 본문 세리프와 대비를 주려는 것이다. 둘 다 세리프면 제목이 본문에 묻힌다.
+h1, h2, h3, h4, h5, h6,
+.site-title, .nav-list .nav-list-item .nav-list-link {
+  font-family: "Bricolage Grotesque", "Malgun Gothic", system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+h1 { font-weight: 800; }
+
+// 사이트 이름 — 사이드바 맨 위
+.site-title {
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+// ── 본문 ────────────────────────────────────────────────────────
+// 읽는 글의 폭을 65자 언저리로 묶는다. 넓으면 눈이 줄을 놓친다.
+// 표·코드·그림은 아래에서 다시 풀어 준다.
+.main-content {
+  > p,
+  > ul,
+  > ol,
+  > blockquote {
+    max-width: 65ch;
+  }
+
+  // 글의 단락 사이를 테마 기본보다 벌린다
+  > p { margin-bottom: 1.1em; }
+
+  h2 {
+    margin-top: 2.4rem;
+    padding-top: 1.4rem;
+    border-top: 1px solid $border-color;
+  }
+
+  h3 { margin-top: 1.8rem; }
+
+  // 굵은 글씨가 본문에 묻히지 않게 — 이 사이트는 "여기가 핵심"을 굵게 쓴다
+  strong { color: #f2f0f8; font-weight: 600; }
+}
+
+// ── 표 ──────────────────────────────────────────────────────────
+.main-content table {
+  border-collapse: collapse;
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: system-ui, "Malgun Gothic", sans-serif;
+  font-size: 0.875rem;
+
+  th {
+    font-family: "Bricolage Grotesque", "Malgun Gothic", sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 0.03em;
+    background-color: #221e35;
+    color: #b9b2d0;
+  }
+
+  td, th { border-color: $border-color; }
+
+  // 숫자가 줄맞춤되게
+  td { font-variant-numeric: tabular-nums; }
+}
+
+// ── 코드 ────────────────────────────────────────────────────────
+.main-content {
+  // 본문 안의 짧은 코드 — 보라 기운을 살짝 준다
+  p > code,
+  li > code,
+  td > code {
+    color: #c9b8ff;
+    background-color: #221e35;
+    border: 1px solid $border-color;
+    border-radius: 4px;
+  }
+
+  // 흐름도·구조도가 들어가는 코드 블록은 줄 간격을 좁혀 그림처럼 보이게
+  div.highlighter-rouge,
+  pre.highlight {
+    border: 1px solid $border-color;
+    border-radius: 8px;
+  }
+
+  pre.highlight { line-height: 1.45; }
+}
+
+// ── 인용 ────────────────────────────────────────────────────────
+// 이 사이트는 인용을 "덧붙이는 말"로 쓴다. 왼쪽 선 + 조금 흐리게.
+.main-content blockquote {
+  border-left: 3px solid $link-color;
+  padding: 0.2rem 0 0.2rem 1.1rem;
+  color: #a79fc4;
+  font-size: 0.95em;
+
+  > :last-child { margin-bottom: 0; }
+}
+
+// ── 사이드바 ────────────────────────────────────────────────────
+.side-bar {
+  border-right: 1px solid $border-color;
+}
+
+.nav-list .nav-list-item .nav-list-link {
+  font-size: 0.875rem;
+  font-weight: 600;
+
+  &.active {
+    // 현재 페이지에 보라 막대를 붙인다
+    box-shadow: inset 3px 0 0 $link-color;
+    background-image: linear-gradient(
+      90deg,
+      rgba(164, 140, 255, 0.14),
+      rgba(164, 140, 255, 0)
+    );
+  }
+}
+
+// ── 버튼 ────────────────────────────────────────────────────────
+.btn-primary {
+  font-family: "Bricolage Grotesque", "Malgun Gothic", sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+// ── 머리글 앵커 ─────────────────────────────────────────────────
+.anchor-heading svg { color: $link-color; }
+
+// ── 검색 ────────────────────────────────────────────────────────
+.search-input { font-family: system-ui, "Malgun Gothic", sans-serif; }
+
+// ── 좁은 화면 ───────────────────────────────────────────────────
+@media (max-width: 49.99rem) {
+  .main-content {
+    > p, > ul, > ol, > blockquote { max-width: none; }
+    h2 { margin-top: 1.9rem; }
+  }
+
+  // 표가 폭에 맞춰 눌리면 칸마다 글자가 두세 자씩 끊긴다. 테마가 이미
+  // `.table-wrapper` 에 가로 스크롤을 걸어 뒀으므로, 표에 최소 폭만 주면
+  // 눌리는 대신 옆으로 밀린다.
+  .main-content table { min-width: 32rem; }
+}
