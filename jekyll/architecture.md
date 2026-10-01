@@ -22,7 +22,7 @@ nav_order: 3
 | `flutter/` | OCR 앱 (`app.woojeongalex.cloud`) | Flutter · Tesseract |
 | `woojeongai/tools/song_prep/` | 곡 준비 도구 (관리자 PC 에서 실행) | Demucs · faster-whisper · Docker |
 
-백엔드는 앱마다 클린 아키텍처로 나눈다 — `domain`(엔티티·값 객체·규칙) → `app`(유스케이스·포트) → `adapter`(API·DB·S3·librosa·Gemini).
+백엔드는 앱마다 클린 아키텍처로 나눈다 — `domain`(엔티티·값 객체·규칙) → `app`(유스케이스·포트) → `adapter`(API·DB·S3·librosa).
 노래방 채점 규칙은 librosa 와 무관한 순수 규칙이라 `domain/services` 에 두고, 음높이 측정만 어댑터에 둔다.
 
 **도메인에 있는 것** — DB 도 FastAPI 도 타지 않아 요인을 하나씩 떼어 확인할 수 있다.
@@ -52,7 +52,7 @@ nav_order: 3
 
 [백엔드]     녹음 ─ pyin ─ 같은 규칙으로 다시 채점 ─▶ 최종 점수 (랭킹은 이 값만)
                     ├─ 같은 프레임을 한 번 더 읽어 ─▶ 발성 진단 8종
-                    ├─ 점수 + 진단 ─ Gemini ─▶ 코칭
+                    ├─ 점수 + 진단 ─ 규칙 ─▶ 코칭 (가장 크게 무너진 하나)
                     └─ 진단의 약점 ─▶ 다음 곡 (음역·빠르기로 고른다)
 ```
 
@@ -67,7 +67,7 @@ nav_order: 3
 | `music_challenges` | 곡(제목·설명·원곡 S3 키·유형) |
 | `challenge_charts` | 곡 하나의 악보 — 정답 음표(JSON), 가사 줄과 시작 시각, 멜로디·반주 스템 위치, 추출 상태 |
 | `challenge_submissions` | 제출(녹음 S3 키, 로그인했으면 사용자) |
-| `submission_evaluations` | 평가 — 점수, AI 코칭, 다음 추천 곡, 노래방 서버 채점(음정·박자·종합) |
+| `submission_evaluations` | 평가 — 점수, 코칭 문구, 다음 추천 곡, 노래방 서버 채점(음정·박자·종합) |
 | `rhythm_charts` | 리듬 게임 채보 6개와 BPM. 노트가 수천 개라 객체 대신 배열로 줄여 담는다 |
 | `rhythm_plays` | 리듬 게임 기록 |
 
