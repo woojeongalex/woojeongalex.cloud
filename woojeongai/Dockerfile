@@ -12,11 +12,11 @@ RUN apt-get update \
 
 # 4. 의존성 패키지 설치 (캐시 최적화를 위해 먼저 복사)
 COPY requirements.txt .
-# ultralytics가 opencv-python(GUI용, X11 라이브러리 필요)을 끌고 오는데
-# 이 슬림 이미지엔 X11이 없다. 서버에는 GUI가 필요 없으니 헤드리스로 교체한다.
-RUN pip install --no-cache-dir -r requirements.txt \
-    && pip uninstall -y opencv-python \
-    && pip install --no-cache-dir opencv-python-headless==4.10.0.84
+# 전에는 여기서 opencv 를 헤드리스 판으로 바꿔 끼웠다. ultralytics 가 GUI 판을
+# 끌고 오는데 이 슬림 이미지엔 X11 이 없어서였다. ultralytics 를 걷어내면서
+# opencv 자체가 안 들어오므로 그 줄도 같이 지웠다 —
+# 남겨 두면 `pip uninstall` 이 없는 패키지를 지우려다 빌드가 죽는다.
+RUN pip install --no-cache-dir -r requirements.txt
 
 # 5. ffmpeg — 올라온 음원을 재생용 MP3 로 줄인다. 무압축 WAV 를 그대로
 #    내려보내면 4분짜리 곡이 40MB 라 LTE 에서 곡 시작까지 십몇 초가 걸린다.
