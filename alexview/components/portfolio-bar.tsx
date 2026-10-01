@@ -31,14 +31,15 @@ const LINKS = [
 
 export function PortfolioBar() {
   return (
-    <div className="border-b border-night-600/50 bg-night-900/60">
-      <div className="mx-auto flex w-full max-w-6xl items-center gap-2 px-3 py-1.5 sm:px-6">
-        <span className="hidden shrink-0 font-orbitron text-[10px] font-bold tracking-[0.2em] text-neon-cyan sm:inline">
+    <div className="border-b border-neon-cyan/25 bg-gradient-to-r from-night-900 via-night-800 to-night-900">
+      <div className="mx-auto flex w-full max-w-6xl items-center gap-2 px-3 py-2 sm:gap-3 sm:px-6">
+        <span className="hidden shrink-0 items-center gap-1.5 font-orbitron text-[11px] font-bold tracking-[0.2em] text-neon-cyan sm:inline-flex">
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-neon-cyan shadow-[0_0_8px_#2ee6ff]" />
           PORTFOLIO
         </span>
 
         {/* 좁은 화면에서는 줄바꿈 대신 옆으로 민다 — 줄이 늘면 띠가 아니라 블록이 된다 */}
-        <ul className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto sm:gap-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <ul className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto sm:gap-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {LINKS.map((link) => (
             <li key={link.href} className="shrink-0">
               <a
@@ -46,15 +47,15 @@ export function PortfolioBar() {
                 target="_blank"
                 rel="noopener noreferrer"
                 title={link.hint}
-                className="group inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium text-foreground/70 transition-colors hover:bg-white/5 hover:text-white sm:text-xs"
+                className="group inline-flex items-center gap-1.5 rounded-full border border-neon-cyan/35 bg-night-950/60 px-3 py-1 text-xs font-semibold text-foreground transition-all hover:border-neon-cyan hover:bg-neon-cyan/10 hover:text-white hover:shadow-[0_0_14px_-4px_#2ee6ff] sm:px-3.5 sm:text-[13px]"
               >
                 <link.icon
-                  className="h-3.5 w-3.5 text-neon-cyan/70 transition-colors group-hover:text-neon-cyan"
+                  className="h-3.5 w-3.5 text-neon-cyan transition-colors"
                   aria-hidden="true"
                 />
                 {link.label}
                 <ArrowUpRight
-                  className="h-3 w-3 text-foreground/40 transition-colors group-hover:text-neon-cyan"
+                  className="h-3.5 w-3.5 text-neon-cyan/60 transition-colors group-hover:text-neon-cyan"
                   aria-hidden="true"
                 />
               </a>

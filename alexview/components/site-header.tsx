@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ChevronDown, Gamepad2, History, Music4 } from "lucide-react"
+import { ArrowUpRight, ChevronDown, Gamepad2, History, Music4 } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,6 +32,17 @@ const SECONDARY_LINKS = [
   { href: "/analyze", label: "보컬 분석" },
   { href: "/instrument", label: "악기" },
   { href: "/speech", label: "스피치" },
+]
+
+/**
+ * 밖으로 나가는 포트폴리오 링크. 머리의 띠(`components/portfolio-bar.tsx`)와 같은 곳을
+ * 가리킨다 — 띠는 스크롤하면 사라지므로, 어디서든 닿을 자리를 여기 하나 더 둔다.
+ * 주소를 바꿀 때 두 파일을 같이 고친다.
+ */
+const PORTFOLIO_LINKS = [
+  { href: "https://woojeongalex.github.io/woojeongalex.cloud", label: "개발 기록" },
+  { href: "https://woojeongalex.github.io/arda-docs", label: "팀 프로젝트 기록" },
+  { href: "https://seuk.suvisdev.cloud", label: "팀 프로젝트 열기" },
 ]
 
 export function SiteHeader() {
@@ -92,6 +103,28 @@ export function SiteHeader() {
                     <Link href={link.href} className="flex w-full cursor-pointer">
                       {link.label}
                     </Link>
+                  </DropdownMenuItem>
+                ))}
+
+                {/* 포트폴리오 — 머리의 띠는 스크롤하면 사라진다. 어디서든 닿을 자리가 하나는 있어야 한다. */}
+                <div className="mt-1 border-t border-night-600 px-3 pb-1 pt-2 font-orbitron text-[10px] font-bold tracking-[0.18em] text-neon-cyan">
+                  PORTFOLIO
+                </div>
+                {PORTFOLIO_LINKS.map((link) => (
+                  <DropdownMenuItem
+                    key={link.href}
+                    asChild
+                    className="rounded-lg px-3 py-2.5 font-medium text-foreground focus:bg-night-600 focus:text-white data-[highlighted]:bg-night-600 data-[highlighted]:text-white"
+                  >
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex w-full cursor-pointer items-center justify-between gap-2"
+                    >
+                      {link.label}
+                      <ArrowUpRight className="size-3.5 shrink-0 text-neon-cyan/70" aria-hidden />
+                    </a>
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
