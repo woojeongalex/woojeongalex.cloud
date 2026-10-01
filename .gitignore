@@ -21,3 +21,4 @@ jwt_private.pem
 jwt_public.pem
 .env.auth
 .env.backend
+.obsidian/

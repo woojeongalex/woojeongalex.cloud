@@ -42,9 +42,14 @@ woojeongalex.cloud/
 ├─ woojeongai/     백엔드 — FastAPI · 클린/헥사고날
 ├─ alexview/       프론트엔드 — Next.js
 ├─ flutter/        OCR 모바일·웹 앱
-├─ jekyll/         개발 기록 블로그
-└─ _docs/          설명서 · 인수인계
+├─ _docs/          설명서 · 인수인계
+├─ jekyll/         개발 기록 (아직 배포 안 함)
+├─ alexthegreat/   Flutter 실험 — 서비스에 들어가지 않는다
+└─ a2a-mcp/        에이전트 간 통신(A2A·MCP) 실험 — 서비스에 들어가지 않는다
 ```
+
+위 셋(`woojeongai` · `alexview` · `flutter`)이 실제로 돌아가는 것이고,
+아래 셋은 따로 해 본 것을 같은 저장소에 둔 것입니다.
 
 ### 백엔드 계층
 
