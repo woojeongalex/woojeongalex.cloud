@@ -13,7 +13,13 @@ AI 가 만든 곡을 **노래방처럼 부르면 음정·박자를 재서 점수
 | 개발 기록 | <https://woojeongalex.github.io/woojeongalex.cloud> — 구성·문제와 극복·작업 로그 |
 | 설명서 | [`_docs/manual.md`](_docs/manual.md) — 구조·운영·배포·곡 준비 10장 |
 
-혼자 기획부터 배포까지 했습니다. 커밋 217개.
+혼자 기획부터 배포까지 했습니다. 커밋 229개.
+
+> **팀 프로젝트**도 있습니다 — 5인 팀의 채용 관리 시스템 Arda 에서 백엔드를 맡았습니다.
+> [코드와 담당 범위](https://github.com/woojeongalex/Arda) ·
+> [돌아가는 서비스](https://seuk.suvisdev.cloud) ·
+> [프로젝트 소개](https://ats.suvisdev.cloud)
+> (서비스와 소개 문서는 팀 SEUK 가 운영합니다)
 
 ---
 
