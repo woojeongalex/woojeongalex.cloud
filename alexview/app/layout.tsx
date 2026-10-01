@@ -39,9 +39,32 @@ export const viewport: Viewport = {
   themeColor: '#0d0619',
 }
 
+const SITE_URL = 'https://woojeongalex.cloud'
+const SITE_TITLE = 'IUEM — AI 음악 챌린지 · 리듬 게임'
+const SITE_DESCRIPTION = 'AI가 만든 곡을 노래방처럼 부르면 음정·박자를 재고 발성까지 진단합니다. 같은 곡을 리듬 게임으로도 칠 수 있습니다.'
+
 export const metadata: Metadata = {
-  title: 'IUEM — AI 음악 챌린지 · 리듬 게임',
-  description: 'AI가 만든 곡을 부르고, 치고, 랭킹에 오르는 곳',
+  // 상대 경로로 적은 og:image 를 절대 주소로 만들어 준다. 없으면 Next 가 경고만 내고
+  // 상대 경로를 그대로 내보내는데, 미리보기를 읽는 쪽(메신저·SNS)은 그걸 못 따라간다.
+  metadataBase: new URL(SITE_URL),
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  // 링크를 붙였을 때 뜨는 미리보기. 없으면 제목도 그림도 없이 주소만 나온다.
+  openGraph: {
+    type: 'website',
+    siteName: 'IUEM',
+    locale: 'ko_KR',
+    url: SITE_URL,
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: [{ url: '/og.png', width: 1200, height: 630, alt: 'IUEM' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: ['/og.png'],
+  },
   icons: {
     icon: [
       {
