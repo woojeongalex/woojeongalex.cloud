@@ -10,6 +10,7 @@ AI 가 만든 곡을 **노래방처럼 부르면 음정·박자를 재서 점수
 |:--|:--|
 | 서비스 | <https://woojeongalex.cloud> |
 | API | <https://aws-api.woojeongalex.cloud> · 문서 `/docs` |
+| 개발 기록 | <https://woojeongalex.github.io/woojeongalex.cloud> — 구성·문제와 극복·작업 로그 |
 | 설명서 | [`_docs/manual.md`](_docs/manual.md) — 구조·운영·배포·곡 준비 10장 |
 
 혼자 기획부터 배포까지 했습니다. 커밋 217개.
@@ -43,7 +44,7 @@ woojeongalex.cloud/
 ├─ alexview/       프론트엔드 — Next.js
 ├─ flutter/        OCR 모바일·웹 앱
 ├─ _docs/          설명서 · 인수인계
-├─ jekyll/         개발 기록 (아직 배포 안 함)
+├─ jekyll/         개발 기록 — GitHub Pages 로 자동 배포
 ├─ alexthegreat/   Flutter 실험 — 서비스에 들어가지 않는다
 └─ a2a-mcp/        에이전트 간 통신(A2A·MCP) 실험 — 서비스에 들어가지 않는다
 ```
