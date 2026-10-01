@@ -1,31 +1,32 @@
-// IUEM 배색 — 기술 보고서와 같은 보라 계열.
+// IUEM 배색 — 흑백.
 //
-// 회색을 쓰지 않고 **보라 쪽으로 살짝 치우친 중간색**을 쓴다. 순회색은 아무도
-// 고르지 않은 색처럼 보이고, 바탕이 보라 기운을 띠면 포인트 색과 한 덩어리가 된다.
+// 색을 쓰지 않는다. 레퍼런스에서 유일한 '색'은 **흐린 회색** 하나이고, 그것도
+// 강조가 아니라 **힘을 빼는 용도**였다("YOUR ONLY LIMIT IS *OBSOLETE*").
+// 그래서 여기서도 강조는 색이 아니라 **크기·굵기·여백**이 맡고, 회색은
+// 뒤로 물러나야 할 것에만 쓴다.
 
 $color-scheme: dark;
 
-// 바탕 — 밤보라. 순검정보다 글자가 덜 튀어 오래 읽기 좋다
-$body-background-color: #141220;
-$sidebar-color: #191628;
-$search-background-color: #1c192b;
-$table-background-color: #1c192b;
-$code-background-color: #1b1829;
-$base-button-color: #252139;
-$feedback-color: #1c192b;
+// 바탕 — 순흑. 회색빛 검정으로 두면 이 느낌이 흐려진다.
+$body-background-color: #000000;
+$sidebar-color: #000000;
+$search-background-color: #0a0a0a;
+$table-background-color: #000000;
+$code-background-color: #0a0a0a;
+$base-button-color: #141414;
+$feedback-color: #0a0a0a;
 
 // 글자
-$body-text-color: #d8d4e6;
-$body-heading-color: #f2f0f8;
-$search-result-preview-color: #9a93b5;
-$nav-child-link-color: #b9b2d0;
+$body-text-color: #b4b4b4; // 본문은 한 단계 낮춰 제목이 치고 나오게
+$body-heading-color: #ffffff;
+$search-result-preview-color: #6e6e6e;
+$nav-child-link-color: #8a8a8a;
 
-// 포인트 — 연보라. 밤보라 바탕에서 대비가 충분하다
-$link-color: #a48cff;
-$btn-primary-color: #7a5cf0;
+// 링크도 흰색이다. 구분은 색이 아니라 밑줄이 한다(custom.scss).
+$link-color: #ffffff;
+$btn-primary-color: #ffffff;
 
-$border-color: #302a44;
+// 선은 보일 듯 말 듯. 상자를 그리지 않고 선 하나로 나눈다.
+$border-color: #222222;
 
-// 코드 하이라이트는 테마가 주는 것을 그대로 쓴다. 안 넣으면 코드 블록이
-// 색 없이 나온다.
 @import "./vendor/OneDarkJekyll/syntax";

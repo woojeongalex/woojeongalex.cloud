@@ -1,148 +1,215 @@
-// 마지막에 들어가는 규칙. 테마 기본값을 이기므로 여기서 마무리한다.
+// 마지막에 들어가는 규칙.
+//
+// 노리는 인상: **순흑 바탕 · 거대하고 무거운 제목 · 색 없음 · 가는 선 · 넓은 여백.**
+// 그래서 여기서 하는 일의 대부분은 "테마가 그려 둔 상자와 색을 지우는 것"이다.
 
-// ── 제목은 디스플레이 글꼴 ──────────────────────────────────────
-// 본문 세리프와 대비를 주려는 것이다. 둘 다 세리프면 제목이 본문에 묻힌다.
-h1, h2, h3, h4, h5, h6,
-.site-title, .nav-list .nav-list-item .nav-list-link {
-  font-family: "Bricolage Grotesque", "Malgun Gothic", system-ui, sans-serif;
-  font-weight: 700;
-  letter-spacing: -0.015em;
+$ink: #ffffff;
+$dim: #8a8a8a;
+$hair: #222222;
+
+// ── 제목 ────────────────────────────────────────────────────────
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Archivo", "Gothic A1", "Malgun Gothic", sans-serif;
+  font-weight: 800;
+  // 라틴은 좁혀야 덩어리로 보인다. 한글에는 과하지 않을 만큼만.
+  letter-spacing: -0.025em;
   text-wrap: balance;
+  color: $ink;
 }
 
-h1 { font-weight: 800; }
+.main-content {
+  h1 {
+    // 레퍼런스의 인상은 대부분 '크기'다. 화면 폭을 따라 키운다.
+    font-size: clamp(2.5rem, 6vw, 4.25rem);
+    line-height: 0.98;
+    margin-bottom: 1.6rem;
+  }
 
-// 사이트 이름 — 사이드바 맨 위
+  h2 {
+    font-size: clamp(1.5rem, 3vw, 2.1rem);
+    // 라틴 제목만 대문자가 된다. 한글에는 아무 영향이 없다.
+    text-transform: uppercase;
+    margin-top: 5rem;
+    padding-top: 1.6rem;
+    border-top: 1px solid $hair;
+    line-height: 1.08;
+  }
+
+  h3 {
+    font-size: 1.2rem;
+    margin-top: 2.8rem;
+    letter-spacing: -0.015em;
+  }
+
+  // 본문 첫 단락은 조금 키워 리드처럼 읽히게
+  h1 + p {
+    font-size: 1.12rem;
+    line-height: 1.75;
+    color: #cfcfcf;
+  }
+}
+
+// ── 사이트 이름 ─────────────────────────────────────────────────
 .site-title {
+  font-family: "Archivo", sans-serif !important;
   font-weight: 800;
-  letter-spacing: -0.03em;
+  font-size: 1.5rem !important;
+  letter-spacing: -0.04em;
+  color: $ink !important;
 }
 
 // ── 본문 ────────────────────────────────────────────────────────
-// 읽는 글의 폭을 65자 언저리로 묶는다. 넓으면 눈이 줄을 놓친다.
-// 표·코드·그림은 아래에서 다시 풀어 준다.
 .main-content {
-  > p,
-  > ul,
-  > ol,
-  > blockquote {
-    max-width: 65ch;
+  > p, > ul, > ol, > blockquote { max-width: 68ch; }
+  > p { margin-bottom: 1.35em; }
+
+  // 굵은 글씨가 이 사이트의 강조 장치다. 색 대신 흰색으로 올린다.
+  strong { color: $ink; font-weight: 700; }
+
+  // 링크는 색이 아니라 밑줄로 구분한다. 색을 하나 더 들이면 흑백이 깨진다.
+  a:not(.btn) {
+    color: $ink;
+    text-decoration: underline;
+    text-underline-offset: 0.22em;
+    text-decoration-thickness: 1px;
+    text-decoration-color: #555;
+
+    &:hover { text-decoration-color: $ink; }
   }
-
-  // 글의 단락 사이를 테마 기본보다 벌린다
-  > p { margin-bottom: 1.1em; }
-
-  h2 {
-    margin-top: 2.4rem;
-    padding-top: 1.4rem;
-    border-top: 1px solid $border-color;
-  }
-
-  h3 { margin-top: 1.8rem; }
-
-  // 굵은 글씨가 본문에 묻히지 않게 — 이 사이트는 "여기가 핵심"을 굵게 쓴다
-  strong { color: #f2f0f8; font-weight: 600; }
 }
 
-// ── 표 ──────────────────────────────────────────────────────────
+// ── 표 — 상자를 지우고 선만 남긴다 ──────────────────────────────
 .main-content table {
+  border: 0;
+  border-top: 1px solid $hair;
   border-collapse: collapse;
-  border: 1px solid $border-color;
-  border-radius: 8px;
-  overflow: hidden;
-  font-family: system-ui, "Malgun Gothic", sans-serif;
   font-size: 0.875rem;
+  background: transparent;
 
   th {
-    font-family: "Bricolage Grotesque", "Malgun Gothic", sans-serif;
+    font-family: "Archivo", "Gothic A1", sans-serif;
     font-weight: 700;
-    font-size: 0.78rem;
-    letter-spacing: 0.03em;
-    background-color: #221e35;
-    color: #b9b2d0;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: $dim;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid $hair;
+    padding: 0.85rem 1rem 0.85rem 0;
   }
 
-  td, th { border-color: $border-color; }
+  td {
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid $hair;
+    padding: 0.95rem 1rem 0.95rem 0;
+    font-variant-numeric: tabular-nums;
+    color: #b4b4b4;
+  }
 
-  // 숫자가 줄맞춤되게
-  td { font-variant-numeric: tabular-nums; }
+  // 첫 칸은 그 줄의 이름이다. 흰색으로 올려 눈이 세로로 훑게 한다.
+  td:first-child { color: #e4e4e4; font-weight: 500; }
+  th:last-child, td:last-child { padding-right: 0; }
 }
 
 // ── 코드 ────────────────────────────────────────────────────────
 .main-content {
-  // 본문 안의 짧은 코드 — 보라 기운을 살짝 준다
-  p > code,
-  li > code,
-  td > code {
-    color: #c9b8ff;
-    background-color: #221e35;
-    border: 1px solid $border-color;
-    border-radius: 4px;
+  p > code, li > code, td > code {
+    color: $ink;
+    background: #121212;
+    border: 0;
+    border-radius: 2px;
+    padding: 0.12em 0.4em;
+    font-size: 0.84em;
   }
 
-  // 흐름도·구조도가 들어가는 코드 블록은 줄 간격을 좁혀 그림처럼 보이게
-  div.highlighter-rouge,
-  pre.highlight {
-    border: 1px solid $border-color;
-    border-radius: 8px;
+  div.highlighter-rouge, pre.highlight {
+    background: #080808;
+    border: 1px solid $hair;
+    border-radius: 2px;
   }
 
-  pre.highlight { line-height: 1.45; }
+  pre.highlight { line-height: 1.5; padding: 1.1rem; }
 }
 
-// ── 인용 ────────────────────────────────────────────────────────
-// 이 사이트는 인용을 "덧붙이는 말"로 쓴다. 왼쪽 선 + 조금 흐리게.
+// ── 인용 — 덧붙이는 말 ──────────────────────────────────────────
 .main-content blockquote {
-  border-left: 3px solid $link-color;
-  padding: 0.2rem 0 0.2rem 1.1rem;
-  color: #a79fc4;
+  border-left: 1px solid $hair;
+  padding: 0.1rem 0 0.1rem 1.4rem;
+  color: $dim;
   font-size: 0.95em;
 
   > :last-child { margin-bottom: 0; }
 }
 
-// ── 사이드바 ────────────────────────────────────────────────────
-.side-bar {
-  border-right: 1px solid $border-color;
-}
+// ── 사이드바 — 선 하나로만 나눈다 ───────────────────────────────
+.side-bar { border-right: 1px solid $hair; }
 
 .nav-list .nav-list-item .nav-list-link {
-  font-size: 0.875rem;
+  font-family: "Archivo", "Gothic A1", sans-serif;
+  font-size: 0.8rem;
   font-weight: 600;
+  letter-spacing: 0.02em;
+  color: $dim;
+
+  &:hover { color: $ink; }
 
   &.active {
-    // 현재 페이지에 보라 막대를 붙인다
-    box-shadow: inset 3px 0 0 $link-color;
-    background-image: linear-gradient(
-      90deg,
-      rgba(164, 140, 255, 0.14),
-      rgba(164, 140, 255, 0)
-    );
+    color: $ink;
+    background: transparent;
+    box-shadow: inset 2px 0 0 $ink;
   }
 }
 
-// ── 버튼 ────────────────────────────────────────────────────────
-.btn-primary {
-  font-family: "Bricolage Grotesque", "Malgun Gothic", sans-serif;
+// ── 버튼 — 흑백 반전 ────────────────────────────────────────────
+.main-content .btn {
+  font-family: "Archivo", "Gothic A1", sans-serif;
   font-weight: 700;
-  letter-spacing: -0.01em;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 2px;
+  box-shadow: none;
+  background-image: none;
+  text-decoration: none;
+
+  &.btn-primary {
+    background: $ink;
+    color: #000;
+    &:hover { background: #d8d8d8; }
+  }
+
+  &:not(.btn-primary) {
+    background: transparent;
+    color: $ink;
+    border: 1px solid $hair;
+    &:hover { border-color: $ink; }
+  }
 }
 
-// ── 머리글 앵커 ─────────────────────────────────────────────────
-.anchor-heading svg { color: $link-color; }
+// ── 잡다 ────────────────────────────────────────────────────────
+.anchor-heading svg { color: $dim; }
+.search-input { font-family: "Gothic A1", sans-serif; }
+.site-footer { color: #4a4a4a; font-size: 0.72rem; }
 
-// ── 검색 ────────────────────────────────────────────────────────
-.search-input { font-family: system-ui, "Malgun Gothic", sans-serif; }
+// 목차(페이지 안 링크 묶음)도 선만 남긴다
+.main-content ol#markdown-toc {
+  border: 0;
+  border-left: 1px solid $hair;
+  border-radius: 0;
+  padding: 0.3rem 0 0.3rem 1.3rem;
+  font-size: 0.86rem;
+}
 
 // ── 좁은 화면 ───────────────────────────────────────────────────
 @media (max-width: 49.99rem) {
   .main-content {
     > p, > ul, > ol, > blockquote { max-width: none; }
-    h2 { margin-top: 1.9rem; }
+    h2 { margin-top: 3.2rem; }
+    h1 { line-height: 1.04; }
   }
 
-  // 표가 폭에 맞춰 눌리면 칸마다 글자가 두세 자씩 끊긴다. 테마가 이미
-  // `.table-wrapper` 에 가로 스크롤을 걸어 뒀으므로, 표에 최소 폭만 주면
-  // 눌리는 대신 옆으로 밀린다.
+  // 표가 눌리면 칸마다 글자가 두세 자씩 끊긴다. 최소 폭을 줘 옆으로 밀리게.
   .main-content table { min-width: 32rem; }
 }
